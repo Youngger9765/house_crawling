@@ -1,0 +1,55 @@
+service: house-crawling
+
+provider:
+  name: aws
+  stage: dev
+  runtime: python3.7
+  region: eu-central-1
+  # https://serverless-stack.com/chapters/configure-multiple-aws-profiles.html
+  profile: youngAccount
+  role: arn:aws:iam::865878227404:role/service-role/house_crawling-role-ygbbbfya
+
+package:
+  individually: false
+  exclude:
+    - package.json
+    - package-log.json
+    - node_modules/**
+
+functions:
+  get_joke:
+    handler: handler.get_joke
+    events:
+      - http:
+          path: joke
+          method: get
+  leju:
+    handler: leju.crawl
+    events:
+      - http:
+          path: leju
+          method: get
+
+plugins:
+  - serverless-prune-plugin
+  - serverless-python-requirements
+
+custom:
+  prune:
+    automatic: true
+    number: 3
+  pythonRequirements:
+    dockerizePip: non-linux
+#    zip: true
+    slim: true
+    noDeploy:
+      - boto3
+      - botocore
+      - docutils
+      - jmespath
+      - pip
+      - python-dateutil
+      - s3transfer
+      - setuptools
+      - six
+      - awscli
