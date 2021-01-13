@@ -19,8 +19,6 @@ jobs:
         run: npm install
       - name: Install Dependencies stream
         run: npm install stream --save
-      - name: npm audit fix
-        run: npm audit fix --force
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
