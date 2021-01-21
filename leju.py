@@ -26,10 +26,6 @@ from bs4 import BeautifulSoup
 from webdriver_manager.chrome import ChromeDriverManager
 import json
 
-
-# In[124]:
-
-
 class leju_crawler:
     def __init__(self):
 #         software_names = [SoftwareName.CHROME.value]
@@ -162,19 +158,16 @@ def crawl(event, context):
     body = {'profile':[]}
     num = 0
     for url in url_list:
-        leju_crawler = leju_crawler()
-        data = leju_crawler.fetch_data(url)
-        data_json = leju_crawler.get_data_json(data)
+        crawler = leju_crawler()
+        data = crawler.fetch_data(url)
+        data_json = crawler.get_data_json(data)
 #         data_json = json.loads(data_json)
-        data_json = json.dumps(data_json, indent=4, sort_keys=True, ensure_ascii=False).encode('utf8')
-        print(data_json.decode())
-        body['profile'].append()
+        data_json = json.dumps(data_json,ensure_ascii=False).encode('utf8')
+        # print(data_json.decode())
+        body['profile'].append(data_json.decode())
 
-    response = {
-        "statusCode": 200,
-        "body": json.dumps(body)
-    }
-    print(response)
-    return response
+
+    print(body)
+    return body
 
 
