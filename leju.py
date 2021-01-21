@@ -1,14 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[111]:
-
 
 import os
 os.getcwd()
 
-
-# In[112]:
 
 
 from selenium import webdriver
@@ -178,9 +174,7 @@ def crawl(event, context):
         "statusCode": 200,
         "body": json.dumps(body)
     }
+    print(response)
     return response
-
-
-
 
 
