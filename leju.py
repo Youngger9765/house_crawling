@@ -6,7 +6,10 @@ import json
 
 
 def crawl(event, context):
-    
+    data = get_data()
+    write_to_sheet(data)
+
+def get_data():
     # crawl
     sht_worker = gsheet_worker()
     url_list = sht_worker.get_col_all_value("bot-list", 2)[1:]
@@ -23,12 +26,11 @@ def crawl(event, context):
         body['profile'].append(data_json.decode())
         
     print(body)
+    return body
 
-    # sheet
+
+def write_to_sheet(data):
     sht_worker = gsheet_worker()
-    sht_worker.write_profile_to_sheet(body)
-
-
-    
+    sht_worker.write_profile_to_sheet(data)
 
 

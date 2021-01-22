@@ -65,6 +65,7 @@ class gsheet_worker:
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet('bot')
 
+        hast_str_list = self.get_col_all_value("bot", 9)
         profile_list = data['profile']
         for profile in profile_list:
             sheet_value_list = self.data_to_sheet_value_list(profile)
@@ -72,8 +73,15 @@ class gsheet_worker:
         
             sheet_row_cnt = 2
             for sheet_value in sheet_value_list:
-                sheet_bot.insert_row(sheet_value, sheet_row_cnt)
-                sheet_row_cnt +=1
+                hash_str = str(sheet_value[-1])
+                
+                if hash_str in hast_str_list:
+                    print("===exist!===")
+                    print(sheet_value)
+                    print("============")
+                else:
+                    sheet_bot.insert_row(sheet_value, sheet_row_cnt)
+                    sheet_row_cnt +=1
             
             
             
