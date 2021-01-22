@@ -43,7 +43,6 @@ class lejuCrawler:
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
         # chrome_options.add_argument("--disable-blink-features=AutomationControlled");
-        # driver = webdriver.Chrome(options=chrome_options)
         executable_path=os.getcwd()+'/chromedriver_6'
 #         print(executable_path)
 
@@ -56,12 +55,13 @@ class lejuCrawler:
         sleep(10)
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
         browser.quit()
+        print(f"===fetch:{url} done===")
         
         return data_soup
         
     def get_title(self, data):
         title = data.find('title').string
-        
+
         return title
         
     def get_price_info(self, data):
