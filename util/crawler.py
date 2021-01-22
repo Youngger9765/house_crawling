@@ -50,6 +50,7 @@ class lejuCrawler:
         self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
     
     def fetch_data(self, url):
+        print(f"===fetch:{url}===")
         browser = self.browser
         browser.get(url)
         sleep(10)
