@@ -13,6 +13,7 @@ def get_data():
     # crawl
     sht_worker = gsheet_worker()
     url_list = sht_worker.get_col_all_value("bot-list", 2)[1:]
+    print(url_list)
     # url_list = [
     #     "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
     #     "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
