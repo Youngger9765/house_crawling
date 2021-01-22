@@ -18,6 +18,7 @@ var/
 
 node_modules/
 cred.json
+.ipynb_checkpoints
 
 # Serverless directories
 .serverless
