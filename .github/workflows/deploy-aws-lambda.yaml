@@ -15,10 +15,12 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: ${{ matrix.node-version }}
-      - name: Configuration environment
-        run: echo "environment!!!"
-        env:
-          sheet-key: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      - name: create-json
+        id: create-json
+        uses: jsdaniell/create-json@1.1.2
+        with:
+          name: "cred.json"
+          json: ${{ secrets.SHEET_KEY }}
       - name: Install Dependencies
         run: npm install
       - name: Install Dependencies stream
