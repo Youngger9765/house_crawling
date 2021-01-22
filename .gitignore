@@ -1,3 +1,15 @@
+# Manually added
+*DS_Store
+.vs/
+.vscode/
+.idea/
+.vagrant/
+.atom/
+.ropeproject/
+__pycache__
+*~
+
+
 # Distribution / packaging
 .Python
 env/
