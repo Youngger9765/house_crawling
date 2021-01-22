@@ -121,9 +121,6 @@ class lejuCrawler:
             sale_items.append(data)
             
         return sale_items
-            
-        
-            
         
     def get_data_json(self, data):
         title = self.get_title(data)
