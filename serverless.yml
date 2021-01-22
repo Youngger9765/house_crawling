@@ -6,7 +6,7 @@ provider:
   runtime: python3.6
   region: eu-central-1
   # https://serverless-stack.com/chapters/configure-multiple-aws-profiles.html
-  profile: youngAccount
+  # profile: youngAccount
   role: arn:aws:iam::865878227404:role/service-role/house_crawling-role-ygbbbfya
 
 package:
