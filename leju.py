@@ -20,12 +20,16 @@ def get_data():
     # ]
     body = {'profile':[]}
     for url in url_list:
-        leju_crawler = lejuCrawler()
-        data = leju_crawler.fetch_data(url)
-        data_json = leju_crawler.get_data_json(data)
-        data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-        body['profile'].append(data_json.decode())
-        
+        try:
+            leju_crawler = lejuCrawler()
+            data = leju_crawler.fetch_data(url)
+            data_json = leju_crawler.get_data_json(data)
+            data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
+            body['profile'].append(data_json.decode())
+        except:
+            print(f"fetch fail:{url}")
+
+
     print(body)
     return body
 
@@ -33,5 +37,3 @@ def get_data():
 def write_to_sheet(data):
     sht_worker = gsheet_worker()
     sht_worker.write_profile_to_sheet(data)
-
-
