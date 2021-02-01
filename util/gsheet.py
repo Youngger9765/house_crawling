@@ -3,6 +3,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 import json
 import hashlib
+import requests
 
 class gsheet_worker:
     def __init__(self):
@@ -80,8 +81,23 @@ class gsheet_worker:
                     print(sheet_value)
                     print("============")
                 else:
-                    sheet_bot.insert_row(sheet_value, sheet_row_cnt)
+                    sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
+                    message = f"{sheet_value[1]} 有新物件 ，請點擊公告" 
+                    self.send_line_notify(message)                  
                     sheet_row_cnt +=1
+
+    def send_line_notify(self, message):
+        line_notify_token = "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
+        url = "https://notify-api.line.me/api/notify"
+
+        headers = {
+            'Authorization': f"Bearer {line_notify_token}",
+        }
+        data = {
+            "message": message,
+        }
+        # To send data form-encoded
+        response = requests.post(url, headers=headers, data=data)
             
             
             
