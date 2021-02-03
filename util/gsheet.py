@@ -71,6 +71,8 @@ class gsheet_worker:
         sheet_bot = sheet.worksheet('bot')
 
         link_list = self.get_col_all_value("bot", 5)
+        print("====link_list====")
+        print(link_list)
         profile_list = data['profile']
         for profile in profile_list:
             sheet_value_list = self.data_to_sheet_value_list(profile)
@@ -79,6 +81,8 @@ class gsheet_worker:
             sheet_row_cnt = 2
             for sheet_value in sheet_value_list:
                 link = str(sheet_value[5])
+                print("====link====")
+                print(link)
                 
                 if link in link_list:
                     print("===exist!===")
