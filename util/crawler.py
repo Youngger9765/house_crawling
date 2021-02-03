@@ -40,6 +40,7 @@ class lejuCrawler:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--window-size=1420,1080')
         chrome_options.add_argument("--disable-gpu")
+        chromeOptions.add_argument("--remote-debugging-port=9222")
         # chrome_options.add_argument(f'user-agent={user_agent}')
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
