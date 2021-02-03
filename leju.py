@@ -26,8 +26,10 @@ def get_data():
             data_json = leju_crawler.get_data_json(data)
             data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
             body['profile'].append(data_json.decode())
-        except:
+        except Exception as e:
             print(f"fetch fail:{url}")
+            print(repr(e))
+            
 
 
     print(body)
