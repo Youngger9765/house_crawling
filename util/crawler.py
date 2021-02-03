@@ -46,15 +46,13 @@ class lejuCrawler:
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
         # chrome_options.add_argument("--disable-blink-features=AutomationControlled");
-        executable_path=os.getcwd()+'/chromedriver_6'
-#         print(executable_path)
  
         # ChromeDriverManager
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
-
         # self.browser = webdriver.Chrome(options=chrome_options)
         
         # local
+        # executable_path=os.getcwd()+'/chromedriver_6'
         # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
     
     def fetch_data(self, url):
