@@ -44,6 +44,7 @@ class lejuCrawler:
         chrome_options.add_argument('--window-size=1420,1080')
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--remote-debugging-port=9222")
+        chrome_options.add_argument('--disable-dev-shm-usage')
         # chrome_options.add_argument(f'user-agent={user_agent}')
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
