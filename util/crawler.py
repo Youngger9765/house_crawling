@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.proxy import Proxy, ProxyType 
+from webdriver_manager.chrome import ChromeDriverManager
 
 # from random_user_agent.user_agent import UserAgent
 # from random_user_agent.params import SoftwareName, OperatingSystem
@@ -45,8 +46,13 @@ class lejuCrawler:
         # chrome_options.add_argument("--disable-blink-features=AutomationControlled");
         executable_path=os.getcwd()+'/chromedriver_6'
 #         print(executable_path)
-
-        self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
+        
+        # ChromeDriverManager
+        self.browser = webdriver.Chrome(ChromeDriverManager().install())
+        self.browser = webdriver.Chrome(options=chrome_options)
+        
+        # local
+        # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
     
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
