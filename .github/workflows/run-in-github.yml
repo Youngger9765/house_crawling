@@ -37,6 +37,6 @@ jobs:
       with:
         name: "cred.json"
         json: ${{ secrets.SHEET_CRED }}
-    - name: Test With CrossBrowserTesting
+    - name: run crawling
       run: |
         python leju.py 

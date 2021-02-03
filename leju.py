@@ -20,15 +20,15 @@ def get_data():
     # ]
     body = {'profile':[]}
     for url in url_list:
-        try:
-            leju_crawler = lejuCrawler()
-            data = leju_crawler.fetch_data(url)
-            data_json = leju_crawler.get_data_json(data)
-            data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-            body['profile'].append(data_json.decode())
-        except Exception as e:
-            print(f"fetch fail:{url}")
-            print(repr(e))
+        # try:
+        leju_crawler = lejuCrawler()
+        data = leju_crawler.fetch_data(url)
+        data_json = leju_crawler.get_data_json(data)
+        data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
+        body['profile'].append(data_json.decode())
+        # except Exception as e:
+        #     print(f"fetch fail:{url}")
+        #     print(repr(e))
             
 
 
