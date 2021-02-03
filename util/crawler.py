@@ -34,8 +34,7 @@ class lejuCrawler:
 
         self.user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
 
-        # ChromeDriverManager
-        self.browser = webdriver.Chrome(ChromeDriverManager().install())
+       
 
         chrome_options = Options()
         chrome_options.add_argument('--incognito')
@@ -52,7 +51,10 @@ class lejuCrawler:
         executable_path=os.getcwd()+'/chromedriver_6'
 #         print(executable_path)
  
-        self.browser = webdriver.Chrome(options=chrome_options)
+        # ChromeDriverManager
+        self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
+
+        # self.browser = webdriver.Chrome(options=chrome_options)
         
         # local
         # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
