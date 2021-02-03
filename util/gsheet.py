@@ -95,7 +95,7 @@ class gsheet_worker:
                 else:
                     sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
                     message = f"{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊公告" 
-                    # self.send_line_notify(message)                  
+                    self.send_line_notify(message)                  
                     sheet_row_cnt +=1
 
     def send_line_notify(self, message):
