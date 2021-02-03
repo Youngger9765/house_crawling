@@ -31,7 +31,6 @@ class gsheet_worker:
 
         sale_items = profile['sale_items']
         sheet_value_list = []
-        sheet_value_str_list = []
         for sale_item in sale_items:
             floor = sale_item['floor']
             sub_title = sale_item['title']
@@ -52,12 +51,13 @@ class gsheet_worker:
                 now
             ]
 
-            sheet_value_str = "".join(sheet_value)
-            sheet_value_str_list.append(sheet_value_str)
+            # sheet_value_str = "".join(sheet_value)
+            # sheet_value_str_list.append(sheet_value_str)
             # sheet_value.append(sheet_value_str)
 
-            hash_str = self.get_hash_str(sheet_value_str)
-            sheet_value.append(hash_str)
+            # hash_str = self.get_hash_str(sheet_value_str)
+            # sheet_value.append(hash_str)
+
             sheet_value_list.append(sheet_value)
             
         return sheet_value_list
