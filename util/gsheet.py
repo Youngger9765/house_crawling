@@ -51,7 +51,7 @@ class gsheet_worker:
 
             sheet_value_str = "".join(sheet_value)
             sheet_value_str_list.append(sheet_value_str)
-            sheet_value.append(sheet_value_str)
+            # sheet_value.append(sheet_value_str)
 
             hash_str = self.get_hash_str(sheet_value_str)
             sheet_value.append(hash_str)
@@ -70,7 +70,7 @@ class gsheet_worker:
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet('bot')
 
-        link_list = self.get_col_all_value("bot", 6)
+        link_list = self.get_col_all_value("bot", 5)
         profile_list = data['profile']
         for profile in profile_list:
             sheet_value_list = self.data_to_sheet_value_list(profile)
@@ -78,7 +78,7 @@ class gsheet_worker:
         
             sheet_row_cnt = 2
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[6])
+                link = str(sheet_value[5])
                 
                 if link in link_list:
                     print("===exist!===")
