@@ -29,8 +29,6 @@ def get_data():
         except Exception as e:
             print(f"fetch fail:{url}")
             print(repr(e))
-            
-
 
     print(body)
     return body
