@@ -70,10 +70,10 @@ class gsheet_worker:
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet('bot')
 
-        link_list = self.get_col_all_value("bot", 5)
+        link_list = self.get_col_all_value("bot", 6)
         print("====link_list====")
         print(link_list)
-        
+
         profile_list = data['profile']
         for profile in profile_list:
             sheet_value_list = self.data_to_sheet_value_list(profile)
