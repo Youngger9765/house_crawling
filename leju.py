@@ -37,3 +37,6 @@ def get_data():
 def write_to_sheet(data):
     sht_worker = gsheet_worker()
     sht_worker.write_profile_to_sheet(data)
+
+if __name__ == "__main__":
+    crawl("","")

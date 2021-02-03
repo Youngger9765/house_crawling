@@ -30,6 +30,7 @@ class gsheet_worker:
 
         sale_items = profile['sale_items']
         sheet_value_list = []
+        sheet_value_str_list = []
         for sale_item in sale_items:
             floor = sale_item['floor']
             sub_title = sale_item['title']
@@ -49,6 +50,9 @@ class gsheet_worker:
             ]
 
             sheet_value_str = "".join(sheet_value)
+            sheet_value_str_list.append(sheet_value_str)
+            sheet_value.append(sheet_value_str)
+
             hash_str = self.get_hash_str(sheet_value_str)
             sheet_value.append(hash_str)
             sheet_value_list.append(sheet_value)
@@ -66,24 +70,24 @@ class gsheet_worker:
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet('bot')
 
-        hast_str_list = self.get_col_all_value("bot", 9)
+        link_list = self.get_col_all_value("bot", 6)
         profile_list = data['profile']
         for profile in profile_list:
             sheet_value_list = self.data_to_sheet_value_list(profile)
-            print(sheet_value_list)
+            # print(sheet_value_list)
         
             sheet_row_cnt = 2
             for sheet_value in sheet_value_list:
-                hash_str = str(sheet_value[-1])
+                link = str(sheet_value[6])
                 
-                if hash_str in hast_str_list:
+                if link in link_list:
                     print("===exist!===")
-                    print(sheet_value)
+                    print(link)
                     print("============")
                 else:
                     sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
                     message = f"{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊公告" 
-                    self.send_line_notify(message)                  
+                    # self.send_line_notify(message)                  
                     sheet_row_cnt +=1
 
     def send_line_notify(self, message):
