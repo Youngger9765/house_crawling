@@ -4,6 +4,7 @@ import os
 import json
 import hashlib
 import requests
+from datetime import datetime as dt
 
 class gsheet_worker:
     def __init__(self):
@@ -37,6 +38,7 @@ class gsheet_worker:
             link = sale_item['link']
             price = sale_item['price']
             area = sale_item['area']
+            now = dt.now().strftime("%Y/%m/%d")
 
             sheet_value = [
                 str(title),
@@ -46,7 +48,8 @@ class gsheet_worker:
                 sub_title,
                 link,
                 price,
-                area
+                area,
+                now
             ]
 
             sheet_value_str = "".join(sheet_value)
@@ -92,7 +95,7 @@ class gsheet_worker:
                 else:
                     sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
                     message = f"{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊公告" 
-                    self.send_line_notify(message)                  
+                    # self.send_line_notify(message)                  
                     sheet_row_cnt +=1
 
     def send_line_notify(self, message):
