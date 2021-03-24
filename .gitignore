@@ -27,6 +27,9 @@ var/
 *.egg-info/
 .installed.cfg
 *.egg
+*.pyc
+*.ipynb_checkpoints
+*.ipynb
 
 node_modules/
 cred.json

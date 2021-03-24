@@ -16,12 +16,11 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from time import sleep
 from bs4 import BeautifulSoup
-# from webdriver_manager.chrome import ChromeDriverManager
 import json
 
-class lejuCrawler:
+class selenium_engine:
     def __init__(self):
-#         software_names = [SoftwareName.CHROME.value]
+    #         software_names = [SoftwareName.CHROME.value]
 #         operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value]
 #         user_agent_rotator = UserAgent(
 #             software_names = software_names,
@@ -56,12 +55,26 @@ class lejuCrawler:
         # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
     
     def fetch_data(self, url):
-        print(f"===fetch:{url}===")
+        # print(f"===fetch:{url}===")
         browser = self.browser
         browser.get(url)
         sleep(10)
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
         browser.quit()
+        # print(f"===fetch:{url} done===")
+        
+        return data_soup
+
+
+
+class lejuCrawler:
+    def __init__(self):
+        pass
+
+    def fetch_data(self, url):
+        print(f"===fetch:{url}===")
+        engine = selenium_engine()
+        data_soup = engine.fetch_data(url)
         print(f"===fetch:{url} done===")
         
         return data_soup
@@ -87,23 +100,25 @@ class lejuCrawler:
         return info
     
     def get_basic_info(self, data):
-        building_title = data.find('article', class_='building_title').text
-        households = data.find('article', class_='households').text
-        house_year = data.find('article', class_='house_year').text
-        ttotal_floor = data.find('article', class_='ttotal_floor').text
-        elementary = data.find('article', class_='elementary').text
-        junior = data.find('article', class_='junior').text
-        developer1 = data.find('article', class_='developer1').text
+        # building_title = data.find('article', class_='building_title').text
+        # households = data.find('article', class_='households').text
+        # house_year = data.find('article', class_='house_year').text
+        # ttotal_floor = data.find('article', class_='ttotal_floor').text
+        # elementary = data.find('article', class_='elementary').text
+        # junior = data.find('article', class_='junior').text
+        # developer1 = data.find('article', class_='developer1').text
         
-        basic_info = {
-            'building_title': building_title,
-            'households': households,
-            'house_year': house_year,
-            'ttotal_floor': ttotal_floor,
-            'elementary': elementary,
-            'junior': junior,
-            'developer1': developer1,
-        }
+        # basic_info = {
+        #     'building_title': building_title,
+        #     'households': households,
+        #     'house_year': house_year,
+        #     'ttotal_floor': ttotal_floor,
+        #     'elementary': elementary,
+        #     'junior': junior,
+        #     'developer1': developer1,
+        # }
+
+        basic_info = {}
         
         return basic_info
         
