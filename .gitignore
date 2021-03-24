@@ -29,7 +29,6 @@ var/
 *.egg
 *.pyc
 *.ipynb_checkpoints
-*.ipynb
 
 node_modules/
 cred.json
