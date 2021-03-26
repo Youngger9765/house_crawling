@@ -29,15 +29,15 @@ def get_data(web_name):
 
     # get by sheet
     sht_worker = gsheet_worker()
-    # url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
+    url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
     # print(url_list)
     
-    url_list = [
-        # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
-        # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
-        # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
-        "https://www.leju.com.tw/page_search_result?oid=Lf2b86691c9621"
-    ]
+    # url_list = [
+    #     # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
+    #     # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
+    #     # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
+    #     "https://www.leju.com.tw/page_search_result?oid=Lf2b86691c9621"
+    # ]
     
     # to json file
     body = {'profile':[]}
