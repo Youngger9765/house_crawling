@@ -72,12 +72,5 @@ def write_to_sheet(data, web_name):
     sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
 
 if __name__ == "__main__":
-    # crawl("leju")
+    crawl("leju")
     crawl("591")
-
-    # url = "https://www.leju.com.tw/page_search_result?oid=L08243922184a6"
-    # leju_crawler = lejuCrawler()
-    # data = leju_crawler.fetch_data(url)
-    # data_json = leju_crawler.get_data_json(data)
-    # data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-    # print(data_json)

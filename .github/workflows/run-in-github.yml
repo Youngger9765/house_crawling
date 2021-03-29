@@ -31,4 +31,4 @@ jobs:
         json: ${{ secrets.SHEET_CRED }}
     - name: run crawling
       run: |
-        python leju.py 
+        python main.py 
