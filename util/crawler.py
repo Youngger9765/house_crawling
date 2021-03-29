@@ -5,8 +5,8 @@ import selenium
 
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
-# from selenium.webdriver.common.by import By
-# from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.proxy import Proxy, ProxyType 
 from webdriver_manager.chrome import ChromeDriverManager
@@ -54,16 +54,16 @@ class selenium_engine:
         # executable_path=os.getcwd()+'/chromedriver_6'
         # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
     
-    def fetch_data(self, url):
-        # print(f"===fetch:{url}===")
-        browser = self.browser
-        browser.get(url)
-        sleep(10)
-        data_soup = BeautifulSoup(browser.page_source, 'html.parser')
-        browser.quit()
-        # print(f"===fetch:{url} done===")
+    # def fetch_data(self, url):
+    #     # print(f"===fetch:{url}===")
+    #     browser = self.browser
+    #     browser.get(url)
+    #     sleep(10)
+    #     data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+    #     browser.quit()
+    #     # print(f"===fetch:{url} done===")
         
-        return data_soup
+    #     return data_soup
 
 
 
@@ -74,8 +74,13 @@ class lejuCrawler:
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
         engine = selenium_engine()
-        data_soup = engine.fetch_data(url)
+        browser = engine.browser
+        browser.get(url)
+        sleep(10)
+        data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+        browser.quit()
         print(f"===fetch:{url} done===")
+        # print(data_soup)
         
         return data_soup
         
@@ -157,5 +162,92 @@ class lejuCrawler:
             'basic_info': basic_info,
             'sale_items': sale_items
         }
+        
+        return data_json
+
+class _591_Crawler:
+    def __init__(self):
+        pass
+
+    def fetch_data(self, url):
+        print(f"===fetch:{url}===")
+        engine = selenium_engine()
+        browser = engine.browser
+        browser.get(url)
+        timeout = 3
+        try:
+            element_present = EC.presence_of_element_located((By.ID, "area-box-close"))
+            WebDriverWait(browser, timeout).until(element_present)
+            browser.find_element_by_css_selector('[data-id="3"]').click()
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+        finally:
+            print("Page loaded")
+        
+        timeout = 10
+        try:
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, "pageBar"))
+            WebDriverWait(browser, timeout).until(element_present)
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+        finally:
+            print("Page loaded")    
+
+        sleep(5)    
+
+        data_soup_list = []
+        last_page = False
+        while last_page is False:
+            data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+            data_soup_list.append(data_soup)
+            
+            try:
+                browser.find_element_by_css_selector(".pageNext.last")
+                last_page = True
+                print("last page")
+            except:
+                print("not the last page")
+                browser.find_element_by_css_selector(".pageNext").click()
+                sleep(5)
+
+
+        browser.quit()
+        print(f"===fetch:{url} done===")
+        # print(data_soup)
+        
+        return data_soup_list
+        
+    def get_data_json(self, data_soup_list):
+        data_json = []
+
+        for data_soup in data_soup_list:
+            listInfo_list = data_soup.select(".listInfo")
+            
+            for listInfo in listInfo_list:
+
+                title = listInfo.select_one("h3 a").text.replace("\n","").strip()
+                title
+
+
+                url = listInfo.select_one("h3 a").get('href').replace("//","").strip()
+                url
+
+                info = listInfo.select_one(".lightBox").text.replace("\n","").replace("\xa0\xa0|\xa0\xa0","|").replace(" ","")
+                info
+
+                address = listInfo.select_one(".lightBox em").text
+                address
+
+                price = listInfo.select_one(".price").text.replace("\n","").replace(" ","")
+                price
+                
+                data = {
+                    "title": title,
+                    "url": url,
+                    "info": info,
+                    "address": address,
+                    "price": price
+                }
+                data_json.append(data)
         
         return data_json

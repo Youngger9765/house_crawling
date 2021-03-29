@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet import gsheet_worker, leju_gsheet_worker
-from util.crawler import lejuCrawler 
+from util.crawler import lejuCrawler, _591_Crawler
 import json
 
 # Params
@@ -10,6 +10,14 @@ def web_config(name):
         "leju":{
             "url_list_tab": "bot-list",
             "crawler": lejuCrawler(),
+            "result_tab":"bot",
+            "result_link_col": 6
+        },
+        "591":{
+            "url_list_tab": "591-list",
+            "crawler": _591_Crawler(),
+            "result_tab":"591-bot",
+            "result_link_col": 2
         }
     }
     config_data = config[name]
@@ -36,7 +44,7 @@ def get_data(web_name):
     #     # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
     #     # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
     #     # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
-    #     "https://www.leju.com.tw/page_search_result?oid=Lf2b86691c9621"
+    #     "https://www.leju.com.tw/page_search_result?oid=L5ab18401ccd6c"
     # ]
     
     # to json file
@@ -57,11 +65,15 @@ def get_data(web_name):
 
 
 def write_to_sheet(data, web_name):
+    config_data = web_config(web_name)
+    result_tab_name = config_data['result_tab']
+    result_link_col = config_data['result_link_col']
     sht_worker = gsheet_worker(web_name)
-    sht_worker.write_profile_to_sheet(data)
+    sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
 
 if __name__ == "__main__":
-    crawl("leju")
+    # crawl("leju")
+    crawl("591")
 
     # url = "https://www.leju.com.tw/page_search_result?oid=L08243922184a6"
     # leju_crawler = lejuCrawler()

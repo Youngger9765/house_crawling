@@ -9,12 +9,15 @@ import json
 import hashlib
 import requests
 from datetime import datetime as dt
+from time import sleep
 
 class gsheet_worker:
-    def __init__(self,web_name=None):
+    def __init__(self,web_name=None,result_tab_name=None):
         self.sheet_key = '15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI'
         if web_name == "leju":
             self.sheet_worker = leju_gsheet_worker()
+        elif web_name == "591":
+            self.sheet_worker = _591_gsheet_worker()
         else:
             self.sheet_worker = None
 
@@ -44,11 +47,11 @@ class gsheet_worker:
         return col_all_value
         
         
-    def write_profile_to_sheet(self, data):
+    def write_profile_to_sheet(self, data, result_tab_name, result_link_col):
         sheet = self.get_sheet(self.sheet_key)
-        sheet_bot = sheet.worksheet('bot')
+        sheet_bot = sheet.worksheet(result_tab_name)
 
-        link_list = self.get_col_all_value("bot", 6)
+        link_list = self.get_col_all_value(result_tab_name, result_link_col)
         print("====link_list====")
         print(link_list)
 
@@ -105,14 +108,6 @@ class leju_gsheet_worker:
                 area,
                 now
             ]
-
-            # sheet_value_str = "".join(sheet_value)
-            # sheet_value_str_list.append(sheet_value_str)
-            # sheet_value.append(sheet_value_str)
-
-            # hash_str = self.get_hash_str(sheet_value_str)
-            # sheet_value.append(hash_str)
-
             sheet_value_list.append(sheet_value)
             
         return sheet_value_list
@@ -134,8 +129,9 @@ class leju_gsheet_worker:
                     print(link)
                     print("============")
                 else:
+                    sleep(1)
                     sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
-                    message = f"{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊公告" 
+                    message = f"【樂居】{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊: {sheet_value[5]}" 
                     print(message)
                     # self.send_line_notify(message) 
                     self.message_list.append(message)                 
@@ -145,4 +141,63 @@ class leju_gsheet_worker:
         message_list = self.message_list
         return message_list
           
+
+
+class _591_gsheet_worker:
+    def __init__(self):
+        self.message_list = []
+
+    def data_to_sheet_value_list(self, data):
+        sheet_value_list = []
+        listInfo_list = json.loads(data)
+        for rent_info in listInfo_list:
+            title = rent_info['title']
+            link = rent_info['url']
+            info = rent_info['info']
+            address = rent_info['address']
+            price = rent_info['price']
+            now = dt.now().strftime("%Y/%m/%d")
+
+            sheet_value = [
+                str(title),
+                str(link),
+                str(info),
+                str(address),
+                str(price),
+                now
+            ]
+            sheet_value_list.append(sheet_value)
+
+        return sheet_value_list
+
+    def write_profile_to_sheet(self, data, sheet, sheet_bot, link_list):
+        profile_list = data['profile']
+        for profile in profile_list:
+            sheet_value_list = self.data_to_sheet_value_list(profile)
+            # print(sheet_value_list)
         
+            sheet_row_cnt = 2
+            for sheet_value in sheet_value_list:
+                link = str(sheet_value[1])
+                print("====link====")
+                print(link)
+                
+                if link in link_list:
+                    print("===exist!===")
+                    print(link)
+                    print("============")
+                else:
+                    try:
+                        sleep(3)
+                        sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
+                        message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
+                        print(message)
+                        self.message_list.append(message)                 
+                        sheet_row_cnt +=1
+                    except Exception as e:
+                        print(f"sheet insert fail!")
+                        print(repr(e))
+
+    def get_message_list(self):
+        message_list = self.message_list
+        return message_list
