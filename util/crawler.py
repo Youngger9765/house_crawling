@@ -17,6 +17,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from time import sleep
 from bs4 import BeautifulSoup
 import json
+import re
 
 class selenium_engine:
     def __init__(self):
@@ -171,6 +172,10 @@ class _591_Crawler:
 
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
+
+        pattern = r".*&region=(\d).*"
+        region = re.match(pattern, url).group(1)
+
         engine = selenium_engine()
         browser = engine.browser
         browser.get(url)
@@ -178,7 +183,7 @@ class _591_Crawler:
         try:
             element_present = EC.presence_of_element_located((By.ID, "area-box-close"))
             WebDriverWait(browser, timeout).until(element_present)
-            browser.find_element_by_css_selector('[data-id="3"]').click()
+            browser.find_element_by_css_selector(f'[data-id="{region}"]').click()
         except TimeoutException:
             print("Timed out waiting for page to load")
         finally:
