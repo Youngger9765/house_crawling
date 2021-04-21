@@ -21,6 +21,11 @@ class gsheet_worker:
         else:
             self.sheet_worker = None
 
+        self.black_list = [
+            "林森北路",
+            "1房"
+        ]
+
     def get_hash_str(self,data):
         hash_str = int(hashlib.sha1(data.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
         return hash_str
@@ -60,7 +65,8 @@ class gsheet_worker:
         
         message_list = sheet_worker.get_message_list()
         for message in message_list:
-            self.send_line_notify(message)
+            if any(word in message for word in self.black_list):
+                self.send_line_notify(message)
 
 
     def send_line_notify(self, message):
