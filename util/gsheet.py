@@ -66,6 +66,8 @@ class gsheet_worker:
         message_list = sheet_worker.get_message_list()
         for message in message_list:
             if any(word in message for word in self.black_list):
+                print("====black_list====")
+            else:
                 self.send_line_notify(message)
 
 
