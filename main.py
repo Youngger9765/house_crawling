@@ -40,13 +40,13 @@ def get_data(web_name):
     url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
     # print(url_list)
     
-    url_list = [
+    # url_list = [
         # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
         # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
         # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
         # "https://www.leju.com.tw/page_search_result?oid=L5ab18401ccd6c",
         # "https://www.leju.com.tw/page_search_result?oid=L225192883ca30"
-    ]
+    # ]
     
     # to json file
     body = {'profile':[]}
