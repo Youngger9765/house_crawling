@@ -91,18 +91,19 @@ class lejuCrawler:
         return title
         
     def get_price_info(self, data):
-        avg_price = data.find('div', class_='avg_house_price_val').text
-        max_price = data.find('div', class_='max_house_price_val').text
-        min_price = data.find('div', class_='min_house_price_val').text
-        this_year_avg_price = data.find('div', class_='avg_date_house_price_val').text
+        # avg_price = data.find('div', class_='avg_house_price_val').text
+        # max_price = data.find('div', class_='max_house_price_val').text
+        # min_price = data.find('div', class_='min_house_price_val').text
+        # this_year_avg_price = data.find('div', class_='avg_date_house_price_val').text
         
-        info = {
-            'avg_price': avg_price,
-            'max_price': max_price, 
-            'min_price': min_price,
-            'this_year_avg_price': this_year_avg_price
-        }
+        # info = {
+            # 'avg_price': avg_price,
+            # 'max_price': max_price, 
+            # 'min_price': min_price,
+        #     'this_year_avg_price': this_year_avg_price
+        # }
         
+        info = {}
         return info
     
     def get_basic_info(self, data):
@@ -130,26 +131,25 @@ class lejuCrawler:
         
         
     def get_sale_items(self, data):
-        items = data.find_all('div', class_='sales-item-box')
-        sale_items = []
-        for item in items:
-            floor = item.find('span').text
-            title = item.find('a').text
-            link = item.find('a')['href']
-            price = item.find_all('li')[1].text
-            area = item.find_all('li')[0].text
-            
-            data = {
-                'floor': floor,
-                'title': title,
-                'link': link,
-                'price': price,
-                'area': area,
-            }
-            
-            sale_items.append(data)
-            
-        return sale_items
+      items = data.select('#sale-objects-wrap .transaction-info__card')
+      sale_items = []
+      for item in items:
+          floor = item.select_one(".transaction-info__card__second__floor span").text
+          title = item.select_one(".transaction-info__card__second__title div").text.replace("\n", "").strip()
+          link = item.select_one(".transaction-info__card__second__title div")['data-sale-object-url']
+          price = item.select(".transaction-info__card__table > div")[1].select('div span')[0].text
+          area = item.select(".transaction-info__card__table > div")[0].select('div span')[0].text
+          
+          data = {
+              'floor': floor,
+              'title': title,
+              'link': link,
+              'price': price,
+              'area': area,
+          }
+          sale_items.append(data)
+ 
+      return sale_items
         
     def get_data_json(self, data):
         title = self.get_title(data)
