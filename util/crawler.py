@@ -179,19 +179,21 @@ class _591_Crawler:
         engine = selenium_engine()
         browser = engine.browser
         browser.get(url)
-        timeout = 3
-        try:
-            element_present = EC.presence_of_element_located((By.ID, "area-box-close"))
-            WebDriverWait(browser, timeout).until(element_present)
-            browser.find_element_by_css_selector(f'[data-id="{region}"]').click()
-        except TimeoutException:
-            print("Timed out waiting for page to load")
-        finally:
-            print("Page loaded")
+
+        # PopUp 選縣市 -> 目前取消
+        # timeout = 3
+        # try:
+        #     element_present = EC.presence_of_element_located((By.ID, "area-box-close"))
+        #     WebDriverWait(browser, timeout).until(element_present)
+        #     browser.find_element_by_css_selector(f'[data-id="{region}"]').click()
+        # except TimeoutException:
+        #     print("Timed out waiting for page to load")
+        # finally:
+        #     print("Page loaded")
         
         timeout = 10
         try:
-            element_present = EC.presence_of_element_located((By.CLASS_NAME, "pageBar"))
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, "vue-public-list-page"))
             WebDriverWait(browser, timeout).until(element_present)
         except TimeoutException:
             print("Timed out waiting for page to load")
@@ -218,7 +220,7 @@ class _591_Crawler:
 
         browser.quit()
         print(f"===fetch:{url} done===")
-        # print(data_soup)
+        # print(len(data_soup_list))
         
         return data_soup_list
         
@@ -226,24 +228,26 @@ class _591_Crawler:
         data_json = []
 
         for data_soup in data_soup_list:
-            listInfo_list = data_soup.select(".listInfo")
+            listInfo_list = data_soup.select(".vue-list-rent-item")
             
             for listInfo in listInfo_list:
 
-                title = listInfo.select_one("h3 a").text.replace("\n","").strip()
+                title = listInfo.select_one(".vue-list-rent-item .rent-item-right .item-title").text.replace("\n", "").strip()
                 title
 
-
-                url = listInfo.select_one("h3 a").get('href').replace("//","").strip()
+                url = listInfo.select_one(".vue-list-rent-item > a").get('href').strip()
                 url
 
-                info = listInfo.select_one(".lightBox").text.replace("\n","").replace("\xa0\xa0|\xa0\xa0","|").replace(" ","")
-                info
+                info = []
+                info_ele_list = listInfo.select(".vue-list-rent-item .item-style li")
+                for info_ele in info_ele_list:
+                  text = info_ele.text.replace("\n", "").replace(" ", "")
+                  info.append(text)
 
-                address = listInfo.select_one(".lightBox em").text
+                address = listInfo.select_one(".vue-list-rent-item .item-area span").text
                 address
 
-                price = listInfo.select_one(".price").text.replace("\n","").replace(" ","")
+                price = listInfo.select_one(".vue-list-rent-item .item-price-text span").text.replace("\n","").replace(" ","")
                 price
                 
                 data = {
@@ -253,6 +257,8 @@ class _591_Crawler:
                     "address": address,
                     "price": price
                 }
+
+                # print(data)
                 data_json.append(data)
         
         return data_json
