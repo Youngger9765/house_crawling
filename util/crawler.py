@@ -79,12 +79,30 @@ class lejuCrawler:
         browser.get(url)
         sleep(10)
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+        
+        try:
+            browser.find_element_by_css_selector(".cookies-button.know").click()
+        except:
+            pass
+
+        link_btns = browser.find_elements_by_css_selector('#sale-objects-wrap .border-grey-3 .icon-link-ext')
+        ext_url_list = []
+
+        for link in link_btns:
+            browser.execute_script("arguments[0].click();", link)
+            browser.switch_to.window(browser.window_handles[1])
+            url = browser.current_url
+            print(url)
+            ext_url_list.append(url)
+            browser.close()
+            browser.switch_to.window(browser.window_handles[0])
+
         browser.quit()
         print(f"===fetch:{url} done===")
         # print(data_soup)
         
-        return data_soup
-        
+        return [data_soup, ext_url_list]
+    
     def get_title(self, data):
         title = data.find('title').string
 
@@ -131,36 +149,36 @@ class lejuCrawler:
         
         
     def get_sale_items(self, data):
-      items = data.select('#sale-objects-wrap .transaction-info__card')
-      sale_items = []
-      for item in items:
-          floor = item.select_one(".transaction-info__card__second__floor span").text
-          title = item.select_one(".transaction-info__card__second__title div").text.replace("\n", "").strip()
-          link = item.select_one(".transaction-info__card__second__title div")['data-sale-object-url']
-          price = item.select(".transaction-info__card__table > div")[1].select('div span')[0].text
-          area = item.select(".transaction-info__card__table > div")[0].select('div span')[0].text
-          
-          data = {
-              'floor': floor,
-              'title': title,
-              'link': link,
-              'price': price,
-              'area': area,
-          }
-          sale_items.append(data)
+        ext_url = data[1]
+        data_soup = data[0]
+        items = data_soup.select('#sale-objects-wrap .border-grey-3')
+        sale_items = []
+        for idx, item in enumerate(items):
+            floor = item.select_one(".text-16px").text
+            title = item.select_one(".title-width").text.replace("\n","").strip()
+            link = ext_url[idx]
+            price = item.select(".items-baseline")[0].select('span')[0].text.replace("\n","").strip()
+            area = item.select(".items-baseline")[1].select('span')[0].text.replace("\n","").strip()
+            
+            item_data = {
+                'floor': floor,
+                'title': title,
+                'link': link,
+                'price': price,
+                'area': area,
+            }
+            sale_items.append(item_data)
  
-      return sale_items
+        return sale_items
         
     def get_data_json(self, data):
-        title = self.get_title(data)
-        price_info = self.get_price_info(data)
-        basic_info =self.get_basic_info(data)
+        title = self.get_title(data[0])
         sale_items = self.get_sale_items(data)
         
         data_json = {
             "title": title,
-            'price_info': price_info,
-            'basic_info': basic_info,
+            'price_info': "",
+            'basic_info': "",
             'sale_items': sale_items
         }
         
