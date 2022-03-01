@@ -41,6 +41,7 @@ def get_data(web_name):
     # print(url_list)
     
     # url_list = [
+        # "https://www.leju.com.tw/page_search_result?oid=Lff61014736365e",
         # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
         # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
         # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
@@ -74,4 +75,4 @@ def write_to_sheet(data, web_name):
 
 if __name__ == "__main__":
     crawl("leju")
-    crawl("591")
+    # crawl("591")
