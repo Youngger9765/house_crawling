@@ -191,8 +191,8 @@ class _591_Crawler:
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
 
-        pattern = r".*&region=(\d).*"
-        region = re.match(pattern, url).group(1)
+        # pattern = r".*&region=(\d).*"
+        # region = re.match(pattern, url).group(1)
 
         engine = selenium_engine()
         browser = engine.browser
