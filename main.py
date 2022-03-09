@@ -47,9 +47,11 @@ def crawl(web_name):
 	for customer in customer_list():
 		sheet_key = customer["sheet_key"]
 		line_notify_token = customer["line_notify_token"]
-		data = get_data(web_name, sheet_key)
-		write_to_sheet(data, web_name, sheet_key, line_notify_token)
-
+		try:
+			data = get_data(web_name, sheet_key)
+			write_to_sheet(data, web_name, sheet_key, line_notify_token)
+		except Exception as e:
+			print(repr(e))
 
 def get_data(web_name, sheet_key):
 	# config
