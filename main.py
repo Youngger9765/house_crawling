@@ -45,11 +45,14 @@ def customer_list():
 # Main function
 def crawl(web_name):
 	for customer in customer_list():
+		customer_name = customer["name"]
 		sheet_key = customer["sheet_key"]
 		line_notify_token = customer["line_notify_token"]
 		try:
 			data = get_data(web_name, sheet_key)
 			write_to_sheet(data, web_name, sheet_key, line_notify_token)
+			message = "{customer_name} 完成今日爬蟲"
+			send_line_notification(line_notify_token, message)
 		except Exception as e:
 			print(repr(e))
 
@@ -96,6 +99,19 @@ def write_to_sheet(data, web_name, sheet_key, line_notify_token):
 	sht_worker = gsheet_worker(sheet_key, web_name)
 	sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
 	sht_worker.send_line_notify(line_notify_token)
+
+
+def send_line_notification(self, line_notify_token, message):
+	url = "https://notify-api.line.me/api/notify"
+	headers = {
+		'Authorization': f"Bearer {line_notify_token}",
+	}
+	data = {
+		"message": message,
+	}
+	# To send data form-encoded
+	response = requests.post(url, headers=headers, data=data)
+			
 
 if __name__ == "__main__":
 	crawl("leju")
