@@ -3,6 +3,7 @@
 from util.gsheet import gsheet_worker
 from util.crawler import lejuCrawler, _591_Crawler
 import json
+import requests
 
 # Params
 def web_config(name):
@@ -109,8 +110,7 @@ def send_line_notification(self, line_notify_token, message):
 	data = {
 		"message": message,
 	}
-	# To send data form-encoded
-	response = requests.post(url, headers=headers, data=data)
+	requests.post(url, headers=headers, data=data)
 			
 
 if __name__ == "__main__":
