@@ -1,4 +1,4 @@
-name: Python package
+name: Crawl house
 on:
   push:
   pull_request:
