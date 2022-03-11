@@ -104,7 +104,8 @@ def write_to_sheet(data, web_name, sheet_key, line_notify_token):
 	sht_worker.send_line_notify(line_notify_token)
 
 
-def send_line_notification(self, line_notify_token, message):
+def send_line_notification(line_notify_token, message):
+	print(message)
 	url = "https://notify-api.line.me/api/notify"
 	headers = {
 		'Authorization': f"Bearer {line_notify_token}",
