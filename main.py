@@ -50,6 +50,8 @@ def crawl(web_name):
 		sheet_key = customer["sheet_key"]
 		line_notify_token = customer["line_notify_token"]
 		try:
+            message = "{customer_name} 開始今日爬蟲"
+			send_line_notification(line_notify_token, message)
 			data = get_data(web_name, sheet_key)
 			write_to_sheet(data, web_name, sheet_key, line_notify_token)
 			message = "{customer_name} 完成今日爬蟲"
