@@ -18,6 +18,8 @@ class gsheet_worker:
 			self.sheet_worker = leju_gsheet_worker()
 		elif web_name == "591":
 			self.sheet_worker = _591_gsheet_worker()
+		elif web_name == "fb":
+			self.sheet_worker = fb_gsheet_worker()
 		else:
 			self.sheet_worker = None
 
@@ -25,10 +27,6 @@ class gsheet_worker:
 			"林森北路",
 			"1房"
 		]
-
-	def get_hash_str(self,data):
-		hash_str = int(hashlib.sha1(data.encode("utf-8")).hexdigest(), 16) % (10 ** 8)
-		return hash_str
 		
 	def get_sheet(self, sheet_key):
 		scopes = ["https://spreadsheets.google.com/feeds"]
@@ -61,7 +59,7 @@ class gsheet_worker:
 		print(link_list)
 
 		sheet_worker = self.sheet_worker
-		sheet_worker.write_profile_to_sheet(data, sheet, sheet_bot, link_list)
+		sheet_worker.write_profile_to_sheet(data, sheet_bot, link_list)
 		
 	
 	def send_line_notify(self, line_notify_token):
@@ -117,7 +115,7 @@ class leju_gsheet_worker:
 			
 		return sheet_value_list
 
-	def write_profile_to_sheet(self, data, sheet, sheet_bot, link_list):
+	def write_profile_to_sheet(self, data, sheet_bot, link_list):
 		profile_list = data['profile']
 		for profile in profile_list:
 			sheet_value_list = self.data_to_sheet_value_list(profile)
@@ -175,7 +173,7 @@ class _591_gsheet_worker:
 
 		return sheet_value_list
 
-	def write_profile_to_sheet(self, data, sheet, sheet_bot, link_list):
+	def write_profile_to_sheet(self, data, sheet_bot, link_list):
 		profile_list = data['profile']
 		for profile in profile_list:
 			sheet_value_list = self.data_to_sheet_value_list(profile)
@@ -196,6 +194,69 @@ class _591_gsheet_worker:
 						sleep(3)
 						sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
 						message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
+						print(message)
+						self.message_list.append(message)                 
+						sheet_row_cnt +=1
+					except Exception as e:
+						print(f"sheet insert fail!")
+						print(repr(e))
+
+	def get_message_list(self):
+		message_list = self.message_list
+		return message_list
+
+
+class fb_gsheet_worker:
+	def __init__(self):
+		self.message_list = []
+
+	def data_to_sheet_value_list(self, data):
+		sheet_value_list = []
+		post_list = json.loads(data)
+
+		for post_info in post_list:
+			post_group_name = post_info['post_group_name']
+			post_link = post_info['post_link']
+			post_time = post_info['post_time']
+			title = post_info['title']
+			sub_title = post_info['sub_title']
+			content = post_info['content']
+			img_link = post_info['img_link']
+
+			sheet_value = [
+				str(post_group_name),
+				str(post_link),
+				str(post_time),
+				str(title),
+				str(sub_title),
+				str(content),
+				str(img_link)
+			]
+			sheet_value_list.append(sheet_value)
+
+		return sheet_value_list
+
+	def write_profile_to_sheet(self, data, sheet_bot, link_list):
+		profile_list = data['profile']
+		for profile in profile_list:
+			sheet_value_list = self.data_to_sheet_value_list(profile)
+			# print(sheet_value_list)
+		
+			sheet_row_cnt = 2
+			for sheet_value in sheet_value_list:
+				link = str(sheet_value[1])
+				print("====link====")
+				print(link)
+				
+				if link in link_list:
+					print("===exist!===")
+					print(link)
+					print("============")
+				else:
+					try:
+						sleep(3)
+						sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
+						message = f"【FB-{sheet_value[0]}】 有新文章: {sheet_value[3]} {sheet_value[4]} {sheet_value[5]} ，詳情請點擊:{sheet_value[1]}"
 						print(message)
 						self.message_list.append(message)                 
 						sheet_row_cnt +=1
