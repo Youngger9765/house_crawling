@@ -66,8 +66,6 @@ class selenium_engine:
         
     #     return data_soup
 
-
-
 class lejuCrawler:
     def __init__(self):
         pass
@@ -217,7 +215,6 @@ class _591_Crawler:
             print("Timed out waiting for page to load")
         finally:
             print("Page loaded")    
-
         sleep(5)    
 
         data_soup_list = []
@@ -226,15 +223,15 @@ class _591_Crawler:
             data_soup = BeautifulSoup(browser.page_source, 'html.parser')
             data_soup_list.append(data_soup)
             
-            try:
-                browser.find_element_by_css_selector(".pageNext.last")
-                last_page = True
-                print("last page")
-            except:
-                print("not the last page")
-                browser.find_element_by_css_selector(".pageNext").click()
-                sleep(5)
-
+            if len(browser.find_elements(By.CLASS_NAME, 'pageNext')) > 0:
+                try:
+                    browser.find_element_by_css_selector(".pageNext.last")
+                    last_page = True
+                    print("last page")
+                except:
+                    print("not the last page")
+                    browser.find_element_by_css_selector(".pageNext").click()
+                    sleep(5)
 
         browser.quit()
         print(f"===fetch:{url} done===")
@@ -249,13 +246,8 @@ class _591_Crawler:
             listInfo_list = data_soup.select(".vue-list-rent-item")
             
             for listInfo in listInfo_list:
-
                 title = listInfo.select_one(".vue-list-rent-item .rent-item-right .item-title").text.replace("\n", "").strip()
-                title
-
                 url = listInfo.select_one(".vue-list-rent-item > a").get('href').strip()
-                url
-
                 info = []
                 info_ele_list = listInfo.select(".vue-list-rent-item .item-style li")
                 for info_ele in info_ele_list:
@@ -263,11 +255,7 @@ class _591_Crawler:
                   info.append(text)
 
                 address = listInfo.select_one(".vue-list-rent-item .item-area span").text
-                address
-
-                price = listInfo.select_one(".vue-list-rent-item .item-price-text span").text.replace("\n","").replace(" ","")
-                price
-                
+                price = listInfo.select_one(".vue-list-rent-item .item-price-text span").text.replace("\n","").replace(" ","")                
                 data = {
                     "title": title,
                     "url": url,
@@ -279,4 +267,89 @@ class _591_Crawler:
                 # print(data)
                 data_json.append(data)
         
+        return data_json
+
+
+class fb_Crawler:
+    def __init__(self):
+        pass
+
+    def fetch_data(self, url):
+        print(f"===fetch:{url}===")
+        engine = selenium_engine()
+        browser = engine.browser
+        browser.get(url)
+
+        timeout = 10
+        try:
+            element_present_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, element_present_class_name))
+            WebDriverWait(browser, timeout).until(element_present)
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+        finally:
+            print("Page loaded")  
+
+        sleep(10)
+
+        # scroll down
+        for i in range(1):
+            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            sleep(5)
+
+        data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+        print(f"===fetch:{url} done===")
+
+        return data_soup
+
+
+    def get_data_json(self, data_soup):
+        # selector params
+        posts_group_class_name = "h1 a"
+        post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
+        title_class_name = "h3"
+        sub_title_class_name = "h4"
+        content_class_name = ".dati1w0a.ihqw7lf3.hv4rvrfc.ecm0bbzt"
+        img_class_name = "img"
+        post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
+
+        post_group_name = data_soup.select_one(posts_group_class_name).text
+        # posts
+        posts = data_soup.select(post_class_name)
+        data_json = []
+        for post in posts:
+            # post
+            post_link = post.select_one(post_a_class_name).get("href").split('/?')[0]
+            post_time = post.select_one(post_a_class_name).get("aria-label")
+
+            # title
+            title = ""
+            sub_title = ""
+
+            try:
+                title = post.select_one(title_class_name).text
+                sub_title = post.select_one(sub_title_class_name).text
+            except:
+                print("no title")
+
+            # content
+            content_list = post.select(content_class_name)
+            content = ""
+            for c in content_list:
+                content = content + " " + c.text
+
+            # img
+            img_link = post.select_one(img_class_name).get("src")
+
+            data = {
+                "post_group_name": post_group_name,
+                "post_link": post_link,
+                "post_time": post_time,
+                "title": title,
+                "sub_title": sub_title,
+                "content": content,
+                "img_link": img_link,
+            }
+            data_json.append(data)
+
         return data_json
