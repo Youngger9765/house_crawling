@@ -21,19 +21,7 @@ import re
 
 class selenium_engine:
     def __init__(self):
-    #         software_names = [SoftwareName.CHROME.value]
-#         operating_systems = [OperatingSystem.WINDOWS.value, OperatingSystem.LINUX.value]
-#         user_agent_rotator = UserAgent(
-#             software_names = software_names,
-#             operating_systems = operating_systems,
-#             limit = 100
-#         )
-
-#         self.user_agent = user_agent_rotator.get_random_user_agent()
-#         print(user_agent)
-
         self.user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
-
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--incognito')
         chrome_options.add_argument('headless')
@@ -49,22 +37,6 @@ class selenium_engine:
  
         # ChromeDriverManager
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
-        # self.browser = webdriver.Chrome(options=chrome_options)
-        
-        # local
-        # executable_path=os.getcwd()+'/chromedriver_6'
-        # self.browser = webdriver.Chrome(executable_path=executable_path, options=chrome_options)
-    
-    # def fetch_data(self, url):
-    #     # print(f"===fetch:{url}===")
-    #     browser = self.browser
-    #     browser.get(url)
-    #     sleep(10)
-    #     data_soup = BeautifulSoup(browser.page_source, 'html.parser')
-    #     browser.quit()
-    #     # print(f"===fetch:{url} done===")
-        
-    #     return data_soup
 
 class lejuCrawler:
     def __init__(self):
@@ -232,6 +204,8 @@ class _591_Crawler:
                     print("not the last page")
                     browser.find_element_by_css_selector(".pageNext").click()
                     sleep(5)
+            else:
+                last_page = True
 
         browser.quit()
         print(f"===fetch:{url} done===")
@@ -289,11 +263,10 @@ class fb_Crawler:
             print("Timed out waiting for page to load")
         finally:
             print("Page loaded")  
-
         sleep(10)
 
         # scroll down
-        for i in range(1):
+        for i in range(2):
             browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(5)
 
@@ -309,7 +282,8 @@ class fb_Crawler:
         post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
         title_class_name = "h3"
         sub_title_class_name = "h4"
-        content_class_name = ".dati1w0a.ihqw7lf3.hv4rvrfc.ecm0bbzt"
+        content_class_name_1 = ".dati1w0a.ihqw7lf3.hv4rvrfc.ecm0bbzt"
+        content_class_name_2 = ".d2edcug0.hpfvmrgz.qv66sw1b.c1et5uql.oi732d6d.ik7dh3pa.ht8s03o8.a8c37x1j.fe6kdd0r.mau55g9w.c8b282yb.keod5gw0.nxhoafnm.aigsh9s9.d9wwppkn.iv3no6db.jq4qci2q.a3bd9o3v.b1v8xokw.oo9gr5id.hzawbc8m"
         img_class_name = "img"
         post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
 
@@ -333,10 +307,13 @@ class fb_Crawler:
                 print("no title")
 
             # content
-            content_list = post.select(content_class_name)
+            content_list = post.select(content_class_name_1)
             content = ""
-            for c in content_list:
-                content = content + " " + c.text
+            for c in content_list: content = content + " " + c.text
+            if content.strip() == "":
+                content_list = post.select(content_class_name_2)
+                content = ""
+                for c in content_list: content = content + " " + c.text 
 
             # img
             img_link = post.select_one(img_class_name).get("src")
