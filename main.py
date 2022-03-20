@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet import gsheet_worker
-from util.crawler import lejuCrawler, _591_Crawler
+from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
 import json
 import requests
 
@@ -19,7 +19,14 @@ def web_config(name):
 			"crawler": _591_Crawler(),
 			"result_tab":"591-bot",
 			"result_link_col": 2
+		},
+		"fb": {
+			"url_list_tab": "FB-list",
+			"crawler": fb_Crawler(),
+			"result_tab": "FB-bot",
+			"result_link_col": 2
 		}
+
 	}
 	config_data = config[name]
 
@@ -119,3 +126,4 @@ def send_line_notification(line_notify_token, message):
 if __name__ == "__main__":
 	crawl("leju")
 	crawl("591")
+	crawl("fb")
