@@ -21,7 +21,7 @@ import re
 
 class selenium_engine:
     def __init__(self):
-        self.user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
+        # user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--incognito')
         chrome_options.add_argument('headless')
@@ -116,8 +116,7 @@ class lejuCrawler:
         basic_info = {}
         
         return basic_info
-        
-        
+           
     def get_sale_items(self, data):
         ext_url = data[1]
         data_soup = data[0]
@@ -160,24 +159,9 @@ class _591_Crawler:
 
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
-
-        # pattern = r".*&region=(\d).*"
-        # region = re.match(pattern, url).group(1)
-
         engine = selenium_engine()
         browser = engine.browser
         browser.get(url)
-
-        # PopUp 選縣市 -> 目前取消
-        # timeout = 3
-        # try:
-        #     element_present = EC.presence_of_element_located((By.ID, "area-box-close"))
-        #     WebDriverWait(browser, timeout).until(element_present)
-        #     browser.find_element_by_css_selector(f'[data-id="{region}"]').click()
-        # except TimeoutException:
-        #     print("Timed out waiting for page to load")
-        # finally:
-        #     print("Page loaded")
         
         timeout = 10
         try:
@@ -246,12 +230,16 @@ class _591_Crawler:
 
 class fb_Crawler:
     def __init__(self):
-        pass
+        self.browser = None
+        self.get_browser()
+
+    def get_browser(self):
+        engine = selenium_engine()
+        self.browser = engine.browser
 
     def fetch_data(self, url):
         print(f"===fetch:{url}===")
-        engine = selenium_engine()
-        browser = engine.browser
+        browser = self.browser
         browser.get(url)
 
         timeout = 10
@@ -271,10 +259,10 @@ class fb_Crawler:
             sleep(5)
 
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+        browser.quit()
         print(f"===fetch:{url} done===")
 
         return data_soup
-
 
     def get_data_json(self, data_soup):
         # selector params
@@ -330,3 +318,28 @@ class fb_Crawler:
             data_json.append(data)
 
         return data_json
+
+
+class fb_private_Crawler(fb_Crawler):
+    def __init__(self):
+        super().__init__()
+        self.login_bowser()
+
+    def login_bowser(self):
+        url = "https://www.facebook.com"
+        browser = self.browser
+        browser.get(url)
+        username = 'young.tsai.9765@gmail.com'
+        password = 'babamama2022'
+
+        WebDriverWait(browser, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
+        elem = browser.find_element_by_id("email")
+        elem.send_keys(username)
+        sleep(3)
+        elem = browser.find_element_by_id("pass")
+        elem.send_keys(password)
+        sleep(3)
+        elem = browser.find_element_by_xpath('//button[@name="login"]')
+        elem.click()
+        sleep(10)
