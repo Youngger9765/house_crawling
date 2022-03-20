@@ -222,6 +222,7 @@ class fb_gsheet_worker:
 			sub_title = post_info['sub_title']
 			content = post_info['content']
 			img_link = post_info['img_link']
+			now = dt.now().strftime("%Y/%m/%d")
 
 			sheet_value = [
 				str(post_group_name),
@@ -230,7 +231,8 @@ class fb_gsheet_worker:
 				str(title),
 				str(sub_title),
 				str(content),
-				str(img_link)
+				str(img_link),
+				now
 			]
 			sheet_value_list.append(sheet_value)
 
