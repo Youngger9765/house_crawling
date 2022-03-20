@@ -55,8 +55,8 @@ class gsheet_worker:
 		sheet_bot = sheet.worksheet(result_tab_name)
 
 		link_list = self.get_col_all_value(result_tab_name, result_link_col)
-		print("====link_list====")
-		print(link_list)
+		# print("====link_list====")
+		# print(link_list)
 
 		sheet_worker = self.sheet_worker
 		sheet_worker.write_profile_to_sheet(data, sheet_bot, link_list)
