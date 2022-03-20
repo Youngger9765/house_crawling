@@ -97,8 +97,7 @@ def get_data(web_name, sheet_key):
 		except Exception as e:
 			print(f"fetch fail:{url}")
 			print(repr(e))
-
-	print(body)
+	# print(body)
 	return body
 
 
@@ -124,6 +123,6 @@ def send_line_notification(line_notify_token, message):
 			
 
 if __name__ == "__main__":
-	crawl("leju")
+	# crawl("leju")
 	crawl("591")
 	crawl("fb")
