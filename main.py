@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet import gsheet_worker
-from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
+from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler, fb_private_Crawler
 import json
 import requests
 
@@ -24,6 +24,12 @@ def web_config(name):
 			"url_list_tab": "FB-list",
 			"crawler": fb_Crawler(),
 			"result_tab": "FB-bot",
+			"result_link_col": 2
+		},
+		"fb-private": {
+			"url_list_tab": "FB-private-list",
+			"crawler": fb_private_Crawler(),
+			"result_tab": "FB-private-bot",
 			"result_link_col": 2
 		}
 
@@ -100,7 +106,6 @@ def get_data(web_name, sheet_key):
 	# print(body)
 	return body
 
-
 def write_to_sheet(data, web_name, sheet_key, line_notify_token):
 	config_data = web_config(web_name)
 	result_tab_name = config_data['result_tab']
@@ -108,7 +113,6 @@ def write_to_sheet(data, web_name, sheet_key, line_notify_token):
 	sht_worker = gsheet_worker(sheet_key, web_name)
 	sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
 	sht_worker.send_line_notify(line_notify_token)
-
 
 def send_line_notification(line_notify_token, message):
 	print(message)
@@ -123,6 +127,7 @@ def send_line_notification(line_notify_token, message):
 			
 
 if __name__ == "__main__":
-	# crawl("leju")
+	crawl("leju")
 	crawl("591")
 	crawl("fb")
+	crawl("fb-private")
