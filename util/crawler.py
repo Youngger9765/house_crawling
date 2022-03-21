@@ -187,6 +187,7 @@ class _591_Crawler(crawler):
     def fetch_data(self, url):
         self.get_browser()
         data_soup = self.fetch_url_data(url)
+        
         return data_soup
 
     def fetch_url_data(self, url):
@@ -194,6 +195,7 @@ class _591_Crawler(crawler):
         browser = self.browser
         browser.get(url)
         self.wait_by_class_name("vue-public-list-page")
+        
         data_soup_list = []
         last_page = False
         while last_page is False:
