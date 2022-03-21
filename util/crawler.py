@@ -334,13 +334,13 @@ class fb_Crawler(crawler):
 class fb_private_Crawler(fb_Crawler):
     def __init__(self):
         print("===fb_private_Crawler init ===")
-        super().__init__()
 
     def fetch_data(self,url):
         print("=====fb_private_Crawler fetch_data======")
         self.get_browser()
         self.login_bowser()
         data_soup = self.fetch_url_data(url)
+        
         return data_soup
 
     def login_bowser(self):
