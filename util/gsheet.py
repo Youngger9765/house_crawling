@@ -18,7 +18,7 @@ class gsheet_worker:
 			self.sheet_worker = leju_gsheet_worker()
 		elif web_name == "591":
 			self.sheet_worker = _591_gsheet_worker()
-		elif web_name == "fb":
+		elif web_name == "fb" or web_name == "fb-private":
 			self.sheet_worker = fb_gsheet_worker()
 		else:
 			self.sheet_worker = None
