@@ -230,14 +230,19 @@ class _591_Crawler:
 
 class fb_Crawler:
     def __init__(self):
+        print("===fb_Crawler init ===")
         self.browser = None
+    
+    def fetch_data(self,url):
         self.get_browser()
+        data_soup = self.fetch_url_data(url)
+        return data_soup
 
     def get_browser(self):
         engine = selenium_engine()
         self.browser = engine.browser
 
-    def fetch_data(self, url):
+    def fetch_url_data(self, url):
         print(f"===fetch:{url}===")
         browser = self.browser
         browser.get(url)
@@ -322,16 +327,23 @@ class fb_Crawler:
 
 class fb_private_Crawler(fb_Crawler):
     def __init__(self):
+        print("===fb_private_Crawler init ===")
         super().__init__()
+
+    def fetch_data(self,url):
+        print("=====fb_private_Crawler fetch_data======")
+        self.get_browser()
         self.login_bowser()
+        data_soup = self.fetch_url_data(url)
+        return data_soup
 
     def login_bowser(self):
         url = "https://www.facebook.com"
         browser = self.browser
         browser.get(url)
+        sleep(15)
         username = 'young.tsai.9765@gmail.com'
         password = 'babamama2022'
-
         WebDriverWait(browser, 30).until(
             EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
         elem = browser.find_element_by_id("email")
