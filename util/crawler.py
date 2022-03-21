@@ -38,6 +38,32 @@ class selenium_engine:
         # ChromeDriverManager
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
 
+
+class crawler:
+    def __init__(self):
+        print("===crawler init ===")
+        self.browser = None
+
+    def get_browser(self):
+        engine = selenium_engine()
+        self.browser = engine.browser
+    
+    def wait_by_class_name(self, class_name):
+        timeout = 10
+        try:
+            element_present = EC.presence_of_element_located((By.CLASS_NAME, class_name))
+            WebDriverWait(self.browser, timeout).until(element_present)
+        except TimeoutException:
+            print("Timed out waiting for page to load")
+        finally:
+            print("Page loaded")    
+        sleep(5)  
+    
+    def scroll_down(self, count):
+        for i in range(count):
+            self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            sleep(5)
+
 class lejuCrawler:
     def __init__(self):
         pass
@@ -153,26 +179,21 @@ class lejuCrawler:
         
         return data_json
 
-class _591_Crawler:
+
+class _591_Crawler(crawler):
     def __init__(self):
-        pass
+        print("===_591_Crawler init ===")
 
     def fetch_data(self, url):
-        print(f"===fetch:{url}===")
-        engine = selenium_engine()
-        browser = engine.browser
-        browser.get(url)
-        
-        timeout = 10
-        try:
-            element_present = EC.presence_of_element_located((By.CLASS_NAME, "vue-public-list-page"))
-            WebDriverWait(browser, timeout).until(element_present)
-        except TimeoutException:
-            print("Timed out waiting for page to load")
-        finally:
-            print("Page loaded")    
-        sleep(5)    
+        self.get_browser()
+        data_soup = self.fetch_url_data(url)
+        return data_soup
 
+    def fetch_url_data(self, url):
+        print(f"===fetch:{url}===")
+        browser = self.browser
+        browser.get(url)
+        self.wait_by_class_name("vue-public-list-page")
         data_soup_list = []
         last_page = False
         while last_page is False:
@@ -228,41 +249,22 @@ class _591_Crawler:
         return data_json
 
 
-class fb_Crawler:
+class fb_Crawler(crawler):
     def __init__(self):
         print("===fb_Crawler init ===")
-        self.browser = None
     
     def fetch_data(self,url):
         self.get_browser()
         data_soup = self.fetch_url_data(url)
-        return data_soup
 
-    def get_browser(self):
-        engine = selenium_engine()
-        self.browser = engine.browser
+        return data_soup
 
     def fetch_url_data(self, url):
         print(f"===fetch:{url}===")
         browser = self.browser
         browser.get(url)
-
-        timeout = 10
-        try:
-            element_present_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
-            element_present = EC.presence_of_element_located((By.CLASS_NAME, element_present_class_name))
-            WebDriverWait(browser, timeout).until(element_present)
-        except TimeoutException:
-            print("Timed out waiting for page to load")
-        finally:
-            print("Page loaded")  
-        sleep(10)
-
-        # scroll down
-        for i in range(2):
-            browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            sleep(5)
-
+        self.wait_by_class_name(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs")
+        self.scroll_down(2)
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
         browser.quit()
         print(f"===fetch:{url} done===")
