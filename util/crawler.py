@@ -64,14 +64,20 @@ class crawler:
             self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(5)
 
-class lejuCrawler:
+
+class lejuCrawler(crawler):
     def __init__(self):
-        pass
+        print("===lejuCrawler init ===")
 
     def fetch_data(self, url):
+        self.get_browser()
+        data_soup = self.fetch_url_data(url)
+
+        return data_soup
+
+    def fetch_url_data(self, url):
         print(f"===fetch:{url}===")
-        engine = selenium_engine()
-        browser = engine.browser
+        browser = self.browser
         browser.get(url)
         sleep(10)
         data_soup = BeautifulSoup(browser.page_source, 'html.parser')
@@ -95,7 +101,6 @@ class lejuCrawler:
 
         browser.quit()
         print(f"===fetch:{url} done===")
-        # print(data_soup)
         
         return [data_soup, ext_url_list]
     
@@ -179,7 +184,6 @@ class lejuCrawler:
         
         return data_json
 
-
 class _591_Crawler(crawler):
     def __init__(self):
         print("===_591_Crawler init ===")
@@ -249,7 +253,6 @@ class _591_Crawler(crawler):
                 data_json.append(data)
         
         return data_json
-
 
 class fb_Crawler(crawler):
     def __init__(self):
@@ -327,7 +330,6 @@ class fb_Crawler(crawler):
             data_json.append(data)
 
         return data_json
-
 
 class fb_private_Crawler(fb_Crawler):
     def __init__(self):
