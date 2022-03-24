@@ -127,7 +127,7 @@ def send_line_notification(line_notify_token, message):
 			
 
 if __name__ == "__main__":
-	crawl("leju")
-	crawl("591")
-	crawl("fb")
+	# crawl("leju")
+	# crawl("591")
+	# crawl("fb")
 	crawl("fb-private")
