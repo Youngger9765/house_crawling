@@ -130,4 +130,4 @@ if __name__ == "__main__":
 	# crawl("leju")
 	# crawl("591")
 	crawl("fb")
-	crawl("fb-private")
+	# crawl("fb-private")
