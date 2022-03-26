@@ -16,6 +16,8 @@ from webdriver_manager.chrome import ChromeDriverManager
 
 from time import sleep
 from bs4 import BeautifulSoup
+from facebook_scraper import get_posts
+
 import json
 import re
 
@@ -362,3 +364,16 @@ class fb_private_Crawler(fb_Crawler):
         elem = browser.find_element_by_xpath('//button[@name="login"]')
         elem.click()
         sleep(10)
+
+class fb_Crawler_by_facebook_scraper():
+    def __init__(self):
+        print("===fb_Crawler_by_facebook_scraper init ===")
+
+    def fetch_data(self,url):
+        if "groups" in url:
+            group_id = url.split("/")[-1]
+            for post in get_posts(group=group_id, pages=1):
+                print(post['text'][:100])
+                print(post['time'])
+                print(post['post_url'])
+                print("=======")
