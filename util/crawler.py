@@ -370,10 +370,58 @@ class fb_Crawler_by_facebook_scraper():
         print("===fb_Crawler_by_facebook_scraper init ===")
 
     def fetch_data(self,url):
+        data_list = []
         if "groups" in url:
             group_id = url.split("/")[-1]
+            cnt = 0
+            cnt_limit = 10
             for post in get_posts(group=group_id, pages=1):
-                print(post['text'][:100])
-                print(post['time'])
-                print(post['post_url'])
-                print("=======")
+                username = post['username']
+                text = post['text'][:100]
+                time = str(post['time'])
+                post_url = post['post_url']
+                img_link = post['image']
+                # print(text[:100])
+                # print(time)
+                # print(post_url)
+                # print(img_link)
+                # print("=======")
+                data = {
+                    'post_group_name': post['header'],
+                    'text': text,
+                    'time': time,
+                    'post_url': post_url,
+                    'img_link': img_link
+                }
+                data_list.append(data)
+
+                cnt +=1
+                if cnt >= cnt_limit:
+                    break
+        
+        return data_list
+    
+
+    def get_data_json(self, data_list):
+        data_json = []
+        for data in data_list:
+            post_group_name = data['post_group_name']
+            post_link = data['post_url']
+            post_time = data['time'],
+            title = ''
+            sub_title= ''
+            content = data['text']
+            img_link = data['img_link']
+            data = {
+                "post_group_name": post_group_name,
+                "post_link": post_link,
+                "post_time": post_time,
+                "title": title,
+                "sub_title": sub_title,
+                "content": content,
+                "img_link": img_link,
+            }
+            data_json.append(data)
+        
+        return data_json
+
