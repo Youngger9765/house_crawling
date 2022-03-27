@@ -3,7 +3,7 @@ service: house-crawling
 provider:
   name: aws
   stage: dev
-  runtime: python3.9
+  runtime: python3.8
   region: eu-central-1
   # https://serverless-stack.com/chapters/configure-multiple-aws-profiles.html
   # profile: youngAccount
@@ -38,3 +38,5 @@ plugins:
 custom:
   pythonRequirements:
     pythonBin: python3
+    dockerizePip: non-linux
+    slim: true
