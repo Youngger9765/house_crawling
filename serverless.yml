@@ -3,7 +3,7 @@ service: house-crawling
 provider:
   name: aws
   stage: dev
-  runtime: python3.6
+  runtime: python3.9
   region: eu-central-1
   # https://serverless-stack.com/chapters/configure-multiple-aws-profiles.html
   # profile: youngAccount
@@ -25,13 +25,16 @@ functions:
       - http:
           path: joke
           method: get
-  leju:
-    handler: leju.crawl
+  crawler:
+    handler: main.crawl_all
     events:
       - http:
-          path: leju
+          path: main
           method: get
 
 plugins:
   - serverless-prune-plugin
   - serverless-python-requirements
+custom:
+  pythonRequirements:
+    pythonBin: python3

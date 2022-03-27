@@ -132,6 +132,14 @@ def send_line_notification(line_notify_token, message):
 	requests.post(url, headers=headers, data=data)
 			
 
+def crawl_all(event,context):
+	# crawl("leju")
+	# crawl("591")
+	# crawl("fb")
+	# crawl("fb-private")
+	crawl("fb_Crawler_by_facebook_scraper")
+		
+
 if __name__ == "__main__":
 	crawl("leju")
 	# crawl("591")
