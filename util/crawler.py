@@ -375,7 +375,8 @@ class fb_Crawler_by_facebook_scraper():
             group_id = url.split("/")[-1]
             cnt = 0
             cnt_limit = 10
-            for post in get_posts(group=group_id, pages=1, credentials = ("young.tsai.9765@gmail.com","babamama2022")):
+            # for post in get_posts(group=group_id, pages=1, credentials = ("young.tsai.9765@gmail.com","babamama2022")):
+            for post in get_posts(group=group_id, pages=1):
                 username = post['username']
                 text = post['text'][:100]
                 time = str(post['time'])
