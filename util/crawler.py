@@ -263,7 +263,7 @@ class fb_Crawler(crawler):
     def fetch_data(self,url):
         self.get_browser()
         data_soup = self.fetch_url_data(url)
-        print(data_soup)
+        # print(data_soup)
         return data_soup
 
     def fetch_url_data(self, url):
