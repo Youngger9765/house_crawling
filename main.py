@@ -133,8 +133,8 @@ def send_line_notification(line_notify_token, message):
 			
 
 if __name__ == "__main__":
-	crawl("leju")
+	# crawl("leju")
 	# crawl("591")
-	crawl("fb")
+	# crawl("fb")
 	# crawl("fb-private")
-	# crawl("fb_Crawler_by_facebook_scraper")
+	crawl("fb_Crawler_by_facebook_scraper")
