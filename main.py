@@ -172,6 +172,7 @@ def cawl_test():
                 }
             resp = rs.post(groupurl, headers=headers, params=params, data=data)
             print(resp)
+            print(resp.text)
 
             resp = re.sub(r'for \(;;\);', '', resp.text)
             try:
