@@ -170,8 +170,12 @@ def cawl_test():
                 'multi_permalinks': '',
                 'refid': '18'
                 }
+            rs.proxies = {
+                'http': 'http://182.155.249.76:80',
+            }
+            
             resp = rs.post(groupurl, headers=headers, params=params, data=data)
-            print(resp)
+            print(resp.status_code)
             print(resp.text)
 
             resp = re.sub(r'for \(;;\);', '', resp.text)
@@ -215,7 +219,7 @@ def cawl_test():
                     # return print('ERROR: Please send the following URL to the author. \n', rs.url)
             time.sleep(4)
 
-    groupurl = 'https://www.facebook.com/groups/bizthinking'
+    groupurl = 'https://m.facebook.com/groups/bizthinking'
     Crawl_GroupPosts(groupurl, until_date='2022-04-04')
 
 
