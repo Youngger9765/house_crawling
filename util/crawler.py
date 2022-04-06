@@ -33,12 +33,17 @@ class selenium_engine:
         chrome_options.add_argument("--disable-gpu")
         chrome_options.add_argument("--remote-debugging-port=9222")
         chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--single-process')
         # chrome_options.add_argument(f'user-agent={user_agent}')
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
         # chrome_options.add_argument("--disable-blink-features=AutomationControlled");
  
+        # is_AWS = os.environ['is_AWS']
+
         # ChromeDriverManager
+        # chrome_options.binary_location = '/opt/headless-chromium'
+        # self.browser = webdriver.Chrome('/opt/chromedriver',options=chrome_options)
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
 
 
@@ -335,36 +340,36 @@ class fb_Crawler(crawler):
 
         return data_json
 
-class fb_private_Crawler(fb_Crawler):
-    def __init__(self):
-        print("===fb_private_Crawler init ===")
+# class fb_private_Crawler(fb_Crawler):
+#     def __init__(self):
+#         print("===fb_private_Crawler init ===")
 
-    def fetch_data(self,url):
-        print("=====fb_private_Crawler fetch_data======")
-        self.get_browser()
-        self.login_bowser()
-        data_soup = self.fetch_url_data(url)
+#     def fetch_data(self,url):
+#         print("=====fb_private_Crawler fetch_data======")
+#         self.get_browser()
+#         self.login_bowser()
+#         data_soup = self.fetch_url_data(url)
         
-        return data_soup
+#         return data_soup
 
-    def login_bowser(self):
-        url = "https://www.facebook.com"
-        browser = self.browser
-        browser.get(url)
-        sleep(15)
-        username = 'young.tsai.9765@gmail.com'
-        password = 'babamama2022'
-        WebDriverWait(browser, 30).until(
-            EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
-        elem = browser.find_element_by_id("email")
-        elem.send_keys(username)
-        sleep(3)
-        elem = browser.find_element_by_id("pass")
-        elem.send_keys(password)
-        sleep(3)
-        elem = browser.find_element_by_xpath('//button[@name="login"]')
-        elem.click()
-        sleep(10)
+#     def login_bowser(self):
+#         url = "https://www.facebook.com"
+#         browser = self.browser
+#         browser.get(url)
+#         sleep(15)
+#         username = 'young.tsai.9765@gmail.com'
+#         password = 'babamama2022'
+#         WebDriverWait(browser, 30).until(
+#             EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
+#         elem = browser.find_element_by_id("email")
+#         elem.send_keys(username)
+#         sleep(3)
+#         elem = browser.find_element_by_id("pass")
+#         elem.send_keys(password)
+#         sleep(3)
+#         elem = browser.find_element_by_xpath('//button[@name="login"]')
+#         elem.click()
+#         sleep(10)
 
 # class fb_Crawler_by_facebook_scraper():
 #     def __init__(self):
