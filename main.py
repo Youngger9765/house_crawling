@@ -171,7 +171,7 @@ def cawl_test():
                 'refid': '18'
                 }
             rs.proxies = {
-                'http': 'http://15.235.41.55:8990',
+                'https': 'https://15.235.41.55:8990',
             }
             
             resp = rs.post(groupurl, headers=headers, params=params, data=data)
