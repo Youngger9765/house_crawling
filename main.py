@@ -171,6 +171,8 @@ def cawl_test():
                 'refid': '18'
                 }
             resp = rs.post(groupurl, headers=headers, params=params, data=data)
+            print(resp)
+
             resp = re.sub(r'for \(;;\);', '', resp.text)
             try:
                 resp = json.loads(resp)
@@ -232,4 +234,4 @@ if __name__ == "__main__":
     # crawl("fb")
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
-    print("OK")
+    cawl_test()
