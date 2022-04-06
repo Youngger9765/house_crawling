@@ -135,21 +135,8 @@ def send_line_notification(line_notify_token, message):
     requests.post(url, headers=headers, data=data)
 
 
-def crawl_all(event,context):
-    # crawl("leju")
-    # crawl("591")
-    crawl("fb")
-    crawl("fb-private")
-    # crawl("fb_Crawler_by_facebook_scraper")
 
-
-if __name__ == "__main__":
-    # crawl("leju")
-    # crawl("591")
-    # crawl("fb")
-    # crawl("fb-private")
-    # crawl("fb_Crawler_by_facebook_scraper")
-
+def cawl_test():
     import requests
     import re
     import json
@@ -217,14 +204,32 @@ if __name__ == "__main__":
                 except:
                     bac = re.findall('bac=(.*?)&', soup.select('div > a.primary')[0]['href'])[0]
                 break_times = 0 # reset break times to zero
-                
             except:
                 break_times += 1
                 print('break_times:', break_times)
                 if break_times > 5:
                     return soup.select('div > a.primary')[0]['href']
                     # return print('ERROR: Please send the following URL to the author. \n', rs.url)
-            time.sleep(4)    
+            time.sleep(4)
 
     groupurl = 'https://www.facebook.com/groups/bizthinking'
     Crawl_GroupPosts(groupurl, until_date='2022-04-04')
+
+
+def crawl_all(event,context):
+    # crawl("leju")
+    # crawl("591")
+    # crawl("fb")
+    # crawl("fb-private")
+    # crawl("fb_Crawler_by_facebook_scraper")
+
+    cawl_test()
+
+
+if __name__ == "__main__":
+    # crawl("leju")
+    # crawl("591")
+    # crawl("fb")
+    # crawl("fb-private")
+    # crawl("fb_Crawler_by_facebook_scraper")
+    print("OK")
