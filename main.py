@@ -171,12 +171,12 @@ def cawl_test():
                 'refid': '18'
                 }
             rs.proxies = {
-                'http': 'http://182.155.249.76:80',
+                'http': 'http://15.235.41.55:8990',
             }
             
             resp = rs.post(groupurl, headers=headers, params=params, data=data)
-            print(resp.status_code)
-            print(resp.text)
+            # print(resp.status_code)
+            # print(resp.text)
 
             resp = re.sub(r'for \(;;\);', '', resp.text)
             try:
