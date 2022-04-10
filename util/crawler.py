@@ -22,6 +22,15 @@ from bs4 import BeautifulSoup
 import json
 import re
 
+import requests
+import re
+import json
+from bs4 import BeautifulSoup
+import datetime
+from datetime import date
+import time
+
+
 class selenium_engine:
     def __init__(self):
         # user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
@@ -340,95 +349,203 @@ class fb_Crawler(crawler):
 
         return data_json
 
-# class fb_private_Crawler(fb_Crawler):
-#     def __init__(self):
-#         print("===fb_private_Crawler init ===")
+class fb_private_Crawler(fb_Crawler):
+    def __init__(self):
+        print("===fb_private_Crawler init ===")
 
-#     def fetch_data(self,url):
-#         print("=====fb_private_Crawler fetch_data======")
-#         self.get_browser()
-#         self.login_bowser()
-#         data_soup = self.fetch_url_data(url)
+    def fetch_data(self,url):
+        print("=====fb_private_Crawler fetch_data======")
+        self.get_browser()
+        self.login_bowser()
+        data_soup = self.fetch_url_data(url)
         
-#         return data_soup
+        return data_soup
 
-#     def login_bowser(self):
-#         url = "https://www.facebook.com"
-#         browser = self.browser
-#         browser.get(url)
-#         sleep(15)
-#         username = 'young.tsai.9765@gmail.com'
-#         password = 'babamama2022'
-#         WebDriverWait(browser, 30).until(
-#             EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
-#         elem = browser.find_element_by_id("email")
-#         elem.send_keys(username)
-#         sleep(3)
-#         elem = browser.find_element_by_id("pass")
-#         elem.send_keys(password)
-#         sleep(3)
-#         elem = browser.find_element_by_xpath('//button[@name="login"]')
-#         elem.click()
-#         sleep(10)
+    def login_bowser(self):
+        url = "https://www.facebook.com"
+        browser = self.browser
+        browser.get(url)
+        sleep(15)
+        username = 'young.tsai.9765@gmail.com'
+        password = 'babamama2022'
+        WebDriverWait(browser, 30).until(
+            EC.presence_of_element_located((By.XPATH, '//*[@id="email"]')))
+        elem = browser.find_element_by_id("email")
+        elem.send_keys(username)
+        sleep(3)
+        elem = browser.find_element_by_id("pass")
+        elem.send_keys(password)
+        sleep(3)
+        elem = browser.find_element_by_xpath('//button[@name="login"]')
+        elem.click()
+        sleep(10)
 
-# class fb_Crawler_by_facebook_scraper():
-#     def __init__(self):
-#         print("===fb_Crawler_by_facebook_scraper init ===")
+class fb_Crawler_by_facebook_scraper():
+    def __init__(self):
+        print("===fb_Crawler_by_facebook_scraper init ===")
 
-#     def fetch_data(self,url):
-#         data_list = []
-#         if "groups" in url:
-#             group_id = url.split("/")[-1]
-#             cnt = 0
-#             cnt_limit = 10
-#             # for post in get_posts(group=group_id, pages=1, credentials = ("young.tsai.9765@gmail.com","babamama2022")):
-#             for post in get_posts(group=group_id, pages=1):
-#                 username = post['username']
-#                 text = post['text'][:100]
-#                 time = str(post['time'])
-#                 post_url = post['post_url']
-#                 img_link = post['image']
-#                 # print(text[:100])
-#                 # print(time)
-#                 # print(post_url)
-#                 # print(img_link)
-#                 # print("=======")
-#                 data = {
-#                     'post_group_name': post['header'],
-#                     'text': text,
-#                     'time': time,
-#                     'post_url': post_url,
-#                     'img_link': img_link
-#                 }
-#                 data_list.append(data)
+    def fetch_data(self,url):
+        data_list = []
+        if "groups" in url:
+            group_id = url.split("/")[-1]
+            cnt = 0
+            cnt_limit = 10
+            # for post in get_posts(group=group_id, pages=1, credentials = ("young.tsai.9765@gmail.com","babamama2022")):
+            for post in get_posts(group=group_id, pages=1):
+                username = post['username']
+                text = post['text'][:100]
+                time = str(post['time'])
+                post_url = post['post_url']
+                img_link = post['image']
+                # print(text[:100])
+                # print(time)
+                # print(post_url)
+                # print(img_link)
+                # print("=======")
+                data = {
+                    'post_group_name': post['header'],
+                    'text': text,
+                    'time': time,
+                    'post_url': post_url,
+                    'img_link': img_link
+                }
+                data_list.append(data)
 
-#                 cnt +=1
-#                 if cnt >= cnt_limit:
-#                     break
+                cnt +=1
+                if cnt >= cnt_limit:
+                    break
         
-#         return data_list
+        return data_list
+
+    def get_data_json(self, data_list):
+        data_json = []
+        for data in data_list:
+            post_group_name = data['post_group_name']
+            post_link = data['post_url']
+            post_time = data['time'],
+            title = ''
+            sub_title= ''
+            content = data['text']
+            img_link = data['img_link']
+            data = {
+                "post_group_name": post_group_name,
+                "post_link": post_link,
+                "post_time": post_time,
+                "title": title,
+                "sub_title": sub_title,
+                "content": content,
+                "img_link": img_link,
+            }
+            data_json.append(data)
+        
+        return data_json
+
+class fb_GoupCrawlerByRequests():
+
+    def __init__(self):
+        print("===fb_CrawlerByRequests init ===")
     
-
-#     def get_data_json(self, data_list):
-#         data_json = []
-#         for data in data_list:
-#             post_group_name = data['post_group_name']
-#             post_link = data['post_url']
-#             post_time = data['time'],
-#             title = ''
-#             sub_title= ''
-#             content = data['text']
-#             img_link = data['img_link']
-#             data = {
-#                 "post_group_name": post_group_name,
-#                 "post_link": post_link,
-#                 "post_time": post_time,
-#                 "title": title,
-#                 "sub_title": sub_title,
-#                 "content": content,
-#                 "img_link": img_link,
-#             }
-#             data_json.append(data)
+    def fetch_data(self, url):
+        print("===fb_CrawlerByRequests fetch_data ===")
         
-#         return data_json
+        # init parameters
+        rs = requests.Session()
+        content_df = [] # post
+        feedback_df = [] # reactions
+        bac = ''
+        
+        max_date =  datetime.datetime.now().strftime('%Y-%m-%d')
+        headers = {'sec-fetch-site': 'same-origin',
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36 Edg/96.0.1054.43',
+                'x-fb-lsd': 'GoogleBot'}
+        data = {'lsd': 'GoogleBot',
+                '__a': 'GoogleBot'}
 
+        # redirect to m.facebook
+        groupurl = re.sub('www','m', url)
+
+        today = date.today()
+        # until_date = "2022-04-04"
+        until_date=today.strftime("%Y-%m-%d")
+        print(until_date)
+        print(max_date)
+
+        # request data and break loop until reach the goal
+        data_soup_list = []
+        while max_date >= until_date:
+
+            # request params
+            params = {
+                'bac': bac,
+                'multi_permalinks': '',
+                'refid': '18'
+                }
+            resp = rs.post(groupurl, headers=headers, params=params, data=data)
+            # print(resp.status_code)
+            # print(resp.text)
+
+            resp = re.sub(r'for \(;;\);', '', resp.text)
+            try:
+                resp = json.loads(resp)
+            except:
+                print('Error at josn.load stage.')
+                return resp
+            data_soup = BeautifulSoup(resp['payload']['actions'][0]['html'], "lxml")
+            data_soup_list.append(data_soup)
+            reactions = re.findall('\(new \(require\("ServerJS"\)\)\(\)\).handle\((.*?)\);', resp['payload']['actions'][2]['code'])[0]
+            max_date = max([re.findall('"publish_time":(.*?),', str(time['data-ft']))[0] for time in data_soup.select('section > article')])
+            max_date = datetime.datetime.fromtimestamp(int(max_date)).strftime('%Y-%m-%d')
+            print(f'TimeStamp: {max_date}.')
+            try:
+                bac = re.findall('bac=(.*?)%3D', data_soup.select('div > a.primary')[0]['href'])[0]
+            except:
+                bac = re.findall('bac=(.*?)&', data_soup.select('div > a.primary')[0]['href'])[0]
+
+        return data_soup_list
+
+    def get_data_json(self, data_soup_list):
+        break_times = 0
+        data_json = []
+        for data_soup in data_soup_list:
+            try:
+                # Parse content
+                for post in data_soup.select('section > article'):
+                    try:
+                        # print(post)
+                        # ACTORID = re.findall('"content_owner_id_new":(.*?),', str(post))[0], # ACTORID
+                        # NAME = list(post.select('strong > a')[0].text), # NAME
+                        # GROUPID = re.findall('"page_id":"(.*?)"', str(post))[0], # GROUPID
+                        GROUPNAME = post.find('h3').text
+                        # POSTID = re.findall('"mf_story_key":"(.*?)"', str(post))[0], # POSTID
+                        POSTID = json.loads(post["data-ft"])["mf_story_key"]
+                        TIME = re.search(r'\"publish_time\":(.*?),', str(post)).group(1), # TIME
+                        TIME = int(list(TIME)[0])
+                        POST_DATETIME = datetime.datetime.fromtimestamp(TIME).strftime("%Y-%m-%d")
+                        CONTENT = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
+                        PHOTOID = json.loads(post["data-ft"])["photo_id"]
+
+                        # print([ACTORID,NAME,GROUPID,POSTID,TIME ])
+                        # print(GROUPNAME)
+
+                        data = {
+                            "post_group_name": GROUPNAME,
+                            "post_link": "www.facebook.com/" + POSTID,
+                            "post_time": POST_DATETIME,
+                            "title": "",
+                            "sub_title": "",
+                            "content": CONTENT,
+                            "img_link": "www.facebook.com/" + PHOTOID,
+                        }
+                        data_json.append(data)
+                        # print(data)
+                    except:
+                        pass                
+                break_times = 0 # reset break times to zero
+            except:
+                break_times += 1
+                print('break_times:', break_times)
+                if break_times > 5:
+                    return data_soup.select('div > a.primary')[0]['href']
+                    # return print('ERROR: Please send the following URL to the author. \n', rs.url)
+
+        return data_json
