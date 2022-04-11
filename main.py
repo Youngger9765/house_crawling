@@ -3,8 +3,8 @@
 from util.gsheet import gsheet_worker
 from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
 from util.crawler import fb_GoupCrawlerByRequests
-# from util.crawler import fb_private_Crawler
-# from util.crawler import fb_Crawler_by_facebook_scraper
+from util.crawler import fb_private_Crawler
+from util.crawler import fb_Crawler_by_facebook_scraper
 import json
 import requests
 
@@ -30,18 +30,18 @@ def web_config(name):
             "result_tab": "FB-bot",
             "result_link_col": 2
         },
-        # "fb-private": {
-        #     "url_list_tab": "FB-private-list",
-        #     "crawler": fb_private_Crawler(),
-        #     "result_tab": "FB-private-bot",
-        #     "result_link_col": 2
-        # },
-        # "fb_Crawler_by_facebook_scraper": {
-        # 	"url_list_tab": "FB-list",
-        # 	"crawler": fb_Crawler_by_facebook_scraper(),
-        # 	"result_tab": "FB-bot",
-        # 	"result_link_col": 2
-        # },
+        "fb-private": {
+            "url_list_tab": "FB-private-list",
+            "crawler": fb_private_Crawler(),
+            "result_tab": "FB-private-bot",
+            "result_link_col": 2
+        },
+        "fb_Crawler_by_facebook_scraper": {
+        	"url_list_tab": "FB-list",
+        	"crawler": fb_Crawler_by_facebook_scraper(),
+        	"result_tab": "FB-bot",
+        	"result_link_col": 2
+        },
         "fb_GoupCrawlerByRequests": {
         	"url_list_tab": "FB-list",
         	"crawler": fb_GoupCrawlerByRequests(),
