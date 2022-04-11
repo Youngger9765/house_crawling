@@ -1,8 +1,10 @@
 import os
-from selenium import webdriver
-import selenium
-# import random_user_agent
+import datetime
+from datetime import date
+from time import sleep
 
+from selenium import webdriver
+# import random_user_agent
 from selenium.common.exceptions import TimeoutException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -14,23 +16,14 @@ from webdriver_manager.chrome import ChromeDriverManager
 # from random_user_agent.user_agent import UserAgent
 # from random_user_agent.params import SoftwareName, OperatingSystem
 
-from time import sleep
+import json
+import re
+import requests
 from bs4 import BeautifulSoup
 
 # facebook_scraper
 from facebook_scraper import get_posts
 from facebook_scraper import get_group_info
-
-import json
-import re
-
-import requests
-import re
-import json
-from bs4 import BeautifulSoup
-import datetime
-from datetime import date
-import time
 
 
 class selenium_engine:
@@ -49,7 +42,7 @@ class selenium_engine:
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
         # chrome_options.add_argument("--disable-blink-features=AutomationControlled");
- 
+
         # is_AWS = os.environ['is_AWS']
 
         # ChromeDriverManager
@@ -66,7 +59,7 @@ class crawler:
     def get_browser(self):
         engine = selenium_engine()
         self.browser = engine.browser
-    
+
     def wait_by_class_name(self, class_name):
         timeout = 10
         try:
@@ -75,9 +68,9 @@ class crawler:
         except TimeoutException:
             print("Timed out waiting for page to load")
         finally:
-            print("Page loaded")    
-        sleep(5)  
-    
+            print("Page loaded")
+        sleep(5)
+
     def scroll_down(self, count):
         for i in range(count):
             self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -276,7 +269,7 @@ class _591_Crawler(crawler):
 class fb_Crawler(crawler):
     def __init__(self):
         print("===fb_Crawler init ===")
-    
+
     def fetch_data(self,url):
         self.get_browser()
         data_soup = self.fetch_url_data(url)
@@ -320,7 +313,7 @@ class fb_Crawler(crawler):
         post_group_id = data_soup.select_one(posts_group_id_selector)["content"].replace("fb://group/","")
         posts_group_class_name = 'meta[property="og:url"]'
         post_group_url = data_soup.select_one(posts_group_class_name)["content"][:-1]
-        
+
         # posts
         post_class_name = "section > article"
         posts = data_soup.select(post_class_name)
@@ -334,7 +327,7 @@ class fb_Crawler(crawler):
                 page_id = json.loads(post["data-ft"])["page_id"]
                 publish_time = json.loads(post["data-ft"])["page_insights"][page_id]['post_context']['publish_time']
                 post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")
-                
+
                  # # title
                 title = ""
                 sub_title = ""
@@ -375,7 +368,7 @@ class fb_private_Crawler(fb_Crawler):
         self.get_browser()
         self.login_bowser()
         data_soup = self.fetch_url_data(url)
-        
+
         return data_soup
 
     def login_bowser(self):
@@ -409,7 +402,7 @@ class fb_Crawler_by_facebook_scraper():
             post_group_id = group_info['id']
             post_group_url = "www.facebook.com/groups/" + group_id
             post_group_name = group_info['name']
-        
+
         return [posts, post_group_id, post_group_url, post_group_name]
 
     def get_data_json(self, data):
@@ -442,22 +435,19 @@ class fb_Crawler_by_facebook_scraper():
             cnt +=1
             if cnt >= cnt_limit:
                 break
-        
+
         return data_json
 
 class fb_GoupCrawlerByRequests():
     def __init__(self):
         print("===fb_CrawlerByRequests init ===")
-    
+
     def fetch_data(self, url):
         print("===fb_CrawlerByRequests fetch_data ===")
 
         # init parameters
         rs = requests.Session()
-        content_df = [] # post
-        feedback_df = [] # reactions
         bac = ''
-        
         max_date =  datetime.datetime.now().strftime('%Y-%m-%d')
         headers = {'sec-fetch-site': 'same-origin',
                 'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.55 Safari/537.36 Edg/96.0.1054.43',
@@ -467,9 +457,7 @@ class fb_GoupCrawlerByRequests():
 
         # redirect to m.facebook
         groupurl = re.sub('www','m', url)
-
         today = date.today()
-        # until_date = "2022-04-04"
         until_date=today.strftime("%Y-%m-%d")
         print(until_date)
         print(max_date)
@@ -494,6 +482,7 @@ class fb_GoupCrawlerByRequests():
             except:
                 print('Error at josn.load stage.')
                 return resp
+
             data_soup = BeautifulSoup(resp['payload']['actions'][0]['html'], "lxml")
             data_soup_list.append(data_soup)
             reactions = re.findall('\(new \(require\("ServerJS"\)\)\(\)\).handle\((.*?)\);', resp['payload']['actions'][2]['code'])[0]
@@ -515,30 +504,22 @@ class fb_GoupCrawlerByRequests():
                 # Parse content
                 for post in data_soup.select('section > article'):
                     try:
-                        # print(post)
-                        # ACTORID = re.findall('"content_owner_id_new":(.*?),', str(post))[0], # ACTORID
-                        # NAME = list(post.select('strong > a')[0].text), # NAME
-                        # GROUPID = re.findall('"page_id":"(.*?)"', str(post))[0],
                         post_group_id = json.loads(post["data-ft"])["page_id"]
                         pattern = r'.*href=\"https:\/\/m.facebook.com\/groups\/(.*?)\/permalink\/.*'
                         post_group_url = "www.facebook.com/groups/" + re.search(pattern, str(post)).group(1)
                         post_group_name = post.find('h3').text
-                        # POSTID = re.findall('"mf_story_key":"(.*?)"', str(post))[0], # POSTID
-                        POSTID = json.loads(post["data-ft"])["mf_story_key"]
-                        post_link = "www.facebook.com/" + POSTID
-                        TIME = re.search(r'\"publish_time\":(.*?),', str(post)).group(1), # TIME
-                        TIME = int(list(TIME)[0])
-                        post_time = datetime.datetime.fromtimestamp(TIME).strftime("%Y-%m-%d")
+                        post_id = json.loads(post["data-ft"])["mf_story_key"]
+                        post_link = "www.facebook.com/" + post_id
+                        publish_time = re.search(r'\"publish_time\":(.*?),', str(post)).group(1), # TIME
+                        publish_time = int(list(publish_time)[0])
+                        post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")
                         content = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
-                        try: 
-                            PHOTOID = json.loads(post["data-ft"])["photo_id"]
-                            img_link = "www.facebook.com/" + PHOTOID
-                        except:
-                            img_link = ""
-                            print("no photo")
-                        
-                        # print([ACTORID,NAME,GROUPID,POSTID,TIME ])
-                        # print(type(post_group_id))
+                        img_link = ""
+                        try:
+                            photo_id = json.loads(post["data-ft"])["photo_id"]
+                            img_link = "www.facebook.com/" + photo_id
+                        except Exception as error:
+                            print(repr(error))
 
                         data = {
                             "post_group_id": post_group_id,
@@ -552,12 +533,11 @@ class fb_GoupCrawlerByRequests():
                             "img_link": img_link,
                         }
                         data_json.append(data)
-                        # print(data)
-                    except Exception as e:
-                        print(repr(e))              
+                    except Exception as error:
+                        print(repr(error))              
                 break_times = 0 # reset break times to zero
-            except Exception as e:
-                print(repr(e))
+            except Exception as error:
+                print(repr(error))
                 break_times += 1
                 print('break_times:', break_times)
                 if break_times > 5:
