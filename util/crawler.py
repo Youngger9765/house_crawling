@@ -297,6 +297,7 @@ class fb_Crawler(crawler):
     def get_data_json(self, data_soup):
         # selector params
         posts_group_class_name = "h1 a"
+        posts_group_id_selector = 'meta[property="al:android:url"]'
         post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
         title_class_name = "h3"
         sub_title_class_name = "h4"
@@ -306,9 +307,13 @@ class fb_Crawler(crawler):
         post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
 
         post_group_name = data_soup.select_one(posts_group_class_name).text
+        post_group_id = data_soup.select_one(posts_group_id_selector)["content"].replace("fb://group/","")
+        post_group_url = data_soup.select_one(posts_group_class_name)["href"][:-1]
+
         # posts
         posts = data_soup.select(post_class_name)
         data_json = []
+        
         for post in posts:
             # post
             post_link = post.select_one(post_a_class_name).get("href").split('/?')[0]
@@ -337,6 +342,8 @@ class fb_Crawler(crawler):
             img_link = post.select_one(img_class_name).get("src")
 
             data = {
+                "post_group_id": post_group_id,
+                "post_group_url": post_group_url,
                 "post_group_name": post_group_name,
                 "post_link": post_link,
                 "post_time": post_time,
@@ -428,6 +435,8 @@ class fb_Crawler_by_facebook_scraper():
             content = data['text']
             img_link = data['img_link']
             data = {
+                # "post_group_id": post_group_id,
+                # "post_group_url": post_group_url,
                 "post_group_name": post_group_name,
                 "post_link": post_link,
                 "post_time": post_time,
@@ -441,13 +450,12 @@ class fb_Crawler_by_facebook_scraper():
         return data_json
 
 class fb_GoupCrawlerByRequests():
-
     def __init__(self):
         print("===fb_CrawlerByRequests init ===")
     
     def fetch_data(self, url):
         print("===fb_CrawlerByRequests fetch_data ===")
-        
+
         # init parameters
         rs = requests.Session()
         content_df = [] # post
@@ -514,34 +522,46 @@ class fb_GoupCrawlerByRequests():
                         # print(post)
                         # ACTORID = re.findall('"content_owner_id_new":(.*?),', str(post))[0], # ACTORID
                         # NAME = list(post.select('strong > a')[0].text), # NAME
-                        # GROUPID = re.findall('"page_id":"(.*?)"', str(post))[0], # GROUPID
-                        GROUPNAME = post.find('h3').text
+                        # GROUPID = re.findall('"page_id":"(.*?)"', str(post))[0],
+                        post_group_id = json.loads(post["data-ft"])["page_id"]
+                        pattern = r'.*href=\"https:\/\/m.facebook.com\/groups\/(.*?)\/permalink\/.*'
+                        post_group_url = "www.facebook.com/groups/" + re.search(pattern, str(post)).group(1)
+                        post_group_name = post.find('h3').text
                         # POSTID = re.findall('"mf_story_key":"(.*?)"', str(post))[0], # POSTID
                         POSTID = json.loads(post["data-ft"])["mf_story_key"]
+                        post_link = "www.facebook.com/" + POSTID
                         TIME = re.search(r'\"publish_time\":(.*?),', str(post)).group(1), # TIME
                         TIME = int(list(TIME)[0])
-                        POST_DATETIME = datetime.datetime.fromtimestamp(TIME).strftime("%Y-%m-%d")
-                        CONTENT = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
-                        PHOTOID = json.loads(post["data-ft"])["photo_id"]
-
+                        post_time = datetime.datetime.fromtimestamp(TIME).strftime("%Y-%m-%d")
+                        content = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
+                        try: 
+                            PHOTOID = json.loads(post["data-ft"])["photo_id"]
+                            img_link = "www.facebook.com/" + PHOTOID
+                        except:
+                            img_link = ""
+                            print("no photo")
+                        
                         # print([ACTORID,NAME,GROUPID,POSTID,TIME ])
-                        # print(GROUPNAME)
+                        # print(type(post_group_id))
 
                         data = {
-                            "post_group_name": GROUPNAME,
-                            "post_link": "www.facebook.com/" + POSTID,
-                            "post_time": POST_DATETIME,
+                            "post_group_id": post_group_id,
+                            "post_group_url": post_group_url,
+                            "post_group_name": post_group_name,
+                            "post_link": post_link,
+                            "post_time": post_time,
                             "title": "",
                             "sub_title": "",
-                            "content": CONTENT,
-                            "img_link": "www.facebook.com/" + PHOTOID,
+                            "content": content,
+                            "img_link": img_link,
                         }
                         data_json.append(data)
                         # print(data)
-                    except:
-                        pass                
+                    except Exception as e:
+                        print(repr(e))              
                 break_times = 0 # reset break times to zero
-            except:
+            except Exception as e:
+                print(repr(e))
                 break_times += 1
                 print('break_times:', break_times)
                 if break_times > 5:
@@ -549,3 +569,5 @@ class fb_GoupCrawlerByRequests():
                     # return print('ERROR: Please send the following URL to the author. \n', rs.url)
 
         return data_json
+
+
