@@ -5,6 +5,9 @@ from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
 from util.crawler import fb_GoupCrawlerByRequests
 from util.crawler import fb_private_Crawler
 from util.crawler import fb_Crawler_by_facebook_scraper
+from util.crawler import yt_CrawlerBySelenium
+from util.crawler import yt_CrawlerByfeeds
+from util.crawler import yt_CrawlerByScriptbarrel
 import json
 import requests
 
@@ -47,6 +50,24 @@ def web_config(name):
         	"crawler": fb_GoupCrawlerByRequests(),
         	"result_tab": "FB-bot",
         	"result_link_col": 4
+        },
+        "yt_CrawlerBySelenium": {
+            "url_list_tab": "YT-list",
+            "crawler": yt_CrawlerBySelenium(),
+            "result_tab": "YT-bot",
+            "result_link_col": 4
+        },
+        "yt_CrawlerByfeeds": {
+            "url_list_tab": "YT-list",
+            "crawler": yt_CrawlerByfeeds(),
+            "result_tab": "YT-bot",
+            "result_link_col": 4
+        },
+        "yt_CrawlerByScriptbarrel": {
+            "url_list_tab": "YT-list",
+            "crawler": yt_CrawlerByScriptbarrel(),
+            "result_tab": "YT-bot",
+            "result_link_col": 4
         },
 
     }
@@ -147,7 +168,10 @@ def crawl_all(event,context):
     # crawl("fb")
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
-    crawl("fb_GoupCrawlerByRequests")
+    # crawl("fb_GoupCrawlerByRequests")
+    # crawl("yt_CrawlerBySelenium")
+    # crawl("yt_CrawlerByfeeds")
+    crawl("yt_CrawlerByScriptbarrel")
 
 
 if __name__ == "__main__":

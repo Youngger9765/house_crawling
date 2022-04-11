@@ -6,3 +6,4 @@ requests==2.22.0
 webdriver-manager==3.3.0
 facebook_scraper
 lxml==4.8.0
+socialreaper

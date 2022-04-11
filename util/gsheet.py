@@ -20,6 +20,8 @@ class gsheet_worker:
             self.sheet_worker = _591_gsheet_worker()
         elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
             self.sheet_worker = fb_gsheet_worker()
+        elif web_name in ["yt_CrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
+            self.sheet_worker = yt_gsheet_worker()
         else:
             self.sheet_worker = None
 
@@ -262,6 +264,81 @@ class fb_gsheet_worker:
                         sleep(3)
                         sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
                         message = f"【FB-{sheet_value[2]}】 有新文章: {sheet_value[5]} {sheet_value[6]} {sheet_value[7]} ，詳情請點擊:{sheet_value[3]}"
+                        print(message)
+                        self.message_list.append(message)                 
+                        sheet_row_cnt +=1
+                    except Exception as e:
+                        print(f"sheet insert fail!")
+                        print(repr(e))
+
+    def get_message_list(self):
+        message_list = self.message_list
+        return message_list
+
+
+class yt_gsheet_worker:
+    def __init__(self):
+        self.message_list = []
+
+    def data_to_sheet_value_list(self, data):
+        sheet_value_list = []
+        video_list = json.loads(data)
+
+        for video in video_list:
+            channel_id = video['channel_id']
+            channel_url = video['channel_url']
+            channel_name = video['channel_name']
+            video_url = video['video_url']
+            published = video['published']
+            title = video['title']
+            img_link = video['img_link']
+            now = dt.now().strftime("%Y/%m/%d")
+
+            data = {
+                "channel_id": channel_id,
+                "channel_url": channel_url,
+                "channel_name": channel_name,
+                "video_url": video_url,
+                "published": published,
+                "title": title,
+                "img_link": img_link
+            }
+
+
+            sheet_value = [
+                str(channel_id),
+                str(channel_url),
+                str(channel_name),
+                str(video_url),
+                str(published),
+                str(title),
+                str(img_link),
+                now
+            ]
+            sheet_value_list.append(sheet_value)
+
+        return sheet_value_list
+
+    def write_profile_to_sheet(self, data, sheet_bot, link_list):
+        profile_list = data['profile']
+        for profile in profile_list:
+            sheet_value_list = self.data_to_sheet_value_list(profile)        
+            sheet_row_cnt = 2
+            link_position = 3
+            for sheet_value in sheet_value_list:
+                link = str(sheet_value[link_position])
+                print("====link====")
+                print(link)
+                
+                if link in link_list:
+                    print("===exist!===")
+                    print(link)
+                    print("============")
+                else:
+                    try:
+                        sleep(3)
+                        sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
+                        message = f"【FB-{sheet_value[2]}】 有新影片: {sheet_value[5]}，詳情請點擊:{link}"
                         print(message)
                         self.message_list.append(message)                 
                         sheet_row_cnt +=1

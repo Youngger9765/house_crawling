@@ -19,11 +19,15 @@ from webdriver_manager.chrome import ChromeDriverManager
 import json
 import re
 import requests
+import xml.etree.ElementTree as ET
 from bs4 import BeautifulSoup
 
 # facebook_scraper
 from facebook_scraper import get_posts
 from facebook_scraper import get_group_info
+
+# https://github.com/ScriptSmith/socialreaper
+import socialreaper
 
 
 class selenium_engine:
@@ -545,5 +549,123 @@ class fb_GoupCrawlerByRequests():
                     # return print('ERROR: Please send the following URL to the author. \n', rs.url)
 
         return data_json
+
+
+class yt_CrawlerBySelenium(crawler):
+    def __init__(self):
+        print("===yt_CrawlerBySelenium init ===")
+
+    # def fetch_data(self,url):
+    #     self.get_browser()
+    #     data_soup = self.fetch_url_data(url)
+    #     # print(data_soup)
+    #     return data_soup
+
+    # def get_data_json(self, data_soup):
+    #     videos = data_soup.select("#meta #video-title")
+    #     for video in videos:
+    #         title = video['title']
+    #         href = video['href']
+            
+    #         print(title)
+    #         print(href)
+
+
+
+class yt_CrawlerByfeeds():
+    def __init__(self):
+        print("===yt_CrawlerByfeeds init ===")
+        # https://www.youtube.com/feeds/videos.xml?channel_id=UCKPflKAE2Y1tm8VSi32iboQ
+
+    def fetch_data(self,url):
+        channel_id = url.replace("https://www.youtube.com/channel/","")
+        feeds_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        response = requests.get(feeds_url)
+        data_soup = BeautifulSoup(response.content, 'xml')
+
+        return data_soup
+
+    def get_data_json(self, data_soup):
+        data_json = []
+        videos = data_soup.select("entry")
+        for video in videos:
+            video_url = video.find("link")["href"]
+            title = video.select_one("title").text
+            channel_name = video.select_one("author name").text
+            channel_url = video.select_one("author uri").text
+            channel_id = video.find("yt:channelId").text
+            published = video.select_one("published").text
+            img_link = video.find("media:thumbnail")["url"]
+            data = {
+                "channel_id": channel_id,
+                "channel_url": channel_url,
+                "channel_name": channel_name,
+                "video_url": video_url,
+                "published": published,
+                "title": title,
+                "img_link": img_link
+            }
+            data_json.append(data)
+            print(data)
+
+        return data_json
+
+
+class yt_CrawlerByScriptbarrel():
+    def __init__(self):
+        print("===yt_CrawlerByScriptbarrel init ===")
+        #  https://www.scriptbarrel.com/xml.cgi?channel_id=UCKPflKAE2Y1tm8VSi32iboQ&name=老孫聊遊戲
+
+    def fetch_data(self,url):
+        channel_id = url.replace("https://www.youtube.com/channel/","")
+        feeds_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        response = requests.get(feeds_url)
+        data_soup = BeautifulSoup(response.content, 'xml')
+        video = data_soup.select("entry")[0]
+        channel_name = video.select_one("author name").text
+        channel_url = video.select_one("author uri").text
+        channel_id = video.find("yt:channelId").text
+        scriptbarrel_url = f"https://www.scriptbarrel.com/getvids?goods=https%3A%2F%2Fwww.youtube.com%2Fchannel%2F{channel_id}"
+        response = requests.get(scriptbarrel_url)
+        data_soup = BeautifulSoup(response.content, 'html.parser')
+
+        return [data_soup, channel_name, channel_url, channel_id]
+
+    def get_data_json(self, data):
+        data_soup = data[0]
+        channel_name = data[1]
+        channel_url = data[2]
+        channel_id = data[3]
+
+        data_soup_str = str(data_soup)
+        video_link_pattern = r'<a href="(.*?)"'
+        video_links = re.findall(video_link_pattern, data_soup_str)
+        title_pattern = r'<b>Title:<\/b> (.*?)<br\/>'
+        titles = re.findall(title_pattern, data_soup_str)
+        img_pattern = r'<img src="(.*?)"'
+        img_links = re.findall(img_pattern, data_soup_str)
+        date_pattern = r'<b>Date:<\/b> (.*?)<br\/>'
+        video_dates = re.findall(date_pattern, data_soup_str)
+
+        data_json = []
+        for i,v in enumerate(video_links):
+            video_url = v.replace("http://","https://www.")
+            title = titles[i]
+            img_link = img_links[i]
+            published = video_dates[i]
+
+            data = {
+                "channel_name":channel_name,
+                "channel_url": channel_url,
+                "channel_id": channel_id,
+                "video_url": video_url,
+                "published": published,
+                "title": title,
+                "img_link": img_link,
+            }
+            data_json.append(data)
+
+        return data_json
+
 
 
