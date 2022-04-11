@@ -284,7 +284,8 @@ class fb_Crawler(crawler):
     def fetch_url_data(self, url):
         print(f"===fetch:{url}===")
         browser = self.browser
-        browser.get(url)
+        m_url = url.replace("www","m")
+        browser.get(m_url)
         sleep(10)
         # self.wait_by_class_name(".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs")
         self.scroll_down(2)
@@ -295,64 +296,71 @@ class fb_Crawler(crawler):
         return data_soup
 
     def get_data_json(self, data_soup):
-        # selector params
-        posts_group_class_name = "h1 a"
+        # selector params for www.
+        # posts_group_class_name = "h1 a"
+        # posts_group_id_selector = 'meta[property="al:android:url"]'
+        # post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
+        # title_class_name = "h3"
+        # sub_title_class_name = "h4"
+        # content_class_name_1 = ".dati1w0a.ihqw7lf3.hv4rvrfc.ecm0bbzt"
+        # content_class_name_2 = ".d2edcug0.hpfvmrgz.qv66sw1b.c1et5uql.oi732d6d.ik7dh3pa.ht8s03o8.a8c37x1j.fe6kdd0r.mau55g9w.c8b282yb.keod5gw0.nxhoafnm.aigsh9s9.d9wwppkn.iv3no6db.jq4qci2q.a3bd9o3v.b1v8xokw.oo9gr5id.hzawbc8m"
+        # img_class_name = "img"
+        # post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
+
+        # post_group_name = data_soup.select_one(posts_group_class_name).text
+        # post_group_id = data_soup.select_one(posts_group_id_selector)["content"].replace("fb://group/","")
+        # post_group_url = data_soup.select_one(posts_group_class_name)["href"][:-1]
+
+        # selector params for m.
+        group_name_selector = "head > title"
+        post_group_name = data_soup.select_one(group_name_selector).text
         posts_group_id_selector = 'meta[property="al:android:url"]'
-        post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
-        title_class_name = "h3"
-        sub_title_class_name = "h4"
-        content_class_name_1 = ".dati1w0a.ihqw7lf3.hv4rvrfc.ecm0bbzt"
-        content_class_name_2 = ".d2edcug0.hpfvmrgz.qv66sw1b.c1et5uql.oi732d6d.ik7dh3pa.ht8s03o8.a8c37x1j.fe6kdd0r.mau55g9w.c8b282yb.keod5gw0.nxhoafnm.aigsh9s9.d9wwppkn.iv3no6db.jq4qci2q.a3bd9o3v.b1v8xokw.oo9gr5id.hzawbc8m"
-        img_class_name = "img"
-        post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
-
-        post_group_name = data_soup.select_one(posts_group_class_name).text
         post_group_id = data_soup.select_one(posts_group_id_selector)["content"].replace("fb://group/","")
-        post_group_url = data_soup.select_one(posts_group_class_name)["href"][:-1]
-
+        posts_group_class_name = 'meta[property="og:url"]'
+        post_group_url = data_soup.select_one(posts_group_class_name)["content"][:-1]
+        
         # posts
+        post_class_name = "section > article"
         posts = data_soup.select(post_class_name)
         data_json = []
-        
         for post in posts:
-            # post
-            post_link = post.select_one(post_a_class_name).get("href").split('/?')[0]
-            post_time = post.select_one(post_a_class_name).get("aria-label")
-
-            # title
-            title = ""
-            sub_title = ""
-
             try:
-                title = post.select_one(title_class_name).text
-                sub_title = post.select_one(sub_title_class_name).text
-            except:
-                print("no title")
+                # post
+                post_id = json.loads(post["data-ft"])["top_level_post_id"]
+                post_link = "https://www.facebook.com/" + post_id
 
-            # content
-            content_list = post.select(content_class_name_1)
-            content = ""
-            for c in content_list: content = content + " " + c.text
-            if content.strip() == "":
-                content_list = post.select(content_class_name_2)
-                content = ""
-                for c in content_list: content = content + " " + c.text 
+                page_id = json.loads(post["data-ft"])["page_id"]
+                publish_time = json.loads(post["data-ft"])["page_insights"][page_id]['post_context']['publish_time']
+                post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")
+                
+                 # # title
+                title = ""
+                sub_title = ""
 
-            # img
-            img_link = post.select_one(img_class_name).get("src")
+                # # content
+                content = post.find('div',{'data-ft':'{"tn":"*s"}'}).text
 
-            data = {
-                "post_group_id": post_group_id,
-                "post_group_url": post_group_url,
-                "post_group_name": post_group_name,
-                "post_link": post_link,
-                "post_time": post_time,
-                "title": title,
-                "sub_title": sub_title,
-                "content": content,
-                "img_link": img_link,
-            }
-            data_json.append(data)
+                # # img
+                try:
+                    img_link = "www.facebook.com/" + json.loads(post["data-ft"])['photo_id']
+                except:
+                    img_link = ""
+
+                data = {
+                    "post_group_id": post_group_id,
+                    "post_group_url": post_group_url,
+                    "post_group_name": post_group_name,
+                    "post_link": post_link,
+                    "post_time": post_time,
+                    "title": title,
+                    "sub_title": sub_title,
+                    "content": content,
+                    "img_link": img_link,
+                }
+                data_json.append(data)
+
+            except Exception as e:
+                print(repr(e))
 
         return data_json
 
