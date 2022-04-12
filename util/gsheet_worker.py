@@ -39,7 +39,7 @@ class GsheetWorker:
         spreadsheet_key_path = sheet_key
         sheet = gss_client.open_by_key(spreadsheet_key_path)
         return sheet
-    
+
     def data_to_sheet_value_list(self, data):
         sheet_worker = self.sheet_worker
         sheet_value_list = sheet_worker.data_to_sheet_value_list(data)
@@ -51,13 +51,12 @@ class GsheetWorker:
         sheet_bot_link = sheet.worksheet(tab_name)
         col_all_value = sheet_bot_link.col_values(colunm_index)
         return col_all_value
-        
-    
+
     def get_sheet_bot(self,result_tab_name):
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet(result_tab_name)
         return sheet_bot        
-    
+
     def send_line_notify(self, line_notify_token):
         message_list = self.message_list
         for message in message_list:
@@ -73,8 +72,8 @@ class GsheetWorker:
                 }
                 # To send data form-encoded
                 requests.post(url, headers=headers, data=data)
-            
-            
+
+
 class LejuGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
@@ -187,7 +186,6 @@ class _591GsheetWorker(GsheetWorker):
                     except Exception as error:
                         print(f"sheet insert fail!")
                         print(repr(error))
-
 
 class FbGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
@@ -304,7 +302,7 @@ class YtGsheetWorker(GsheetWorker):
                 link = str(sheet_value[link_position])
                 print("====link====")
                 print(link)
-                
+
                 if link in link_list:
                     print("===exist!===")
                     print(link)
