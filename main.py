@@ -84,7 +84,6 @@ def web_config(name):
     config_data = config[name]
     return config_data
 
-
 def customer_list():
     c_list = [
         {
@@ -101,44 +100,36 @@ def customer_list():
 
     return c_list
 
-
 # Main function
 def crawl(web_name):
     for customer in customer_list():
         customer_name = customer["name"]
         sheet_key = customer["sheet_key"]
+        sht_worker = gsheet_worker(sheet_key, web_name)
         line_notify_token = customer["line_notify_token"]
         line_worker = LineWorker(line_notify_token)
         try:
             # notify
             message = f"{customer_name} 開始今日爬蟲"
             line_worker.send_notification(message)
-
             # config
             config_data = web_config(web_name)
             tab_name = config_data['url_list_tab']
             to_crawl_link_col = config_data['to_crawl_link_col']
+            crawler = config_data['crawler']
             # crawler
-            crawler = web_config(web_name)['crawler']
-            to_crawl_url_list = get_to_crawl_url_list_by_sheet(sheet_key, tab_name, to_crawl_link_col)
+            to_crawl_url_list = get_to_crawl_url_list_by_sheet(sht_worker, tab_name, to_crawl_link_col)
             crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
-            write_to_sheet(crawled_data_list, web_name, sheet_key, line_notify_token)
-
+            write_crawled_data_list_to_sheet(web_name, crawled_data_list, sht_worker)
+            sht_worker.send_line_notify(line_notify_token)
             # notify
             message = f"{customer_name} 完成今日爬蟲"
             line_worker.send_notification(message)
         except Exception as error:
             print(repr(error))
 
-
-def get_sheet_worker(sheet_key, web_name=None):
-    sht_worker = gsheet_worker(sheet_key, web_name)
-    return sht_worker
-
-def get_to_crawl_url_list_by_sheet(sheet_key, tab_name, to_crawl_link_col):
-    # get by sheet
-    sht_worker = get_sheet_worker(sheet_key)
+def get_to_crawl_url_list_by_sheet(sht_worker, tab_name, to_crawl_link_col):
     to_crawl_url_list = sht_worker.get_col_all_value(tab_name, to_crawl_link_col)[1:]
     return to_crawl_url_list
 
@@ -156,13 +147,11 @@ def get_crawled_data_list(crawler, to_crawl_url_list):
 
     return crawled_data_list
 
-def write_to_sheet(data, web_name, sheet_key, line_notify_token):
+def write_crawled_data_list_to_sheet(web_name, data_list, sht_worker):
     config_data = web_config(web_name)
     result_tab_name = config_data['result_tab']
     result_link_col = config_data['result_link_col']
-    sht_worker = get_sheet_worker(sheet_key, web_name)
-    sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
-    sht_worker.send_line_notify(line_notify_token)
+    sht_worker.write_profile_to_sheet(data_list, result_tab_name, result_link_col)
 
 def crawl_all(event,context):
     # crawl("leju")
