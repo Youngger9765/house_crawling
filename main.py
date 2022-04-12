@@ -105,10 +105,9 @@ def crawl(web_name):
             send_line_notification(line_notify_token, message)
 
             # crawler
-            data = get_data(web_name, sheet_key)
-
+            crawled_data = get_crawled_data(web_name, sheet_key)
             # sheet
-            write_to_sheet(data, web_name, sheet_key, line_notify_token)
+            write_to_sheet(crawled_data, web_name, sheet_key, line_notify_token)
 
             # notify
             message = f"{customer_name} 完成今日爬蟲"
@@ -117,8 +116,8 @@ def crawl(web_name):
             print(repr(error))
 
 
-def get_sheet_worker(sheet_key):
-    sht_worker = gsheet_worker(sheet_key)
+def get_sheet_worker(sheet_key, web_name=None):
+    sht_worker = gsheet_worker(sheet_key,web_name)
     
     return sht_worker
 
@@ -132,7 +131,7 @@ def get_sheet_url_list(web_name, sheet_key):
 
     return url_list
 
-def get_data(web_name, sheet_key):
+def get_crawled_data(web_name, sheet_key):
     url_list = get_sheet_url_list(web_name, sheet_key)
     # url_list = [
         # "https://www.leju.com.tw/page_search_result?oid=Lff61014736365e",
@@ -145,25 +144,25 @@ def get_data(web_name, sheet_key):
 
     # to json file
     config_data = web_config(web_name)
-    body = {'profile':[]}
+    crawled_data = []
     for url in url_list:
         try:
             crawler = config_data['crawler']
             data = crawler.fetch_data(url)
             data_json = crawler.get_data_json(data)
             data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-            body['profile'].append(data_json.decode())
-        except Exception as e:
+            crawled_data.append(data_json.decode())
+        except Exception as error:
             print(f"fetch fail:{url}")
-            print(repr(e))
+            print(repr(error))
     # print(body)
-    return body
+    return crawled_data
 
 def write_to_sheet(data, web_name, sheet_key, line_notify_token):
     config_data = web_config(web_name)
     result_tab_name = config_data['result_tab']
     result_link_col = config_data['result_link_col']
-    sht_worker = gsheet_worker(sheet_key, web_name)
+    sht_worker = get_sheet_worker(sheet_key, web_name)
     sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
     sht_worker.send_line_notify(line_notify_token)
 

@@ -12,7 +12,7 @@ from datetime import datetime as dt
 from time import sleep
 
 class gsheet_worker:
-    def __init__(self, sheet_key, web_name=None, result_tab_name=None):
+    def __init__(self, sheet_key, web_name=None):
         self.sheet_key = sheet_key
         if web_name == "leju":
             self.sheet_worker = leju_gsheet_worker()
@@ -117,10 +117,9 @@ class leju_gsheet_worker:
             
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data, sheet_bot, link_list):
-        profile_list = data['profile']
-        for profile in profile_list:
-            sheet_value_list = self.data_to_sheet_value_list(profile)
+    def write_profile_to_sheet(self, data_list, sheet_bot, link_list):
+        for data in data_list:
+            sheet_value_list = self.data_to_sheet_value_list(data)
             # print(sheet_value_list)
         
             sheet_row_cnt = 2
@@ -174,10 +173,9 @@ class _591_gsheet_worker:
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data, sheet_bot, link_list):
-        profile_list = data['profile']
-        for profile in profile_list:
-            sheet_value_list = self.data_to_sheet_value_list(profile)
+    def write_profile_to_sheet(self, data_list, sheet_bot, link_list):
+        for data in data_list:
+            sheet_value_list = self.data_to_sheet_value_list(data)
             # print(sheet_value_list)
         
             sheet_row_cnt = 2
@@ -244,10 +242,9 @@ class fb_gsheet_worker:
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data, sheet_bot, link_list):
-        profile_list = data['profile']
-        for profile in profile_list:
-            sheet_value_list = self.data_to_sheet_value_list(profile)        
+    def write_profile_to_sheet(self, data_list, sheet_bot, link_list):
+        for data in data_list:
+            sheet_value_list = self.data_to_sheet_value_list(data)        
             sheet_row_cnt = 2
             link_position = 3
             for sheet_value in sheet_value_list:
@@ -319,10 +316,9 @@ class yt_gsheet_worker:
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data, sheet_bot, link_list):
-        profile_list = data['profile']
-        for profile in profile_list:
-            sheet_value_list = self.data_to_sheet_value_list(profile)        
+    def write_profile_to_sheet(self, data_list, sheet_bot, link_list):
+        for data in data_list:
+            sheet_value_list = self.data_to_sheet_value_list(data)        
             sheet_row_cnt = 2
             link_position = 3
             for sheet_value in sheet_value_list:
