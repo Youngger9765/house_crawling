@@ -575,7 +575,7 @@ class yt_CrawlerBySelenium(crawler):
 class yt_CrawlerByfeeds():
     def __init__(self):
         print("===yt_CrawlerByfeeds init ===")
-        # https://www.youtube.com/feeds/videos.xml?channel_id=UCKPflKAE2Y1tm8VSi32iboQ
+        # https://www.youtube.com/feeds/videos.xml?channel_id=UCT3uWFvKLVpRnEealmRwvrw
 
     def fetch_data(self,url):
         channel_id = url.replace("https://www.youtube.com/channel/","")
