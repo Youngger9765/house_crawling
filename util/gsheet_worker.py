@@ -12,23 +12,26 @@ from datetime import datetime as dt
 from time import sleep
 
 class gsheet_worker:
-    def __init__(self, sheet_key, web_name=None):
+    def __init__(self, sheet_key):
         self.sheet_key = sheet_key
-        if web_name == "leju":
-            self.sheet_worker = leju_gsheet_worker()
-        elif web_name == "591":
-            self.sheet_worker = _591_gsheet_worker()
-        elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
-            self.sheet_worker = fb_gsheet_worker()
-        elif web_name in ["yt_CrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
-            self.sheet_worker = yt_gsheet_worker()
-        else:
-            self.sheet_worker = None
-
+        self.sheet_worker = None
+        self.message_list = []
         self.black_list = [
             "林森北路",
             "1房"
         ]
+
+    def get_sheet_worker(self, web_name):
+        if web_name == "leju":
+            worker = leju_gsheet_worker(self.sheet_key)
+        elif web_name == "591":
+            worker = _591_gsheet_worker(self.sheet_key)
+        elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
+            worker = fb_gsheet_worker(self.sheet_key)
+        elif web_name in ["yt_CrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
+            worker = yt_gsheet_worker(self.sheet_key)
+
+        return worker
 
     def get_sheet(self, sheet_key):
         scopes = ["https://spreadsheets.google.com/feeds"]
@@ -51,22 +54,14 @@ class gsheet_worker:
         col_all_value = sheet_bot_link.col_values(colunm_index)
         return col_all_value
         
-        
-    def write_profile_to_sheet(self, data, result_tab_name, result_link_col):
+    
+    def get_sheet_bot(self,result_tab_name):
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet(result_tab_name)
-
-        link_list = self.get_col_all_value(result_tab_name, result_link_col)
-        # print("====link_list====")
-        # print(link_list)
-
-        sheet_worker = self.sheet_worker
-        sheet_worker.write_profile_to_sheet(data, sheet_bot, link_list)
-        
+        return sheet_bot        
     
     def send_line_notify(self, line_notify_token):
-        sheet_worker = self.sheet_worker
-        message_list = sheet_worker.get_message_list()
+        message_list = self.message_list
         for message in message_list:
             if any(word in message for word in self.black_list):
                 print("====black_list====")
@@ -82,9 +77,9 @@ class gsheet_worker:
                 requests.post(url, headers=headers, data=data)
             
             
-class leju_gsheet_worker:
-    def __init__(self):
-        self.message_list = []
+class leju_gsheet_worker(gsheet_worker):
+    def __init__(self,sheet_key):
+        super().__init__(sheet_key)
 
     def data_to_sheet_value_list(self, data):
         profile = json.loads(data)
@@ -139,16 +134,11 @@ class leju_gsheet_worker:
                     print(message)
                     # self.send_line_notify(message) 
                     self.message_list.append(message)                 
-                    sheet_row_cnt +=1
+                    sheet_row_cnt +=1          
 
-    def get_message_list(self):
-        message_list = self.message_list
-        return message_list
-          
-
-class _591_gsheet_worker:
-    def __init__(self):
-        self.message_list = []
+class _591_gsheet_worker(gsheet_worker):
+    def __init__(self,sheet_key):
+        super().__init__(sheet_key)
 
     def data_to_sheet_value_list(self, data):
         sheet_value_list = []
@@ -194,20 +184,16 @@ class _591_gsheet_worker:
                         sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
                         message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
                         print(message)
-                        self.message_list.append(message)                 
+                        self.message_list.append(message)
                         sheet_row_cnt +=1
-                    except Exception as e:
+                    except Exception as error:
                         print(f"sheet insert fail!")
-                        print(repr(e))
-
-    def get_message_list(self):
-        message_list = self.message_list
-        return message_list
+                        print(repr(error))
 
 
-class fb_gsheet_worker:
-    def __init__(self):
-        self.message_list = []
+class fb_gsheet_worker(gsheet_worker):
+    def __init__(self,sheet_key):
+        super().__init__(sheet_key)
 
     def data_to_sheet_value_list(self, data):
         sheet_value_list = []
@@ -264,18 +250,13 @@ class fb_gsheet_worker:
                         print(message)
                         self.message_list.append(message)                 
                         sheet_row_cnt +=1
-                    except Exception as e:
+                    except Exception as error:
                         print(f"sheet insert fail!")
-                        print(repr(e))
+                        print(repr(error))
 
-    def get_message_list(self):
-        message_list = self.message_list
-        return message_list
-
-
-class yt_gsheet_worker:
-    def __init__(self):
-        self.message_list = []
+class yt_gsheet_worker(gsheet_worker):
+    def __init__(self,sheet_key):
+        super().__init__(sheet_key)
 
     def data_to_sheet_value_list(self, data):
         sheet_value_list = []
@@ -338,10 +319,6 @@ class yt_gsheet_worker:
                         print(message)
                         self.message_list.append(message)                 
                         sheet_row_cnt +=1
-                    except Exception as e:
+                    except Exception as error:
                         print(f"sheet insert fail!")
-                        print(repr(e))
-
-    def get_message_list(self):
-        message_list = self.message_list
-        return message_list
+                        print(repr(error))

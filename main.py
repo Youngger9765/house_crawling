@@ -10,7 +10,6 @@ from util.crawler import yt_CrawlerByfeeds
 from util.crawler import yt_CrawlerByScriptbarrel
 from util.notification import LineWorker
 import json
-import requests
 
 
 # Params
@@ -105,7 +104,7 @@ def crawl(web_name):
     for customer in customer_list():
         customer_name = customer["name"]
         sheet_key = customer["sheet_key"]
-        sht_worker = gsheet_worker(sheet_key, web_name)
+        sht_worker = gsheet_worker(sheet_key).get_sheet_worker(web_name)
         line_notify_token = customer["line_notify_token"]
         line_worker = LineWorker(line_notify_token)
         try:
@@ -122,6 +121,9 @@ def crawl(web_name):
             crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
             write_crawled_data_list_to_sheet(web_name, crawled_data_list, sht_worker)
+            
+            # import pdb; pdb.set_trace()
+
             sht_worker.send_line_notify(line_notify_token)
             # notify
             message = f"{customer_name} 完成今日爬蟲"
@@ -151,7 +153,9 @@ def write_crawled_data_list_to_sheet(web_name, data_list, sht_worker):
     config_data = web_config(web_name)
     result_tab_name = config_data['result_tab']
     result_link_col = config_data['result_link_col']
-    sht_worker.write_profile_to_sheet(data_list, result_tab_name, result_link_col)
+    sheet_bot = sht_worker.get_sheet_bot(result_tab_name)
+    link_list = sht_worker.get_col_all_value(result_tab_name, result_link_col)
+    sht_worker.write_profile_to_sheet(data_list, sheet_bot, link_list)
 
 def crawl_all(event,context):
     # crawl("leju")
