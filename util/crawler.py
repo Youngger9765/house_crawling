@@ -594,7 +594,7 @@ class yt_CrawlerByfeeds():
             channel_name = video.select_one("author name").text
             channel_url = video.select_one("author uri").text
             channel_id = video.find("yt:channelId").text
-            published = video.select_one("published").text
+            published = video.select_one("published").text.split("T")[0]
             img_link = video.find("media:thumbnail")["url"]
             data = {
                 "channel_id": channel_id,
@@ -606,7 +606,6 @@ class yt_CrawlerByfeeds():
                 "img_link": img_link
             }
             data_json.append(data)
-            print(data)
 
         return data_json
 
