@@ -113,16 +113,21 @@ def crawl(web_name):
             # notify
             message = f"{customer_name} 完成今日爬蟲"
             send_line_notification(line_notify_token, message)
-        except Exception as e:
-            print(repr(e))
+        except Exception as error:
+            print(repr(error))
+
+
+def get_sheet_worker(sheet_key):
+    sht_worker = gsheet_worker(sheet_key)
+    
+    return sht_worker
 
 def get_sheet_url_list(web_name, sheet_key):
     # config
     config_data = web_config(web_name)
     tab_name = config_data['url_list_tab']
-
     # get by sheet
-    sht_worker = gsheet_worker(sheet_key)
+    sht_worker = get_sheet_worker(sheet_key)
     url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
 
     return url_list
