@@ -29,7 +29,7 @@ class gsheet_worker:
             "林森北路",
             "1房"
         ]
-        
+
     def get_sheet(self, sheet_key):
         scopes = ["https://spreadsheets.google.com/feeds"]
         current_path = os.getcwd()
@@ -79,7 +79,7 @@ class gsheet_worker:
                     "message": message,
                 }
                 # To send data form-encoded
-                response = requests.post(url, headers=headers, data=data)
+                requests.post(url, headers=headers, data=data)
             
             
 class leju_gsheet_worker:
