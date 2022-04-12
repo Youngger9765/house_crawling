@@ -1,7 +1,5 @@
 # !/usr/bin/python
 # coding:utf-8
-
-
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 import os
@@ -11,7 +9,7 @@ import requests
 from datetime import datetime as dt
 from time import sleep
 
-class gsheet_worker:
+class GsheetWorker:
     def __init__(self, sheet_key):
         self.sheet_key = sheet_key
         self.sheet_worker = None
@@ -23,13 +21,13 @@ class gsheet_worker:
 
     def get_sheet_worker(self, web_name):
         if web_name == "leju":
-            worker = leju_gsheet_worker(self.sheet_key)
+            worker = LejuGsheetWorker(self.sheet_key)
         elif web_name == "591":
-            worker = _591_gsheet_worker(self.sheet_key)
+            worker = _591GsheetWorker(self.sheet_key)
         elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
-            worker = fb_gsheet_worker(self.sheet_key)
+            worker = FbGsheetWorker(self.sheet_key)
         elif web_name in ["yt_CrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
-            worker = yt_gsheet_worker(self.sheet_key)
+            worker = YtGsheetWorker(self.sheet_key)
 
         return worker
 
@@ -77,7 +75,7 @@ class gsheet_worker:
                 requests.post(url, headers=headers, data=data)
             
             
-class leju_gsheet_worker(gsheet_worker):
+class LejuGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
 
@@ -136,7 +134,7 @@ class leju_gsheet_worker(gsheet_worker):
                     self.message_list.append(message)                 
                     sheet_row_cnt +=1          
 
-class _591_gsheet_worker(gsheet_worker):
+class _591GsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
 
@@ -191,7 +189,7 @@ class _591_gsheet_worker(gsheet_worker):
                         print(repr(error))
 
 
-class fb_gsheet_worker(gsheet_worker):
+class FbGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
 
@@ -254,7 +252,7 @@ class fb_gsheet_worker(gsheet_worker):
                         print(f"sheet insert fail!")
                         print(repr(error))
 
-class yt_gsheet_worker(gsheet_worker):
+class YtGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
 

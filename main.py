@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-from util.gsheet_worker import gsheet_worker
+from util.gsheet_worker import GsheetWorker
 from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
 from util.crawler import fb_GoupCrawlerByRequests
 from util.crawler import fb_private_Crawler
@@ -104,7 +104,7 @@ def crawl(web_name):
     for customer in customer_list():
         customer_name = customer["name"]
         sheet_key = customer["sheet_key"]
-        sht_worker = gsheet_worker(sheet_key).get_sheet_worker(web_name)
+        sht_worker = GsheetWorker(sheet_key).get_sheet_worker(web_name)
         line_notify_token = customer["line_notify_token"]
         line_worker = LineWorker(line_notify_token)
         try:
