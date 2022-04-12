@@ -8,7 +8,7 @@ from util.crawler import fb_Crawler_by_facebook_scraper
 from util.crawler import yt_CrawlerBySelenium
 from util.crawler import yt_CrawlerByfeeds
 from util.crawler import yt_CrawlerByScriptbarrel
-from util.notification import line_worker
+from util.notification import LineWorker
 import json
 import requests
 
@@ -18,54 +18,63 @@ def web_config(name):
     config = {
         "leju":{
             "url_list_tab": "bot-list",
+            "to_crawl_link_col": 2,
             "crawler": lejuCrawler(),
             "result_tab":"bot",
             "result_link_col": 6
         },
         "591":{
             "url_list_tab": "591-list",
+            "to_crawl_link_col": 2,
             "crawler": _591_Crawler(),
             "result_tab":"591-bot",
             "result_link_col": 2
         },
         "fb": {
             "url_list_tab": "FB-list",
+            "to_crawl_link_col": 2,
             "crawler": fb_Crawler(),
             "result_tab": "FB-bot",
             "result_link_col": 4
         },
         "fb-private": {
             "url_list_tab": "FB-private-list",
+            "to_crawl_link_col": 2,
             "crawler": fb_private_Crawler(),
             "result_tab": "FB-private-bot",
             "result_link_col": 4
         },
         "fb_Crawler_by_facebook_scraper": {
         	"url_list_tab": "FB-list",
+            "to_crawl_link_col": 2,
         	"crawler": fb_Crawler_by_facebook_scraper(),
         	"result_tab": "FB-bot",
         	"result_link_col": 4
         },
         "fb_GoupCrawlerByRequests": {
         	"url_list_tab": "FB-list",
+            "to_crawl_link_col": 2,
         	"crawler": fb_GoupCrawlerByRequests(),
         	"result_tab": "FB-bot",
         	"result_link_col": 4
         },
         "yt_CrawlerBySelenium": {
             "url_list_tab": "YT-list",
+            "to_crawl_link_col": 2,
             "crawler": yt_CrawlerBySelenium(),
             "result_tab": "YT-bot",
             "result_link_col": 4
         },
         "yt_CrawlerByfeeds": {
             "url_list_tab": "YT-list",
+            "to_crawl_link_col": 2,
             "crawler": yt_CrawlerByfeeds(),
             "result_tab": "YT-bot",
             "result_link_col": 4
         },
         "yt_CrawlerByScriptbarrel": {
             "url_list_tab": "YT-list",
+            "to_crawl_link_col": 2,
             "crawler": yt_CrawlerByScriptbarrel(),
             "result_tab": "YT-bot",
             "result_link_col": 4
@@ -73,7 +82,6 @@ def web_config(name):
 
     }
     config_data = config[name]
-
     return config_data
 
 
@@ -100,69 +108,53 @@ def crawl(web_name):
         customer_name = customer["name"]
         sheet_key = customer["sheet_key"]
         line_notify_token = customer["line_notify_token"]
+        line_worker = LineWorker(line_notify_token)
         try:
             # notify
             message = f"{customer_name} 開始今日爬蟲"
-            send_notification_by_line(line_notify_token, message)
+            line_worker.send_notification(message)
 
+            # config
+            config_data = web_config(web_name)
+            tab_name = config_data['url_list_tab']
+            to_crawl_link_col = config_data['to_crawl_link_col']
             # crawler
-            crawled_data = get_crawled_data(web_name, sheet_key)
+            crawler = web_config(web_name)['crawler']
+            to_crawl_url_list = get_to_crawl_url_list_by_sheet(sheet_key, tab_name, to_crawl_link_col)
+            crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
-            write_to_sheet(crawled_data, web_name, sheet_key, line_notify_token)
+            write_to_sheet(crawled_data_list, web_name, sheet_key, line_notify_token)
 
             # notify
             message = f"{customer_name} 完成今日爬蟲"
-            send_notification_by_line(line_notify_token, message)
+            line_worker.send_notification(message)
         except Exception as error:
             print(repr(error))
-
-    def send_notification_by_line(line_notify_token, message):
-        notify_worker = line_worker()
-        notify_worker.send_notification(line_notify_token, message)
-
 
 
 def get_sheet_worker(sheet_key, web_name=None):
-    sht_worker = gsheet_worker(sheet_key,web_name)
-    
+    sht_worker = gsheet_worker(sheet_key, web_name)
     return sht_worker
 
-def get_sheet_url_list(web_name, sheet_key):
-    # config
-    config_data = web_config(web_name)
-    tab_name = config_data['url_list_tab']
+def get_to_crawl_url_list_by_sheet(sheet_key, tab_name, to_crawl_link_col):
     # get by sheet
     sht_worker = get_sheet_worker(sheet_key)
-    url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
+    to_crawl_url_list = sht_worker.get_col_all_value(tab_name, to_crawl_link_col)[1:]
+    return to_crawl_url_list
 
-    return url_list
-
-def get_crawled_data(web_name, sheet_key):
-    url_list = get_sheet_url_list(web_name, sheet_key)
-    # url_list = [
-        # "https://www.leju.com.tw/page_search_result?oid=Lff61014736365e",
-        # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
-        # "https://www.leju.com.tw/page_search_result?oid=L93811608b8266", #世紀公園B
-        # "https://www.leju.com.tw/page_search_result?oid=L08243922184a6", #公園大鎮
-        # "https://www.leju.com.tw/page_search_result?oid=L5ab18401ccd6c",
-        # "https://www.leju.com.tw/page_search_result?oid=L225192883ca30"
-    # ]
-
-    # to json file
-    config_data = web_config(web_name)
-    crawled_data = []
-    for url in url_list:
+def get_crawled_data_list(crawler, to_crawl_url_list):
+    crawled_data_list = []
+    for url in to_crawl_url_list:
         try:
-            crawler = config_data['crawler']
             data = crawler.fetch_data(url)
             data_json = crawler.get_data_json(data)
             data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-            crawled_data.append(data_json.decode())
+            crawled_data_list.append(data_json.decode())
         except Exception as error:
             print(f"fetch fail:{url}")
             print(repr(error))
-    # print(body)
-    return crawled_data
+
+    return crawled_data_list
 
 def write_to_sheet(data, web_name, sheet_key, line_notify_token):
     config_data = web_config(web_name)
