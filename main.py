@@ -103,8 +103,7 @@ def crawl(web_name):
         try:
             # notify
             message = f"{customer_name} 開始今日爬蟲"
-            notify_worker = line_worker()
-            notify_worker.send_notification(line_notify_token, message)
+            send_notification_by_line(line_notify_token, message)
 
             # crawler
             crawled_data = get_crawled_data(web_name, sheet_key)
@@ -113,10 +112,14 @@ def crawl(web_name):
 
             # notify
             message = f"{customer_name} 完成今日爬蟲"
-            notify_worker = line_worker()
-            notify_worker.send_notification(line_notify_token, message)
+            send_notification_by_line(line_notify_token, message)
         except Exception as error:
             print(repr(error))
+
+    def send_notification_by_line(line_notify_token, message):
+        notify_worker = line_worker()
+        notify_worker.send_notification(line_notify_token, message)
+
 
 
 def get_sheet_worker(sheet_key, web_name=None):
