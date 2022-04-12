@@ -100,16 +100,23 @@ def crawl(web_name):
         sheet_key = customer["sheet_key"]
         line_notify_token = customer["line_notify_token"]
         try:
+            # notify
             message = f"{customer_name} 開始今日爬蟲"
             send_line_notification(line_notify_token, message)
+
+            # crawler
             data = get_data(web_name, sheet_key)
+
+            # sheet
             write_to_sheet(data, web_name, sheet_key, line_notify_token)
+
+            # notify
             message = f"{customer_name} 完成今日爬蟲"
             send_line_notification(line_notify_token, message)
         except Exception as e:
             print(repr(e))
 
-def get_data(web_name, sheet_key):
+def get_sheet_url_list(web_name, sheet_key):
     # config
     config_data = web_config(web_name)
     tab_name = config_data['url_list_tab']
@@ -117,8 +124,11 @@ def get_data(web_name, sheet_key):
     # get by sheet
     sht_worker = gsheet_worker(sheet_key)
     url_list = sht_worker.get_col_all_value(tab_name, 2)[1:]
-    # print(url_list)
 
+    return url_list
+
+def get_data(web_name, sheet_key):
+    url_list = get_sheet_url_list(web_name, sheet_key)
     # url_list = [
         # "https://www.leju.com.tw/page_search_result?oid=Lff61014736365e",
         # "https://www.leju.com.tw/page_search_result?oid=L37611690f7027", #麗軒珍寶
@@ -129,6 +139,7 @@ def get_data(web_name, sheet_key):
     # ]
 
     # to json file
+    config_data = web_config(web_name)
     body = {'profile':[]}
     for url in url_list:
         try:
@@ -170,8 +181,8 @@ def crawl_all(event,context):
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
     # crawl("yt_CrawlerBySelenium")
-    # crawl("yt_CrawlerByfeeds")
-    crawl("yt_CrawlerByScriptbarrel")
+    crawl("yt_CrawlerByfeeds")
+    # crawl("yt_CrawlerByScriptbarrel")
 
 
 if __name__ == "__main__":
