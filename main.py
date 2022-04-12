@@ -8,6 +8,7 @@ from util.crawler import fb_Crawler_by_facebook_scraper
 from util.crawler import yt_CrawlerBySelenium
 from util.crawler import yt_CrawlerByfeeds
 from util.crawler import yt_CrawlerByScriptbarrel
+from util.notification import line_worker
 import json
 import requests
 
@@ -102,7 +103,8 @@ def crawl(web_name):
         try:
             # notify
             message = f"{customer_name} 開始今日爬蟲"
-            send_line_notification(line_notify_token, message)
+            notify_worker = line_worker()
+            notify_worker.send_notification(line_notify_token, message)
 
             # crawler
             crawled_data = get_crawled_data(web_name, sheet_key)
@@ -111,7 +113,8 @@ def crawl(web_name):
 
             # notify
             message = f"{customer_name} 完成今日爬蟲"
-            send_line_notification(line_notify_token, message)
+            notify_worker = line_worker()
+            notify_worker.send_notification(line_notify_token, message)
         except Exception as error:
             print(repr(error))
 
@@ -165,17 +168,6 @@ def write_to_sheet(data, web_name, sheet_key, line_notify_token):
     sht_worker = get_sheet_worker(sheet_key, web_name)
     sht_worker.write_profile_to_sheet(data,result_tab_name,result_link_col)
     sht_worker.send_line_notify(line_notify_token)
-
-def send_line_notification(line_notify_token, message):
-    print(message)
-    url = "https://notify-api.line.me/api/notify"
-    headers = {
-        'Authorization': f"Bearer {line_notify_token}",
-    }
-    data = {
-        "message": message,
-    }
-    requests.post(url, headers=headers, data=data)
 
 def crawl_all(event,context):
     # crawl("leju")
