@@ -336,9 +336,9 @@ class yt_gsheet_worker:
                     print("============")
                 else:
                     try:
-                        sleep(3)
+                        sleep(1)
                         sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
-                        message = f"【FB-{sheet_value[2]}】 有新影片: {sheet_value[5]}，詳情請點擊:{link}"
+                        message = f"【YT-{sheet_value[2]}】 有新影片: {sheet_value[5]}，詳情請點擊:{link}"
                         print(message)
                         self.message_list.append(message)                 
                         sheet_row_cnt +=1

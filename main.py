@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
-from util.gsheet import gsheet_worker
+from util.gsheet_worker import gsheet_worker
 from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
 from util.crawler import fb_GoupCrawlerByRequests
 from util.crawler import fb_private_Crawler

@@ -648,6 +648,7 @@ class yt_CrawlerByScriptbarrel():
         video_dates = re.findall(date_pattern, data_soup_str)
 
         data_json = []
+        cnt_limit = 200
         for i,v in enumerate(video_links):
             video_url = v.replace("http://","https://www.")
             title = titles[i]
@@ -664,6 +665,9 @@ class yt_CrawlerByScriptbarrel():
                 "img_link": img_link,
             }
             data_json.append(data)
+
+            if i >= cnt_limit:
+                break
 
         return data_json
 
