@@ -575,7 +575,7 @@ class yt_CrawlerBySelenium(crawler):
 class yt_CrawlerByfeeds():
     def __init__(self):
         print("===yt_CrawlerByfeeds init ===")
-        # https://www.youtube.com/feeds/videos.xml?channel_id=UCT3uWFvKLVpRnEealmRwvrw
+        # https://www.youtube.com/feeds/videos.xml?channel_id=UCo4ie5g9_uat5pjWt2DgCKA
 
     def fetch_data(self,url):
         channel_id = url.replace("https://www.youtube.com/channel/","")
@@ -596,6 +596,9 @@ class yt_CrawlerByfeeds():
             channel_id = video.find("yt:channelId").text
             published = video.select_one("published").text.split("T")[0]
             img_link = video.find("media:thumbnail")["url"]
+            description = video.find("media:description").text
+            tag_pattern = r'\#(.*?) '
+            tag_list = re.findall(tag_pattern, title + " " + description)
             data = {
                 "channel_id": channel_id,
                 "channel_url": channel_url,
@@ -603,7 +606,10 @@ class yt_CrawlerByfeeds():
                 "video_url": video_url,
                 "published": published,
                 "title": title,
-                "img_link": img_link
+                "img_link": img_link,
+                "description": description,
+                "tag_list": tag_list
+
             }
             data_json.append(data)
 
@@ -637,6 +643,7 @@ class yt_CrawlerByScriptbarrel():
         channel_id = data[3]
 
         data_soup_str = str(data_soup)
+        data_soup_str = data_soup_str.replace("\n</div>\n","<hr/>")
         video_link_pattern = r'<a href="(.*?)"'
         video_links = re.findall(video_link_pattern, data_soup_str)
         title_pattern = r'<b>Title:<\/b> (.*?)<br\/>'
@@ -645,15 +652,19 @@ class yt_CrawlerByScriptbarrel():
         img_links = re.findall(img_pattern, data_soup_str)
         date_pattern = r'<b>Date:<\/b> (.*?)<br\/>'
         video_dates = re.findall(date_pattern, data_soup_str)
-
+        description_pattern = r'<b>Description:<\/b> (.*?)(<hr\/>|\\n</div>)'
+        descriptions = re.findall(description_pattern, data_soup_str)
         data_json = []
         cnt_limit = 200
-        for i,v in enumerate(video_links):
+
+        for i, v in enumerate(video_links):
             video_url = v.replace("http://","https://www.")
             title = titles[i]
             img_link = img_links[i]
             published = video_dates[i]
-
+            description = ''.join(descriptions[i]).replace("<br/>","\n")
+            tag_pattern = r'\#(.*?) '
+            tag_list = re.findall(tag_pattern,''.join(title) + " " + description)
             data = {
                 "channel_name":channel_name,
                 "channel_url": channel_url,
@@ -662,6 +673,8 @@ class yt_CrawlerByScriptbarrel():
                 "published": published,
                 "title": title,
                 "img_link": img_link,
+                "description": description,
+                "tag_list": tag_list
             }
             data_json.append(data)
 

@@ -55,7 +55,28 @@ class GsheetWorker:
     def get_sheet_bot(self,result_tab_name):
         sheet = self.get_sheet(self.sheet_key)
         sheet_bot = sheet.worksheet(result_tab_name)
-        return sheet_bot        
+        return sheet_bot
+
+    def insert_sheet_value(self, sheet_bot, sheet_value, link_position, link_list, sheet_row_cnt=2):
+        link = str(sheet_value[link_position])
+        print("====link====")
+        print(link)
+
+        if link in link_list:
+            print("===exist!===")
+            print(link)
+            print("============")
+        else:
+            try:
+                sleep(1)
+                sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
+                message = f"【YT-{sheet_value[2]}】 有新作品: {sheet_value[5]}，詳情請點擊:{link}"
+                print(message)
+                self.message_list.append(message)    
+                sheet_row_cnt +=1
+            except Exception as error:
+                print("sheet insert fail!")
+                print(repr(error))   
 
     def send_line_notify(self, line_notify_token):
         message_list = self.message_list
@@ -115,8 +136,9 @@ class LejuGsheetWorker(GsheetWorker):
             # print(sheet_value_list)
         
             sheet_row_cnt = 2
+            link_position = 5
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[5])
+                link = str(sheet_value[link_position])
                 print("====link====")
                 print(link)
                 
@@ -166,8 +188,9 @@ class _591GsheetWorker(GsheetWorker):
             # print(sheet_value_list)
         
             sheet_row_cnt = 2
+            link_position = 1
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[1])
+                link = str(sheet_value[link_position])
                 print("====link====")
                 print(link)
                 
@@ -266,6 +289,8 @@ class YtGsheetWorker(GsheetWorker):
             published = video['published']
             title = video['title']
             img_link = video['img_link']
+            description = video['description']
+            tag_list = video['tag_list']
             now = dt.now().strftime("%Y/%m/%d")
 
             data = {
@@ -275,7 +300,9 @@ class YtGsheetWorker(GsheetWorker):
                 "video_url": video_url,
                 "published": published,
                 "title": title,
-                "img_link": img_link
+                "img_link": img_link,
+                "description": description,
+                "tag_list": tag_list
             }
 
 
@@ -287,6 +314,8 @@ class YtGsheetWorker(GsheetWorker):
                 str(published),
                 str(title),
                 str(img_link),
+                str(description),
+                str(tag_list),
                 now
             ]
             sheet_value_list.append(sheet_value)
@@ -295,26 +324,8 @@ class YtGsheetWorker(GsheetWorker):
 
     def write_profile_to_sheet(self, data_list, sheet_bot, link_list):
         for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)        
+            sheet_value_list = self.data_to_sheet_value_list(data)
             sheet_row_cnt = 2
             link_position = 3
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[link_position])
-                print("====link====")
-                print(link)
-
-                if link in link_list:
-                    print("===exist!===")
-                    print(link)
-                    print("============")
-                else:
-                    try:
-                        sleep(1)
-                        sheet_bot.insert_row(sheet_value, sheet_row_cnt) 
-                        message = f"【YT-{sheet_value[2]}】 有新影片: {sheet_value[5]}，詳情請點擊:{link}"
-                        print(message)
-                        self.message_list.append(message)                 
-                        sheet_row_cnt +=1
-                    except Exception as error:
-                        print(f"sheet insert fail!")
-                        print(repr(error))
+                self.insert_sheet_value(sheet_bot, sheet_value, link_position, link_list, sheet_row_cnt)
