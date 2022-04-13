@@ -6,7 +6,7 @@ from util.crawler import fb_GoupCrawlerByRequests
 from util.crawler import fb_private_Crawler
 from util.crawler import fb_Crawler_by_facebook_scraper
 from util.crawler import yt_CrawlerBySelenium
-from util.crawler import yt_CrawlerByfeeds
+from util.crawler import YtCrawlerByfeeds
 from util.crawler import yt_CrawlerByScriptbarrel
 from util.notification import LineWorker
 import json
@@ -64,10 +64,10 @@ def web_config(name):
             "result_tab": "YT-bot",
             "result_link_col": 4
         },
-        "yt_CrawlerByfeeds": {
+        "YtCrawlerByfeeds": {
             "url_list_tab": "YT-list",
             "to_crawl_link_col": 2,
-            "crawler": yt_CrawlerByfeeds(),
+            "crawler": YtCrawlerByfeeds(),
             "result_tab": "YT-bot",
             "result_link_col": 4
         },
@@ -162,7 +162,7 @@ def crawl_all(event,context):
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
     # crawl("yt_CrawlerBySelenium")
-    crawl("yt_CrawlerByfeeds")
+    crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
 

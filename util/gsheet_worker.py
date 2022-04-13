@@ -26,7 +26,7 @@ class GsheetWorker:
             worker = _591GsheetWorker(self.sheet_key)
         elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
             worker = FbGsheetWorker(self.sheet_key)
-        elif web_name in ["yt_CrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
+        elif web_name in ["YtCrawlerByfeeds","yt_CrawlerByScriptbarrel"]:
             worker = YtGsheetWorker(self.sheet_key)
 
         return worker
