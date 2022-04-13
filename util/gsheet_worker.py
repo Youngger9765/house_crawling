@@ -285,6 +285,7 @@ class YtGsheetWorker(GsheetWorker):
             channel_id = video['channel_id']
             channel_url = video['channel_url']
             channel_name = video['channel_name']
+            video_id = video['video_id']
             video_url = video['video_url']
             published = video['published']
             title = video['title']
@@ -302,7 +303,8 @@ class YtGsheetWorker(GsheetWorker):
                 "title": title,
                 "img_link": img_link,
                 "description": description,
-                "tag_list": tag_list
+                "tag_list": tag_list,
+                "video_id": video_id
             }
 
 
@@ -316,6 +318,7 @@ class YtGsheetWorker(GsheetWorker):
                 str(img_link),
                 str(description),
                 str(tag_list),
+                str(video_id),
                 now
             ]
             sheet_value_list.append(sheet_value)

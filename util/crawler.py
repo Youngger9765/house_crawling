@@ -590,6 +590,7 @@ class yt_CrawlerByfeeds():
         videos = data_soup.select("entry")
         for video in videos:
             video_url = video.find("link")["href"]
+            video_id = video.find("yt:videoId").text
             title = video.select_one("title").text
             channel_name = video.select_one("author name").text
             channel_url = video.select_one("author uri").text
@@ -603,6 +604,7 @@ class yt_CrawlerByfeeds():
                 "channel_id": channel_id,
                 "channel_url": channel_url,
                 "channel_name": channel_name,
+                "video_id": video_id,
                 "video_url": video_url,
                 "published": published,
                 "title": title,
@@ -659,6 +661,8 @@ class yt_CrawlerByScriptbarrel():
 
         for i, v in enumerate(video_links):
             video_url = v.replace("http://","https://www.")
+            video_id_pattern = r'.*\?v\=(.*)'
+            video_id = re.findall(video_id_pattern, v)[0]
             title = titles[i]
             img_link = img_links[i]
             published = video_dates[i]
@@ -669,6 +673,7 @@ class yt_CrawlerByScriptbarrel():
                 "channel_name":channel_name,
                 "channel_url": channel_url,
                 "channel_id": channel_id,
+                "video_id": video_id,
                 "video_url": video_url,
                 "published": published,
                 "title": title,
