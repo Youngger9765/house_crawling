@@ -151,8 +151,8 @@ def write_crawled_data_list_to_sheet(web_name, data_list, sht_worker):
     result_tab_name = config_data['result_tab']
     result_link_col = config_data['result_link_col']
     sheet_bot = sht_worker.get_sheet_bot(result_tab_name)
-    link_list = sht_worker.get_col_all_value(result_tab_name, result_link_col)
-    sht_worker.write_profile_to_sheet(data_list, sheet_bot, link_list)
+    exist_link_list = sht_worker.get_col_all_value(result_tab_name, result_link_col)
+    sht_worker.write_profile_to_sheet(data_list, sheet_bot, exist_link_list)
 
 def crawl_all(event,context):
     # crawl("leju")
