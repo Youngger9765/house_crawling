@@ -121,9 +121,6 @@ def crawl(web_name):
             crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
             write_crawled_data_list_to_sheet(web_name, crawled_data_list, sht_worker)
-            
-            # import pdb; pdb.set_trace()
-
             sht_worker.send_line_notify(line_notify_token)
             # notify
             message = f"{customer_name} 完成今日爬蟲"
