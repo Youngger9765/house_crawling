@@ -52,12 +52,12 @@ class GsheetWorker:
         col_all_value = sheet_tab.col_values(colunm_index)
         return col_all_value
 
-    def get_sheet_tab_bot(self,result_tab_name):
+    def get_result_sheet_tab(self,result_tab_name):
         sheet = self.get_sheet(self.sheet_key)
-        sheet_tab_bot = sheet.worksheet(result_tab_name)
-        return sheet_tab_bot
+        result_sheet_tab = sheet.worksheet(result_tab_name)
+        return result_sheet_tab
 
-    def insert_sheet_value(self, sheet_tab_bot, sheet_value, link_position, exist_link_list, sheet_row_cnt=2):
+    def insert_sheet_value(self, result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt=2):
         link = str(sheet_value[link_position])
         print("====link====")
         print(link)
@@ -69,7 +69,7 @@ class GsheetWorker:
         else:
             try:
                 sleep(1)
-                sheet_tab_bot.insert_row(sheet_value, sheet_row_cnt) 
+                result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
                 message = f"【YT-{sheet_value[2]}】 有新作品: {sheet_value[5]}，詳情請點擊:{link}"
                 print(message)
                 self.message_list.append(message)    
@@ -130,7 +130,7 @@ class LejuGsheetWorker(GsheetWorker):
             
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, sheet_tab_bot, exist_link_list):
+    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
         for data in data_list:
             sheet_value_list = self.data_to_sheet_value_list(data)
             # print(sheet_value_list)
@@ -148,7 +148,7 @@ class LejuGsheetWorker(GsheetWorker):
                     print("============")
                 else:
                     sleep(1)
-                    sheet_tab_bot.insert_row(sheet_value, sheet_row_cnt) 
+                    result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
                     message = f"【樂居】{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊: {sheet_value[5]}" 
                     print(message)
                     # self.send_line_notify(message) 
@@ -182,7 +182,7 @@ class _591GsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, sheet_tab_bot, exist_link_list):
+    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
         for data in data_list:
             sheet_value_list = self.data_to_sheet_value_list(data)
             # print(sheet_value_list)
@@ -201,7 +201,7 @@ class _591GsheetWorker(GsheetWorker):
                 else:
                     try:
                         sleep(3)
-                        sheet_tab_bot.insert_row(sheet_value, sheet_row_cnt) 
+                        result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
                         message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
                         print(message)
                         self.message_list.append(message)
@@ -247,7 +247,7 @@ class FbGsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, sheet_tab_bot, exist_link_list):
+    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
         for data in data_list:
             sheet_value_list = self.data_to_sheet_value_list(data)        
             sheet_row_cnt = 2
@@ -264,7 +264,7 @@ class FbGsheetWorker(GsheetWorker):
                 else:
                     try:
                         sleep(3)
-                        sheet_tab_bot.insert_row(sheet_value, sheet_row_cnt) 
+                        result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
                         message = f"【FB-{sheet_value[2]}】 有新文章: {sheet_value[5]} {sheet_value[6]} {sheet_value[7]} ，詳情請點擊:{sheet_value[3]}"
                         print(message)
                         self.message_list.append(message)                 
@@ -325,10 +325,10 @@ class YtGsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, sheet_tab_bot, exist_link_list):
+    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
         for data in data_list:
             sheet_value_list = self.data_to_sheet_value_list(data)
             sheet_row_cnt = 2
             link_position = 3
             for sheet_value in sheet_value_list:
-                self.insert_sheet_value(sheet_tab_bot, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
