@@ -16,10 +16,10 @@ import json
 def web_config(name):
     config = {
         "leju":{
-            "url_list_tab": "bot-list",
+            "url_list_tab": "leju-list",
             "to_crawl_link_col": 2,
             "crawler": lejuCrawler(),
-            "result_tab":"bot",
+            "result_tab":"leju-bot",
             "result_link_col": 6
         },
         "591":{
@@ -155,14 +155,14 @@ def write_crawled_data_list_to_sheet(web_name, data_list, sht_worker):
     sht_worker.write_profile_to_sheet(data_list, result_sheet_tab, exist_link_list)
 
 def crawl_all(event,context):
-    # crawl("leju")
+    crawl("leju")
     # crawl("591")
     # crawl("fb")
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
     # crawl("yt_CrawlerBySelenium")
-    crawl("YtCrawlerByfeeds")
+    # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
 

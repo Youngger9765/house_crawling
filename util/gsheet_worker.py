@@ -62,7 +62,7 @@ class GsheetWorker:
         print("====link====")
         print(link)
 
-        if link in exist_link_list:
+        if link not in exist_link_list:
             print("===exist!===")
             print(link)
             print("============")
@@ -138,22 +138,23 @@ class LejuGsheetWorker(GsheetWorker):
             sheet_row_cnt = 2
             link_position = 5
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[link_position])
-                print("====link====")
-                print(link)
+                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+                # link = str(sheet_value[link_position])
+                # print("====link====")
+                # print(link)
                 
-                if link in exist_link_list:
-                    print("===exist!===")
-                    print(link)
-                    print("============")
-                else:
-                    sleep(1)
-                    result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                    message = f"【樂居】{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊: {sheet_value[5]}" 
-                    print(message)
-                    # self.send_line_notify(message) 
-                    self.message_list.append(message)                 
-                    sheet_row_cnt +=1          
+                # if link in exist_link_list:
+                #     print("===exist!===")
+                #     print(link)
+                #     print("============")
+                # else:
+                #     sleep(1)
+                #     result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
+                #     message = f"【樂居】{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊: {sheet_value[5]}" 
+                #     print(message)
+                #     # self.send_line_notify(message) 
+                #     self.message_list.append(message)                 
+                #     sheet_row_cnt +=1          
 
 class _591GsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
@@ -185,30 +186,29 @@ class _591GsheetWorker(GsheetWorker):
     def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
         for data in data_list:
             sheet_value_list = self.data_to_sheet_value_list(data)
-            # print(sheet_value_list)
-        
             sheet_row_cnt = 2
             link_position = 1
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[link_position])
-                print("====link====")
-                print(link)
+                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+                # link = str(sheet_value[link_position])
+                # print("====link====")
+                # print(link)
                 
-                if link in exist_link_list:
-                    print("===exist!===")
-                    print(link)
-                    print("============")
-                else:
-                    try:
-                        sleep(3)
-                        result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                        message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
-                        print(message)
-                        self.message_list.append(message)
-                        sheet_row_cnt +=1
-                    except Exception as error:
-                        print(f"sheet insert fail!")
-                        print(repr(error))
+                # if link in exist_link_list:
+                #     print("===exist!===")
+                #     print(link)
+                #     print("============")
+                # else:
+                #     try:
+                #         sleep(3)
+                #         result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
+                #         message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
+                #         print(message)
+                #         self.message_list.append(message)
+                #         sheet_row_cnt +=1
+                #     except Exception as error:
+                #         print(f"sheet insert fail!")
+                #         print(repr(error))
 
 class FbGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
@@ -253,25 +253,26 @@ class FbGsheetWorker(GsheetWorker):
             sheet_row_cnt = 2
             link_position = 3
             for sheet_value in sheet_value_list:
-                link = str(sheet_value[link_position])
-                print("====link====")
-                print(link)
+                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+                # link = str(sheet_value[link_position])
+                # print("====link====")
+                # print(link)
                 
-                if link in exist_link_list:
-                    print("===exist!===")
-                    print(link)
-                    print("============")
-                else:
-                    try:
-                        sleep(3)
-                        result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                        message = f"【FB-{sheet_value[2]}】 有新文章: {sheet_value[5]} {sheet_value[6]} {sheet_value[7]} ，詳情請點擊:{sheet_value[3]}"
-                        print(message)
-                        self.message_list.append(message)                 
-                        sheet_row_cnt +=1
-                    except Exception as error:
-                        print(f"sheet insert fail!")
-                        print(repr(error))
+                # if link in exist_link_list:
+                #     print("===exist!===")
+                #     print(link)
+                #     print("============")
+                # else:
+                #     try:
+                #         sleep(3)
+                #         result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
+                #         message = f"【FB-{sheet_value[2]}】 有新文章: {sheet_value[5]} {sheet_value[6]} {sheet_value[7]} ，詳情請點擊:{sheet_value[3]}"
+                #         print(message)
+                #         self.message_list.append(message)                 
+                #         sheet_row_cnt +=1
+                #     except Exception as error:
+                #         print(f"sheet insert fail!")
+                #         print(repr(error))
 
 class YtGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
