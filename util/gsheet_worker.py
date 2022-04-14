@@ -57,8 +57,15 @@ class GsheetWorker:
         result_sheet_tab = sheet.worksheet(result_tab_name)
         return result_sheet_tab
 
+    def write_profile_to_sheet(self, data_list, result_sheet_tab, link_position, exist_link_list):
+        for data in data_list:
+            sheet_value_list = self.data_to_sheet_value_list(data)
+            sheet_row_cnt = 2
+            for sheet_value in sheet_value_list:
+                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+
     def insert_sheet_value(self, result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt=2):
-        link = str(sheet_value[link_position])
+        link = str(sheet_value[link_position-1])
         print("====link====")
         print(link)
 
@@ -130,15 +137,15 @@ class LejuGsheetWorker(GsheetWorker):
             
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-        for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)
-            # print(sheet_value_list)
+    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
+    #     for data in data_list:
+    #         sheet_value_list = self.data_to_sheet_value_list(data)
+    #         # print(sheet_value_list)
         
-            sheet_row_cnt = 2
-            link_position = 5
-            for sheet_value in sheet_value_list:
-                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+    #         sheet_row_cnt = 2
+    #         link_position = 5
+    #         for sheet_value in sheet_value_list:
+    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
                 # link = str(sheet_value[link_position])
                 # print("====link====")
                 # print(link)
@@ -183,13 +190,13 @@ class _591GsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-        for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)
-            sheet_row_cnt = 2
-            link_position = 1
-            for sheet_value in sheet_value_list:
-                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
+    #     for data in data_list:
+    #         sheet_value_list = self.data_to_sheet_value_list(data)
+    #         sheet_row_cnt = 2
+    #         link_position = 1
+    #         for sheet_value in sheet_value_list:
+    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
                 # link = str(sheet_value[link_position])
                 # print("====link====")
                 # print(link)
@@ -247,13 +254,13 @@ class FbGsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-        for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)        
-            sheet_row_cnt = 2
-            link_position = 3
-            for sheet_value in sheet_value_list:
-                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
+    #     for data in data_list:
+    #         sheet_value_list = self.data_to_sheet_value_list(data)        
+    #         sheet_row_cnt = 2
+    #         link_position = 3
+    #         for sheet_value in sheet_value_list:
+    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
                 # link = str(sheet_value[link_position])
                 # print("====link====")
                 # print(link)
@@ -326,10 +333,4 @@ class YtGsheetWorker(GsheetWorker):
 
         return sheet_value_list
 
-    def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-        for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)
-            sheet_row_cnt = 2
-            link_position = 3
-            for sheet_value in sheet_value_list:
-                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+    
