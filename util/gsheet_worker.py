@@ -148,7 +148,6 @@ class LejuGsheetWorker(GsheetWorker):
             
         return sheet_value
 
-      
 
 class _591GsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
@@ -270,4 +269,3 @@ class YtGsheetWorker(GsheetWorker):
 
         return sheet_value
 
-    
