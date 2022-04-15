@@ -2,6 +2,7 @@ import os
 import datetime
 from datetime import date
 from time import sleep
+from unittest import case
 
 from selenium import webdriver
 # import random_user_agent
@@ -28,6 +29,25 @@ from facebook_scraper import get_group_info
 
 # https://github.com/ScriptSmith/socialreaper
 import socialreaper
+
+
+class CrawlerSelection():
+    def __int__(self):
+        pass
+
+    def get_crawler(self, web_name):
+        switcher = {
+            "leju": lejuCrawler(),
+            "591": _591_Crawler(),
+            "fb": fb_Crawler(),
+            "fb-private": fb_private_Crawler(),
+            "fb_Crawler_by_facebook_scraper": fb_Crawler_by_facebook_scraper(),
+            "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests(),
+            "yt_CrawlerBySelenium": yt_CrawlerBySelenium(),
+            "YtCrawlerByfeeds": YtCrawlerByfeeds(),
+            "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel()
+        }
+        return switcher.get(web_name, "")
 
 
 class selenium_engine:
@@ -119,66 +139,24 @@ class lejuCrawler(crawler):
         print(f"===fetch:{url} done===")
         
         return [data_soup, ext_url_list]
-    
-    def get_title(self, data):
-        title = data.find('title').string
-
-        return title
-        
-    def get_price_info(self, data):
-        # avg_price = data.find('div', class_='avg_house_price_val').text
-        # max_price = data.find('div', class_='max_house_price_val').text
-        # min_price = data.find('div', class_='min_house_price_val').text
-        # this_year_avg_price = data.find('div', class_='avg_date_house_price_val').text
-        
-        # info = {
-            # 'avg_price': avg_price,
-            # 'max_price': max_price, 
-            # 'min_price': min_price,
-        #     'this_year_avg_price': this_year_avg_price
-        # }
-        
-        info = {}
-        return info
-    
-    def get_basic_info(self, data):
-        # building_title = data.find('article', class_='building_title').text
-        # households = data.find('article', class_='households').text
-        # house_year = data.find('article', class_='house_year').text
-        # ttotal_floor = data.find('article', class_='ttotal_floor').text
-        # elementary = data.find('article', class_='elementary').text
-        # junior = data.find('article', class_='junior').text
-        # developer1 = data.find('article', class_='developer1').text
-        
-        # basic_info = {
-        #     'building_title': building_title,
-        #     'households': households,
-        #     'house_year': house_year,
-        #     'ttotal_floor': ttotal_floor,
-        #     'elementary': elementary,
-        #     'junior': junior,
-        #     'developer1': developer1,
-        # }
-
-        basic_info = {}
-        
-        return basic_info
            
-    def get_sale_items(self, data):
+    def get_data_json(self, data):
         ext_url = data[1]
         data_soup = data[0]
+        title = data_soup.find('title').string
         items = data_soup.select('#sale-objects-wrap .border-grey-3')
         sale_items = []
         for idx, item in enumerate(items):
             floor = item.select_one(".text-16px").text
-            title = item.select_one(".title-width").text.replace("\n","").strip()
+            name = item.select_one(".title-width").text.replace("\n","").strip()
             link = ext_url[idx]
             price = item.select(".items-baseline")[0].select('span')[0].text.replace("\n","").strip()
             area = item.select(".items-baseline")[1].select('span')[0].text.replace("\n","").strip()
             
             item_data = {
-                'floor': floor,
                 'title': title,
+                'floor': floor,
+                'name': name,
                 'link': link,
                 'price': price,
                 'area': area,
@@ -186,19 +164,6 @@ class lejuCrawler(crawler):
             sale_items.append(item_data)
  
         return sale_items
-        
-    def get_data_json(self, data):
-        title = self.get_title(data[0])
-        sale_items = self.get_sale_items(data)
-        
-        data_json = {
-            "title": title,
-            'price_info': "",
-            'basic_info': "",
-            'sale_items': sale_items
-        }
-        
-        return data_json
 
 class _591_Crawler(crawler):
     def __init__(self):
@@ -206,8 +171,7 @@ class _591_Crawler(crawler):
 
     def fetch_data(self, url):
         self.get_browser()
-        data_soup = self.fetch_url_data(url)
-        
+        data_soup = self.fetch_url_data(url)  
         return data_soup
 
     def fetch_url_data(self, url):
@@ -236,7 +200,6 @@ class _591_Crawler(crawler):
 
         browser.quit()
         print(f"===fetch:{url} done===")
-        # print(len(data_soup_list))
         
         return data_soup_list
         
@@ -295,7 +258,7 @@ class fb_Crawler(crawler):
         return data_soup
 
     def get_data_json(self, data_soup):
-        # selector params for www.
+        # # selector params for www.
         # posts_group_class_name = "h1 a"
         # posts_group_id_selector = 'meta[property="al:android:url"]'
         # post_class_name = ".du4w35lb.k4urcfbm.l9j0dhe7.sjgh65i0 .rq0escxv.rq0escxv.l9j0dhe7.du4w35lb.hybvsw6c.io0zqebd.m5lcvass.fbipl8qg.nwvqtn77.k4urcfbm.ni8dbmo4.stjgntxs.sbcfpzgs"
@@ -305,7 +268,6 @@ class fb_Crawler(crawler):
         # content_class_name_2 = ".d2edcug0.hpfvmrgz.qv66sw1b.c1et5uql.oi732d6d.ik7dh3pa.ht8s03o8.a8c37x1j.fe6kdd0r.mau55g9w.c8b282yb.keod5gw0.nxhoafnm.aigsh9s9.d9wwppkn.iv3no6db.jq4qci2q.a3bd9o3v.b1v8xokw.oo9gr5id.hzawbc8m"
         # img_class_name = "img"
         # post_a_class_name = ".oajrlxb2.g5ia77u1.qu0x051f.esr5mh6w.e9989ue4.r7d6kgcz.rq0escxv.nhd2j8a9.nc684nl6.p7hjln8o.kvgmc6g5.cxmmr5t8.oygrvhab.hcukyx3x.jb3vyjys.rz4wbd8a.qt6c0cv9.a8nywdso.i1ao9s8h.esuyzwwr.f1sip0of.lzcic4wl.gmql0nx0.gpro0wi8.b1v8xokw"
-
         # post_group_name = data_soup.select_one(posts_group_class_name).text
         # post_group_id = data_soup.select_one(posts_group_id_selector)["content"].replace("fb://group/","")
         # post_group_url = data_soup.select_one(posts_group_class_name)["href"][:-1]
@@ -358,8 +320,8 @@ class fb_Crawler(crawler):
                 }
                 data_json.append(data)
 
-            except Exception as e:
-                print(repr(e))
+            except Exception as error:
+                print(repr(error))
 
         return data_json
 
@@ -582,12 +544,12 @@ class YtCrawlerByfeeds():
         feeds_url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
         response = requests.get(feeds_url)
         data_soup = BeautifulSoup(response.content, 'xml')
-
         return data_soup
 
     def get_data_json(self, data_soup):
         data_json = []
         videos = data_soup.select("entry")
+
         for video in videos:
             video_url = video.find("link")["href"]
             video_id = video.find("yt:videoId").text
@@ -687,6 +649,3 @@ class yt_CrawlerByScriptbarrel():
                 break
 
         return data_json
-
-
-

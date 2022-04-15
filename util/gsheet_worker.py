@@ -14,6 +14,14 @@ class GsheetWorker:
         self.sheet_key = sheet_key
         self.sheet_worker = None
         self.message_list = []
+        self.sheet_config = None
+        self.url_list_tab = None
+        self.to_crawl_link_col = None
+        self.result_tab = None
+        self.result_host_name_col = None
+        self.result_content_col = None
+        self.result_link_col = None
+        self.result_message_col = None
         self.black_list = [
             "林森北路",
             "1房"
@@ -52,285 +60,214 @@ class GsheetWorker:
         col_all_value = sheet_tab.col_values(colunm_index)
         return col_all_value
 
+    def get_to_crawl_url_list(self):
+        tab_name = self.url_list_tab
+        to_crawl_link_col = self.to_crawl_link_col
+        to_crawl_url_list = self.get_col_all_value(tab_name, to_crawl_link_col)[1:]
+        return to_crawl_url_list
+
     def get_result_sheet_tab(self,result_tab_name):
         sheet = self.get_sheet(self.sheet_key)
         result_sheet_tab = sheet.worksheet(result_tab_name)
         return result_sheet_tab
 
-    def write_profile_to_sheet(self, data_list, result_sheet_tab, link_position, exist_link_list):
+    def write_data_list_to_sheet(self, data_list):
+        result_tab_name = self.result_tab
+        result_sheet_tab = self.get_result_sheet_tab(result_tab_name)
+        result_link_col = self.result_link_col
+        exist_link_list = self.get_col_all_value(result_tab_name, result_link_col)
         for data in data_list:
-            sheet_value_list = self.data_to_sheet_value_list(data)
+            sheet_value = self.data_to_sheet_value(data)
             sheet_row_cnt = 2
-            for sheet_value in sheet_value_list:
-                self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
+            self.insert_sheet_value(result_sheet_tab, sheet_value, exist_link_list, sheet_row_cnt)
 
-    def insert_sheet_value(self, result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt=2):
-        link = str(sheet_value[link_position-1])
+    def insert_sheet_value(self, result_sheet_tab, sheet_value, exist_link_list, sheet_row_cnt=2):
+        """
+            result_sheet_tab = tab
+            sheet_value: inserted data value list
+            exist_link_list: the list of link already saved in sheet
+        """
+        link = str(sheet_value[self.result_link_col-1])
         print("====link====")
         print(link)
 
-        if link not in exist_link_list:
+        if link in exist_link_list:
             print("===exist!===")
             print(link)
             print("============")
         else:
             try:
                 sleep(1)
-                result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                message = f"【YT-{sheet_value[2]}】 有新作品: {sheet_value[5]}，詳情請點擊:{link}"
+                result_sheet_tab.insert_row(sheet_value, sheet_row_cnt)
+                result_host_name = sheet_value[self.result_host_name_col-1]
+                content = sheet_value[self.result_content_col-1]
+                # message = f"【YT-{result_host_name}】 有新作品: {content}，詳情請點擊:{link}"
+                message = sheet_value[self.result_message_col-1]
                 print(message)
-                self.message_list.append(message)    
+                self.message_list.append(message)
                 sheet_row_cnt +=1
             except Exception as error:
                 print("sheet insert fail!")
-                print(repr(error))   
-
-    def send_line_notify(self, line_notify_token):
-        message_list = self.message_list
-        for message in message_list:
-            if any(word in message for word in self.black_list):
-                print("====black_list====")
-            else:
-                url = "https://notify-api.line.me/api/notify"
-                headers = {
-                    'Authorization': f"Bearer {line_notify_token}",
-                }
-                data = {
-                    "message": message,
-                }
-                # To send data form-encoded
-                requests.post(url, headers=headers, data=data)
+                print(repr(error))
 
 
 class LejuGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
+        self.url_list_tab = "leju-list"
+        self.to_crawl_link_col = 2
+        self.result_tab = "leju-bot"
+        self.result_host_name_col = 1
+        self.result_content_col = 5
+        self.result_link_col = 6
+        self.result_message_col = 12
 
-    def data_to_sheet_value_list(self, data):
-        profile = json.loads(data)
-        title = profile['title']
-        price_info = profile['price_info']
-        basic_info = profile['basic_info']
+    def data_to_sheet_value(self, data):
+        sale_item = data
+        title = sale_item['title']
+        floor = sale_item['floor']
+        name = sale_item['name']
+        link = sale_item['link']
+        price = sale_item['price']
+        area = sale_item['area']
+        now = dt.now().strftime("%Y/%m/%d")
+        message = f"【樂居-{title}】 有新物件: {name} {price}萬，詳情請點擊:{link}"
 
-        sale_items = profile['sale_items']
-        sheet_value_list = []
-        for sale_item in sale_items:
-            floor = sale_item['floor']
-            sub_title = sale_item['title']
-            link = sale_item['link']
-            price = sale_item['price']
-            area = sale_item['area']
-            now = dt.now().strftime("%Y/%m/%d")
-
-            sheet_value = [
-                str(title),
-                str(price_info),
-                str(basic_info),
-                floor,
-                sub_title,
-                link,
-                price,
-                area,
-                now
-            ]
-            sheet_value_list.append(sheet_value)
+        sheet_value = [
+            str(title),
+            str(""),
+            str(""),
+            floor,
+            name,
+            link,
+            price,
+            area,
+            now,
+            message
+        ]
             
-        return sheet_value_list
+        return sheet_value
 
-    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-    #     for data in data_list:
-    #         sheet_value_list = self.data_to_sheet_value_list(data)
-    #         # print(sheet_value_list)
-        
-    #         sheet_row_cnt = 2
-    #         link_position = 5
-    #         for sheet_value in sheet_value_list:
-    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
-                # link = str(sheet_value[link_position])
-                # print("====link====")
-                # print(link)
-                
-                # if link in exist_link_list:
-                #     print("===exist!===")
-                #     print(link)
-                #     print("============")
-                # else:
-                #     sleep(1)
-                #     result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                #     message = f"【樂居】{sheet_value[0]} 有新物件 {sheet_value[4]}，{sheet_value[6]} ，詳情請點擊: {sheet_value[5]}" 
-                #     print(message)
-                #     # self.send_line_notify(message) 
-                #     self.message_list.append(message)                 
-                #     sheet_row_cnt +=1          
+      
 
 class _591GsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
+        self.url_list_tab = "591-list"
+        self.to_crawl_link_col = 2
+        self.result_tab = "591-bot"
+        self.result_host_name_col = 1
+        self.result_content_col = 3
+        self.result_link_col = 2
+        self.result_message_col = 7
 
-    def data_to_sheet_value_list(self, data):
-        sheet_value_list = []
-        listInfo_list = json.loads(data)
-        for rent_info in listInfo_list:
-            title = rent_info['title']
-            link = rent_info['url']
-            info = rent_info['info']
-            address = rent_info['address']
-            price = rent_info['price']
-            now = dt.now().strftime("%Y/%m/%d")
+    def data_to_sheet_value(self, data):
+        rent_info = data
+        title = rent_info['title']
+        link = rent_info['url']
+        info = rent_info['info']
+        address = rent_info['address']
+        price = rent_info['price']
+        now = dt.now().strftime("%Y/%m/%d")
+        message = f"【591-{title}】 有新物件: {info} {address} {price}元，詳情請點擊:{link}"
 
-            sheet_value = [
-                str(title),
-                str(link),
-                str(info),
-                str(address),
-                str(price),
-                now
-            ]
-            sheet_value_list.append(sheet_value)
+        sheet_value = [
+            str(title),
+            str(link),
+            str(info),
+            str(address),
+            str(price),
+            now,
+            message
+        ]
 
-        return sheet_value_list
+        return sheet_value
 
-    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-    #     for data in data_list:
-    #         sheet_value_list = self.data_to_sheet_value_list(data)
-    #         sheet_row_cnt = 2
-    #         link_position = 1
-    #         for sheet_value in sheet_value_list:
-    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
-                # link = str(sheet_value[link_position])
-                # print("====link====")
-                # print(link)
-                
-                # if link in exist_link_list:
-                #     print("===exist!===")
-                #     print(link)
-                #     print("============")
-                # else:
-                #     try:
-                #         sleep(3)
-                #         result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                #         message = f"【591租屋】 有新物件 {sheet_value[0]}:{sheet_value[2]},address:{sheet_value[3]} price:{sheet_value[4]} ，詳情請點擊:{sheet_value[1]}" 
-                #         print(message)
-                #         self.message_list.append(message)
-                #         sheet_row_cnt +=1
-                #     except Exception as error:
-                #         print(f"sheet insert fail!")
-                #         print(repr(error))
 
 class FbGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
+        self.url_list_tab = "FB-list"
+        self.to_crawl_link_col = 2
+        self.result_tab = "FB-bot"
+        self.result_host_name_col = 3
+        self.result_content_col = 8
+        self.result_link_col = 4
+        self.result_message_col = 11
 
-    def data_to_sheet_value_list(self, data):
-        sheet_value_list = []
-        post_list = json.loads(data)
+    def data_to_sheet_value(self, data):
+        post_info = data
+        post_group_id = post_info['post_group_id'], # 這邊會變成 tuple 不知道為什麼？
+        post_group_id = post_group_id[0]
+        post_group_url = post_info['post_group_url']
+        post_group_name = post_info['post_group_name']
+        post_link = post_info['post_link']
+        post_time = post_info['post_time']
+        title = post_info['title']
+        sub_title = post_info['sub_title']
+        content = post_info['content']
+        img_link = post_info['img_link']
+        now = dt.now().strftime("%Y/%m/%d")
+        message = f"【FB-{post_group_name}】 有新物件: {title} {sub_title} {content}，詳情請點擊:{post_link}"
 
-        for post_info in post_list:
-            post_group_id = post_info['post_group_id'], # 這邊會變成 tuple 不知道為什麼？
-            post_group_id = post_group_id[0]
-            post_group_url = post_info['post_group_url']
-            post_group_name = post_info['post_group_name']
-            post_link = post_info['post_link']
-            post_time = post_info['post_time']
-            title = post_info['title']
-            sub_title = post_info['sub_title']
-            content = post_info['content']
-            img_link = post_info['img_link']
-            now = dt.now().strftime("%Y/%m/%d")
+        sheet_value = [
+            str(post_group_id),
+            str(post_group_url),
+            str(post_group_name),
+            str(post_link),
+            str(post_time),
+            str(title),
+            str(sub_title),
+            str(content),
+            str(img_link),
+            now,
+            message
+        ]
 
-            sheet_value = [
-                str(post_group_id),
-                str(post_group_url),
-                str(post_group_name),
-                str(post_link),
-                str(post_time),
-                str(title),
-                str(sub_title),
-                str(content),
-                str(img_link),
-                now
-            ]
-            sheet_value_list.append(sheet_value)
+        return sheet_value
 
-        return sheet_value_list
-
-    # def write_profile_to_sheet(self, data_list, result_sheet_tab, exist_link_list):
-    #     for data in data_list:
-    #         sheet_value_list = self.data_to_sheet_value_list(data)        
-    #         sheet_row_cnt = 2
-    #         link_position = 3
-    #         for sheet_value in sheet_value_list:
-    #             self.insert_sheet_value(result_sheet_tab, sheet_value, link_position, exist_link_list, sheet_row_cnt)
-                # link = str(sheet_value[link_position])
-                # print("====link====")
-                # print(link)
-                
-                # if link in exist_link_list:
-                #     print("===exist!===")
-                #     print(link)
-                #     print("============")
-                # else:
-                #     try:
-                #         sleep(3)
-                #         result_sheet_tab.insert_row(sheet_value, sheet_row_cnt) 
-                #         message = f"【FB-{sheet_value[2]}】 有新文章: {sheet_value[5]} {sheet_value[6]} {sheet_value[7]} ，詳情請點擊:{sheet_value[3]}"
-                #         print(message)
-                #         self.message_list.append(message)                 
-                #         sheet_row_cnt +=1
-                #     except Exception as error:
-                #         print(f"sheet insert fail!")
-                #         print(repr(error))
 
 class YtGsheetWorker(GsheetWorker):
     def __init__(self,sheet_key):
         super().__init__(sheet_key)
+        self.url_list_tab = "YT-list"
+        self.to_crawl_link_col = 2
+        self.result_tab = "YT-bot"
+        self.result_host_name_col = 3
+        self.result_content_col = 6
+        self.result_link_col = 4
+        self.result_message_col = 12
 
-    def data_to_sheet_value_list(self, data):
-        sheet_value_list = []
-        video_list = json.loads(data)
+    def data_to_sheet_value(self, data):
+        video = data
+        channel_id = video['channel_id']
+        channel_url = video['channel_url']
+        channel_name = video['channel_name']
+        video_id = video['video_id']
+        video_url = video['video_url']
+        published = video['published']
+        title = video['title']
+        img_link = video['img_link']
+        description = video['description']
+        tag_list = video['tag_list']
+        now = dt.now().strftime("%Y/%m/%d")
+        message = f"【YT-{channel_name}】 有新影片: {title}，詳情請點擊:{video_url}"
 
-        for video in video_list:
-            channel_id = video['channel_id']
-            channel_url = video['channel_url']
-            channel_name = video['channel_name']
-            video_id = video['video_id']
-            video_url = video['video_url']
-            published = video['published']
-            title = video['title']
-            img_link = video['img_link']
-            description = video['description']
-            tag_list = video['tag_list']
-            now = dt.now().strftime("%Y/%m/%d")
+        sheet_value = [
+            str(channel_id),
+            str(channel_url),
+            str(channel_name),
+            str(video_url),
+            str(published),
+            str(title),
+            str(img_link),
+            str(description),
+            str(tag_list),
+            str(video_id),
+            now,
+            message
+        ]
 
-            data = {
-                "channel_id": channel_id,
-                "channel_url": channel_url,
-                "channel_name": channel_name,
-                "video_url": video_url,
-                "published": published,
-                "title": title,
-                "img_link": img_link,
-                "description": description,
-                "tag_list": tag_list,
-                "video_id": video_id
-            }
-
-
-            sheet_value = [
-                str(channel_id),
-                str(channel_url),
-                str(channel_name),
-                str(video_url),
-                str(published),
-                str(title),
-                str(img_link),
-                str(description),
-                str(tag_list),
-                str(video_id),
-                now
-            ]
-            sheet_value_list.append(sheet_value)
-
-        return sheet_value_list
+        return sheet_value
 
     

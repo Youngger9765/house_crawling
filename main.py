@@ -1,88 +1,12 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet_worker import GsheetWorker
-from util.crawler import lejuCrawler, _591_Crawler, fb_Crawler
-from util.crawler import fb_GoupCrawlerByRequests
-from util.crawler import fb_private_Crawler
-from util.crawler import fb_Crawler_by_facebook_scraper
-from util.crawler import yt_CrawlerBySelenium
-from util.crawler import YtCrawlerByfeeds
-from util.crawler import yt_CrawlerByScriptbarrel
+from util.crawler import CrawlerSelection
 from util.notification import LineWorker
 import json
 
 
 # Params
-def web_config(name):
-    config = {
-        "leju":{
-            "url_list_tab": "leju-list",
-            "to_crawl_link_col": 2,
-            "crawler": lejuCrawler(),
-            "result_tab":"leju-bot",
-            "result_link_col": 6
-        },
-        "591":{
-            "url_list_tab": "591-list",
-            "to_crawl_link_col": 2,
-            "crawler": _591_Crawler(),
-            "result_tab":"591-bot",
-            "result_link_col": 2
-        },
-        "fb": {
-            "url_list_tab": "FB-list",
-            "to_crawl_link_col": 2,
-            "crawler": fb_Crawler(),
-            "result_tab": "FB-bot",
-            "result_link_col": 4
-        },
-        "fb-private": {
-            "url_list_tab": "FB-private-list",
-            "to_crawl_link_col": 2,
-            "crawler": fb_private_Crawler(),
-            "result_tab": "FB-private-bot",
-            "result_link_col": 4
-        },
-        "fb_Crawler_by_facebook_scraper": {
-        	"url_list_tab": "FB-list",
-            "to_crawl_link_col": 2,
-        	"crawler": fb_Crawler_by_facebook_scraper(),
-        	"result_tab": "FB-bot",
-        	"result_link_col": 4
-        },
-        "fb_GoupCrawlerByRequests": {
-        	"url_list_tab": "FB-list",
-            "to_crawl_link_col": 2,
-        	"crawler": fb_GoupCrawlerByRequests(),
-        	"result_tab": "FB-bot",
-        	"result_link_col": 4
-        },
-        "yt_CrawlerBySelenium": {
-            "url_list_tab": "YT-list",
-            "to_crawl_link_col": 2,
-            "crawler": yt_CrawlerBySelenium(),
-            "result_tab": "YT-bot",
-            "result_link_col": 4
-        },
-        "YtCrawlerByfeeds": {
-            "url_list_tab": "YT-list",
-            "to_crawl_link_col": 2,
-            "crawler": YtCrawlerByfeeds(),
-            "result_tab": "YT-bot",
-            "result_link_col": 4
-        },
-        "yt_CrawlerByScriptbarrel": {
-            "url_list_tab": "YT-list",
-            "to_crawl_link_col": 2,
-            "crawler": yt_CrawlerByScriptbarrel(),
-            "result_tab": "YT-bot",
-            "result_link_col": 4
-        },
-
-    }
-    config_data = config[name]
-    return config_data
-
 def customer_list():
     c_list = [
         {
@@ -112,57 +36,48 @@ def crawl(web_name):
             message = f"{customer_name} 開始今日爬蟲"
             line_worker.send_notification(message)
             # config
-            config_data = web_config(web_name)
-            tab_name = config_data['url_list_tab']
-            to_crawl_link_col = config_data['to_crawl_link_col']
-            crawler = config_data['crawler']
+            crawler = CrawlerSelection().get_crawler(web_name)
             # crawler
-            to_crawl_url_list = get_to_crawl_url_list_by_sheet(sht_worker, tab_name, to_crawl_link_col)
+            to_crawl_url_list = sht_worker.get_to_crawl_url_list()
             crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
-            write_crawled_data_list_to_sheet(web_name, crawled_data_list, sht_worker)
-            sht_worker.send_line_notify(line_notify_token)
+            sht_worker.write_data_list_to_sheet(crawled_data_list)
+            message_list = sht_worker.message_list
+            for message in message_list:
+                line_worker.send_notification(message)
             # notify
             message = f"{customer_name} 完成今日爬蟲"
             line_worker.send_notification(message)
         except Exception as error:
             print(repr(error))
 
-def get_to_crawl_url_list_by_sheet(sht_worker, tab_name, to_crawl_link_col):
-    to_crawl_url_list = sht_worker.get_col_all_value(tab_name, to_crawl_link_col)[1:]
-    return to_crawl_url_list
+
 
 def get_crawled_data_list(crawler, to_crawl_url_list):
     crawled_data_list = []
     for url in to_crawl_url_list:
         try:
             data = crawler.fetch_data(url)
-            data_json = crawler.get_data_json(data)
-            data_json = json.dumps(data_json, ensure_ascii=False).encode('utf8')
-            crawled_data_list.append(data_json.decode())
+            data_list_json = crawler.get_data_json(data)
+            data_list_json_encode = json.dumps(data_list_json, ensure_ascii=False).encode('utf8')
+            data_list = json.loads(data_list_json_encode)
+            crawled_data_list += data_list
         except Exception as error:
             print(f"fetch fail:{url}")
             print(repr(error))
 
     return crawled_data_list
 
-def write_crawled_data_list_to_sheet(web_name, data_list, sht_worker):
-    config_data = web_config(web_name)
-    result_tab_name = config_data['result_tab']
-    result_link_col = config_data['result_link_col']
-    result_sheet_tab = sht_worker.get_result_sheet_tab(result_tab_name)
-    exist_link_list = sht_worker.get_col_all_value(result_tab_name, result_link_col)
-    sht_worker.write_profile_to_sheet(data_list, result_sheet_tab, exist_link_list)
 
 def crawl_all(event,context):
-    crawl("leju")
+    # crawl("leju")
     # crawl("591")
     # crawl("fb")
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
     # crawl("yt_CrawlerBySelenium")
-    # crawl("YtCrawlerByfeeds")
+    crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
 
