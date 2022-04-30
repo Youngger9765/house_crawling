@@ -512,28 +512,6 @@ class fb_GoupCrawlerByRequests():
 
         return data_json
 
-
-class yt_CrawlerBySelenium(crawler):
-    def __init__(self):
-        print("===yt_CrawlerBySelenium init ===")
-
-    # def fetch_data(self,url):
-    #     self.get_browser()
-    #     data_soup = self.fetch_url_data(url)
-    #     # print(data_soup)
-    #     return data_soup
-
-    # def get_data_json(self, data_soup):
-    #     videos = data_soup.select("#meta #video-title")
-    #     for video in videos:
-    #         title = video['title']
-    #         href = video['href']
-            
-    #         print(title)
-    #         print(href)
-
-
-
 class YtCrawlerByfeeds():
     def __init__(self):
         print("===YtCrawlerByfeeds init ===")
@@ -578,7 +556,6 @@ class YtCrawlerByfeeds():
             data_json.append(data)
 
         return data_json
-
 
 class yt_CrawlerByScriptbarrel():
     def __init__(self):
