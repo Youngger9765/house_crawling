@@ -32,6 +32,7 @@ var/
 
 node_modules/
 cred.json
+notion_secret.json
 .ipynb_checkpoints
 
 # Serverless directories
