@@ -31,7 +31,7 @@ from facebook_scraper import get_group_info
 import socialreaper
 
 
-class CrawlerSelection():
+class CrawlerWorker():
     def __int__(self):
         pass
 
@@ -43,11 +43,26 @@ class CrawlerSelection():
             "fb-private": fb_private_Crawler(),
             "fb_Crawler_by_facebook_scraper": fb_Crawler_by_facebook_scraper(),
             "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests(),
-            "yt_CrawlerBySelenium": yt_CrawlerBySelenium(),
             "YtCrawlerByfeeds": YtCrawlerByfeeds(),
-            "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel()
+            "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel(),
+            "notion-youtube": YtCrawlerByfeeds(),
         }
         return switcher.get(web_name, "")
+
+    def get_crawled_data_list(self, crawler, to_crawl_url_list):
+        crawled_data_list = []
+        for url in to_crawl_url_list:
+            try:
+                data = crawler.fetch_data(url)
+                data_list_json = crawler.get_data_json(data)
+                data_list_json_encode = json.dumps(data_list_json, ensure_ascii=False).encode('utf8')
+                data_list = json.loads(data_list_json_encode)
+                crawled_data_list += data_list
+            except Exception as error:
+                print(f"fetch fail:{url}")
+                print(repr(error))
+
+        return crawled_data_list
 
 
 class selenium_engine:
@@ -74,7 +89,6 @@ class selenium_engine:
         # self.browser = webdriver.Chrome('/opt/chromedriver',options=chrome_options)
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
 
-
 class crawler:
     def __init__(self):
         print("===crawler init ===")
@@ -99,7 +113,6 @@ class crawler:
         for i in range(count):
             self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(5)
-
 
 class lejuCrawler(crawler):
     def __init__(self):

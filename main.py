@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet_worker import GsheetWorker
-from util.crawler import CrawlerSelection
+from util.notion_worker import NotionWorker
+from util.crawler import CrawlerWorker
 from util.notification import LineWorker
 import json
 
@@ -35,11 +36,11 @@ def crawl(web_name):
             # notify
             message = f"{customer_name} 開始今日爬蟲"
             line_worker.send_notification(message)
-            # config
-            crawler = CrawlerSelection().get_crawler(web_name)
-            # crawler
+            # crawler by config
+            cawler_worker = CrawlerWorker()
+            crawler = cawler_worker.get_crawler(web_name)
             to_crawl_url_list = sht_worker.get_to_crawl_url_list()
-            crawled_data_list = get_crawled_data_list(crawler, to_crawl_url_list)
+            crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
             # sheet
             sht_worker.write_data_list_to_sheet(crawled_data_list)
             message_list = sht_worker.message_list
@@ -52,21 +53,26 @@ def crawl(web_name):
             print(repr(error))
 
 
+def crawl_by_notion(web_name):
+    # crawl
+    notion_worker = NotionWorker()
+    secret_token = notion_worker.secret_token
+    channel_database_id = notion_worker.channel_database_id
+    db_json = notion_worker.query_db(secret_token, channel_database_id)
+    channel_list = notion_worker.get_channel_list(db_json)
 
-def get_crawled_data_list(crawler, to_crawl_url_list):
-    crawled_data_list = []
-    for url in to_crawl_url_list:
-        try:
-            data = crawler.fetch_data(url)
-            data_list_json = crawler.get_data_json(data)
-            data_list_json_encode = json.dumps(data_list_json, ensure_ascii=False).encode('utf8')
-            data_list = json.loads(data_list_json_encode)
-            crawled_data_list += data_list
-        except Exception as error:
-            print(f"fetch fail:{url}")
-            print(repr(error))
+    if web_name == "notion-youtube":
+        to_crawl_url_list =  [channel["url"] for channel in channel_list if channel["kind"]=="youtube"]
+        to_crawl_url_list = list(set(to_crawl_url_list))
 
-    return crawled_data_list
+    cawler_worker = CrawlerWorker()
+    crawler = cawler_worker.get_crawler(web_name)
+    crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
+    # send to notion
+    # Todo: cleaner should deal by web_name
+    content_data_list = notion_worker.youtube_data_cleaner(crawled_data_list)
+    notion_worker.write_content_data_list_to_db(content_data_list)
+
 
 
 def crawl_all(event,context):
@@ -76,9 +82,10 @@ def crawl_all(event,context):
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
-    # crawl("yt_CrawlerBySelenium")
-    crawl("YtCrawlerByfeeds")
+    # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
+
+    crawl_by_notion("notion-youtube")
 
 
 if __name__ == "__main__":
