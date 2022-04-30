@@ -29,6 +29,12 @@ jobs:
       with:
         name: "cred.json"
         json: ${{ secrets.SHEET_CRED }}
+    - name: create Notion_Secret json
+      id: create-json
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "notion_secret.json"
+        json: ${{ secrets.Notion_Secret }}
     - name: run crawling
       run: |
         python main.py 
