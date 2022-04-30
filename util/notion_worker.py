@@ -136,6 +136,12 @@ class NotionWorker:
         
         channel_relation_id = self.get_channel_relation_id(data["channel_id"])
         channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
+        
+        cover = {
+            'type': 'external',
+            'external': {'url': data["img_link"]}
+        }
+        
         payload = {
             "parent": {
                 "database_id": database_id,
@@ -151,7 +157,8 @@ class NotionWorker:
                 "description": description,
                 "tag_list": tag_list,
                 "channel_relation": channel_relation
-            }
+            },
+            "cover": cover
         }
         
         return payload
