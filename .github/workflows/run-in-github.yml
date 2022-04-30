@@ -24,13 +24,13 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     - name: create SHEET_CRED json
-      id: create-json
+      id: create-sheet-json
       uses: jsdaniell/create-json@1.1.2
       with:
         name: "cred.json"
         json: ${{ secrets.SHEET_CRED }}
     - name: create Notion_Secret json
-      id: create-json
+      id: create-notion-json
       uses: jsdaniell/create-json@1.1.2
       with:
         name: "notion_secret.json"
