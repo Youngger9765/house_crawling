@@ -141,6 +141,17 @@ class NotionWorker:
             'type': 'external',
             'external': {'url': data["img_link"]}
         }
+        children = [
+            {
+                "type": "video",
+                "video": {
+                    "type": "external",
+                    "external": {
+                        "url": data["content_url"]
+                    }
+                }
+            }
+        ]
         
         payload = {
             "parent": {
@@ -158,7 +169,8 @@ class NotionWorker:
                 "tag_list": tag_list,
                 "channel_relation": channel_relation
             },
-            "cover": cover
+            "cover": cover,
+            "children": children
         }
         
         return payload
@@ -170,8 +182,9 @@ class NotionWorker:
 
         for data in content_data_list:
             if data["content_url"] in exist_link_list:
-                print("===exist!===")
-                print(data["content_url"])
+                # print("===exist!===")
+                # print(data["content_url"])
+                pass
             else:
                 print("==update!===")
                 print(data["content_url"])
