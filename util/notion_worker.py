@@ -13,22 +13,27 @@ class NotionWorker:
         self.channel_database_id = file_dict["channel_database_id"]
         self.content_database_id = file_dict["content_database_id"]
 
-
-    def query_db(self, secret_token, database_id, db_filter=None):
-        url = f"https://api.notion.com/v1/databases/{database_id}/query"
-        payload = {"page_size": 100}
-        if db_filter:
-            payload["filter"] = db_filter
+    def get_headers(self):
         headers = {
-            "Authorization": "Bearer " + secret_token,
+            "Authorization": "Bearer " + self.secret_token,
             "Accept": "application/json",
             "Notion-Version": "2022-02-22",
             "Content-Type": "application/json"
         }
 
+        return headers
+
+    def query_db(self, database_id, db_filter=None):
+        url = f"https://api.notion.com/v1/databases/{database_id}/query"
+        payload = {"page_size": 100}
+
+        if db_filter:
+            payload["filter"] = db_filter
+
+        headers = self.get_headers()
         response = requests.post(url, json=payload, headers=headers)
         db_json = json.loads(response.text)
- 
+
         return db_json
 
     def get_channel_list(self, db_json):
@@ -106,7 +111,22 @@ class NotionWorker:
                         "id": content
                     }
                 ]
-            }
+            },
+            "cover": {
+                'type': 'external',
+                'external': {'url': content}
+            },
+            "embed_video_link": [
+                {
+                    "type": "video",
+                    "video": {
+                        "type": "external",
+                        "external": {
+                            "url": content
+                        }
+                    }
+                }
+            ]
         }
 
         return switcher.get(property_type)
@@ -118,10 +138,12 @@ class NotionWorker:
                 "equals": channel_id
             }
         }
-        db_json = self.query_db(self.secret_token, self.channel_database_id, db_filter)
+        db_json = self.query_db(self.channel_database_id, db_filter)
         channel_relation_id = db_json["results"][0]["id"]
         
         return channel_relation_id
+
+    # def get_page
 
     def make_db_data(self, database_id, data):
         name = self.notion_property_value_maker("title", data["title"])
@@ -133,25 +155,10 @@ class NotionWorker:
         upload_at = self.notion_property_value_maker("date", data["upload_at"])
         description = self.notion_property_value_maker("rich_text", data["description"])
         tag_list = self.notion_property_value_maker("multi_select", data["tag_list"])
-        
         channel_relation_id = self.get_channel_relation_id(data["channel_id"])
         channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
-        
-        cover = {
-            'type': 'external',
-            'external': {'url': data["img_link"]}
-        }
-        children = [
-            {
-                "type": "video",
-                "video": {
-                    "type": "external",
-                    "external": {
-                        "url": data["content_url"]
-                    }
-                }
-            }
-        ]
+        cover = self.notion_property_value_maker("cover", data["img_link"])
+        children = self.notion_property_value_maker("embed_video_link", data["content_url"])
         
         payload = {
             "parent": {
@@ -176,7 +183,7 @@ class NotionWorker:
         return payload
 
     def write_content_data_list_to_db(self, content_data_list):
-        db_json = self.query_db(self.secret_token, self.content_database_id)
+        db_json = self.query_db(self.content_database_id)
         results = db_json["results"]
         exist_link_list = [result["properties"]["content_url"]["url"] for result in results]
 
@@ -190,12 +197,8 @@ class NotionWorker:
                 print(data["content_url"])
                 payload = self.make_db_data(self.content_database_id, data)
                 url = "https://api.notion.com/v1/pages"
-                headers = {
-                    "Authorization": "Bearer " + self.secret_token,
-                    "Accept": "application/json",
-                    "Notion-Version": "2022-02-22",
-                    "Content-Type": "application/json"
-                }
+                secret_token = self.secret_token
+                headers = self.get_headers()
 
                 response = requests.post(url, json=payload, headers=headers)
                 print(response.status_code)

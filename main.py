@@ -58,7 +58,7 @@ def crawl_by_notion(web_name):
     notion_worker = NotionWorker()
     secret_token = notion_worker.secret_token
     channel_database_id = notion_worker.channel_database_id
-    db_json = notion_worker.query_db(secret_token, channel_database_id)
+    db_json = notion_worker.query_db(channel_database_id)
     channel_list = notion_worker.get_channel_list(db_json)
 
     if web_name == "notion-youtube":
