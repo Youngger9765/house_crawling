@@ -4,24 +4,17 @@ import os
 
 class NotionWorker:
     def __init__(self):
-        current_path = os.getcwd()
-        notion_secret_name = "notion_secret.json"
-        data_path = current_path + "/" + notion_secret_name
-        file = open(data_path)
-        file_dict = json.load(file)
-        self.secret_token = file_dict["secret_token"]
-        self.channel_database_id = file_dict["channel_database_id"]
-        self.content_database_id = file_dict["content_database_id"]
+        self.secret_token = None
+        self.headers = None
 
-    def get_headers(self):
+    def set_headers(self):
         headers = {
             "Authorization": "Bearer " + self.secret_token,
             "Accept": "application/json",
             "Notion-Version": "2022-02-22",
             "Content-Type": "application/json"
         }
-
-        return headers
+        self.headers = headers
 
     def query_db(self, database_id, db_filter=None):
         url = f"https://api.notion.com/v1/databases/{database_id}/query"
@@ -30,47 +23,11 @@ class NotionWorker:
         if db_filter:
             payload["filter"] = db_filter
 
-        headers = self.get_headers()
+        headers = self.headers
         response = requests.post(url, json=payload, headers=headers)
         db_json = json.loads(response.text)
 
         return db_json
-
-    def get_channel_list(self, db_json):
-        results_list = db_json["results"]
-        channel_list = []
-        for result in results_list:
-            kind = result["properties"]["Kind"]["select"]["name"]
-            url = result["properties"]["URL"]["url"]
-            title = result["properties"]["Name"]["title"][0]["text"]["content"]
-            subscribers = result["properties"]["subscriber"]["people"]
-            channel_data_dict = {
-                "kind": kind,
-                "url": url,
-                "title": title,
-                "subscribers": subscribers
-            }
-            channel_list.append(channel_data_dict)
-        
-        return channel_list
-    
-    def youtube_data_cleaner(self, data_list):
-        content_data_list = []
-        for data in data_list:
-            content_data = {}
-            content_data["title"] = data["title"]
-            content_data["channel_id"] = data["channel_id"]
-            content_data["channel_url"] = data["channel_url"]
-            content_data["content_id"] = data["video_id"]
-            content_data["content_url"] = data["video_url"]
-            content_data["upload_at"] = data["published"]
-            content_data["img_link"] = data["img_link"]
-            content_data["description"] = data["description"]
-            content_data["tag_list"] = data["tag_list"]
-            
-            content_data_list.append(content_data)
-
-        return content_data_list
 
     def notion_property_value_maker(self, property_type, content):
         switcher = {
@@ -131,6 +88,56 @@ class NotionWorker:
 
         return switcher.get(property_type)
 
+class NotionCrawlerHandler(NotionWorker):
+    def __init__(self):
+        super().__init__()
+        current_path = os.getcwd()
+        notion_secret_name = "notion_secret.json"
+        data_path = current_path + "/" + notion_secret_name
+        file = open(data_path)
+        file_dict = json.load(file)
+        self.secret_token = file_dict["secret_token"]
+        self.channel_database_id = file_dict["channel_database_id"]
+        self.content_database_id = file_dict["content_database_id"]
+        self.set_headers()
+
+    def get_channel_list(self):
+        db_json = self.query_db(self.channel_database_id)
+        results_list = db_json["results"]
+        channel_list = []
+        for result in results_list:
+            kind = result["properties"]["Kind"]["select"]["name"]
+            url = result["properties"]["URL"]["url"]
+            title = result["properties"]["Name"]["title"][0]["text"]["content"]
+            subscribers = result["properties"]["subscriber"]["people"]
+            channel_data_dict = {
+                "kind": kind,
+                "url": url,
+                "title": title,
+                "subscribers": subscribers
+            }
+            channel_list.append(channel_data_dict)
+
+        return channel_list
+
+    def youtube_data_cleaner(self, data_list):
+        content_data_list = []
+        for data in data_list:
+            content_data = {}
+            content_data["title"] = data["title"]
+            content_data["channel_id"] = data["channel_id"]
+            content_data["channel_url"] = data["channel_url"]
+            content_data["content_id"] = data["video_id"]
+            content_data["content_url"] = data["video_url"]
+            content_data["upload_at"] = data["published"]
+            content_data["img_link"] = data["img_link"]
+            content_data["description"] = data["description"]
+            content_data["tag_list"] = data["tag_list"]
+            
+            content_data_list.append(content_data)
+
+        return content_data_list
+
     def get_channel_relation_id(self, channel_id):
         db_filter = {
             "property": "channel_id",
@@ -140,12 +147,12 @@ class NotionWorker:
         }
         db_json = self.query_db(self.channel_database_id, db_filter)
         channel_relation_id = db_json["results"][0]["id"]
-        
+
         return channel_relation_id
 
     # def get_page
 
-    def make_db_data(self, database_id, data):
+    def make_insert_db_data(self, database_id, data):
         name = self.notion_property_value_maker("title", data["title"])
         content_url = self.notion_property_value_maker("url", data["content_url"])
         content_id = self.notion_property_value_maker("rich_text", data["content_id"])
@@ -195,10 +202,9 @@ class NotionWorker:
             else:
                 print("==update!===")
                 print(data["content_url"])
-                payload = self.make_db_data(self.content_database_id, data)
+                payload = self.make_insert_db_data(self.content_database_id, data)
                 url = "https://api.notion.com/v1/pages"
-                secret_token = self.secret_token
-                headers = self.get_headers()
+                headers = self.headers
 
                 response = requests.post(url, json=payload, headers=headers)
                 print(response.status_code)

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 from util.gsheet_worker import GsheetWorker
-from util.notion_worker import NotionWorker
+from util.notion_worker import NotionCrawlerHandler
 from util.crawler import CrawlerWorker
 from util.notification import LineWorker
 import json
@@ -54,24 +54,21 @@ def crawl(web_name):
 
 
 def crawl_by_notion(web_name):
-    # crawl
-    notion_worker = NotionWorker()
-    secret_token = notion_worker.secret_token
-    channel_database_id = notion_worker.channel_database_id
-    db_json = notion_worker.query_db(channel_database_id)
-    channel_list = notion_worker.get_channel_list(db_json)
+    # channel_url_list
+    notion_crawler_handler = NotionCrawlerHandler()
+    channel_list = notion_crawler_handler.get_channel_list()
 
     if web_name == "notion-youtube":
         to_crawl_url_list =  [channel["url"] for channel in channel_list if channel["kind"]=="youtube"]
         to_crawl_url_list = list(set(to_crawl_url_list))
-
+    # crawler
     cawler_worker = CrawlerWorker()
     crawler = cawler_worker.get_crawler(web_name)
     crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
     # send to notion
     # Todo: cleaner should deal by web_name
-    content_data_list = notion_worker.youtube_data_cleaner(crawled_data_list)
-    notion_worker.write_content_data_list_to_db(content_data_list)
+    content_data_list = notion_crawler_handler.youtube_data_cleaner(crawled_data_list)
+    notion_crawler_handler.write_content_data_list_to_db(content_data_list)
 
 
 
