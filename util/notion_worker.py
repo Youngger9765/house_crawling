@@ -73,6 +73,10 @@ class NotionWorker:
                 'type': 'external',
                 'external': {'url': content}
             },
+            "icon": {
+                'type': 'external',
+                'external': {'url': content}
+            },
             "embed_video_link": [
                 {
                     "type": "video",
@@ -87,6 +91,7 @@ class NotionWorker:
         }
 
         return switcher.get(property_type)
+
 
 class NotionCrawlerHandler(NotionWorker):
     def __init__(self):
@@ -138,7 +143,7 @@ class NotionCrawlerHandler(NotionWorker):
 
         return content_data_list
 
-    def get_channel_relation_id(self, channel_id):
+    def get_channel_db(self, channel_id):
         db_filter = {
             "property": "channel_id",
             "rich_text": {
@@ -146,11 +151,18 @@ class NotionCrawlerHandler(NotionWorker):
             }
         }
         db_json = self.query_db(self.channel_database_id, db_filter)
+        
+        return db_json
+
+    def get_channel_relation_id(self, channel_id):
+        db_json = self.get_channel_db(channel_id)
         channel_relation_id = db_json["results"][0]["id"]
-
         return channel_relation_id
-
-    # def get_page
+    
+    def get_channel_logo_link(self, channel_id):
+        db_json = self.get_channel_db(channel_id)
+        channel_logo_link = db_json["results"][0]['properties']["logo_link"]["url"]
+        return channel_logo_link
 
     def make_insert_db_data(self, database_id, data):
         name = self.notion_property_value_maker("title", data["title"])
@@ -166,7 +178,9 @@ class NotionCrawlerHandler(NotionWorker):
         channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
         cover = self.notion_property_value_maker("cover", data["img_link"])
         children = self.notion_property_value_maker("embed_video_link", data["content_url"])
-        
+        logo_link = self.get_channel_logo_link(data["channel_id"])
+        icon = self.notion_property_value_maker("icon", logo_link)
+
         payload = {
             "parent": {
                 "database_id": database_id,
@@ -184,6 +198,7 @@ class NotionCrawlerHandler(NotionWorker):
                 "channel_relation": channel_relation
             },
             "cover": cover,
+            "icon": icon,
             "children": children
         }
         
