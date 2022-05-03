@@ -46,7 +46,7 @@ class CrawlerWorker():
             "YtCrawlerByfeeds": YtCrawlerByfeeds(),
             "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel(),
             "notion-youtube": YtCrawlerByfeeds(),
-            "notion-FB": fb_GoupCrawlerByRequests(),
+            "notion-FB": fb_Crawler_by_facebook_scraper(),
         }
         return switcher.get(web_name, "")
 
@@ -382,6 +382,16 @@ class fb_Crawler_by_facebook_scraper():
             post_group_id = group_info['id']
             post_group_url = "www.facebook.com/groups/" + group_id
             post_group_name = group_info['name']
+        else:
+            current_path = os.getcwd()
+            cookie_path = current_path + "/fb_cookies.txt"
+            group_id = url.split("/")[-1]
+            posts = get_posts(group_id, pages=1, cookies=cookie_path)
+            post_group_id = group_id
+            post_group_url = "www.facebook.com/" + group_id
+            res= requests.get(url).text
+            data_soup = BeautifulSoup(res, 'html.parser')
+            post_group_name = data_soup.select_one("title").text
 
         return [posts, post_group_id, post_group_url, post_group_name]
 
@@ -394,7 +404,8 @@ class fb_Crawler_by_facebook_scraper():
         cnt_limit = 10
         data_json = []
         for post in posts:
-            content = post['post_text'][:100]
+            title = post['text'][:50]
+            content = post['text'][:200]
             post_time = str(post['time']).split()[0]
             post_link = "www.facebook.com/" + post['post_id']
             img_link = post['image']
@@ -404,7 +415,7 @@ class fb_Crawler_by_facebook_scraper():
                 'post_group_name': post_group_name,
                 'post_link': post_link,
                 'post_time': post_time,
-                "title": "",
+                "title": title,
                 "sub_title": "",
                 'content': content,
                 'img_link': img_link

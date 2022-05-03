@@ -104,7 +104,7 @@ class NotionWorker:
                         "url": content
                     }
                 }
-            ]
+            ],
         }
 
         return switcher.get(property_type)
@@ -287,7 +287,5 @@ class NotionDataTransfer():
             content_data["description"] = data["content"]
             content_data["tag_list"] = ""
             content_data_list.append(content_data)
-
-            print()
 
         return content_data_list

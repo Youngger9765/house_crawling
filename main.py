@@ -61,6 +61,9 @@ def crawl_by_notion(web_name):
     kind = web_name.replace("notion-","")
     to_crawl_url_list =  [channel["url"] for channel in channel_list if channel["kind"]==kind]
     to_crawl_url_list = list(set(to_crawl_url_list))
+
+    print(to_crawl_url_list)
+    print("=========!!!!")
     # crawler
     cawler_worker = CrawlerWorker()
     crawler = cawler_worker.get_crawler(web_name)
@@ -83,7 +86,7 @@ def crawl_all(event,context):
     # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
-    crawl_by_notion("notion-youtube")
+    # crawl_by_notion("notion-youtube")
     crawl_by_notion("notion-FB")
 
 
