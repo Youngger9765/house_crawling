@@ -46,6 +46,7 @@ class CrawlerWorker():
             "YtCrawlerByfeeds": YtCrawlerByfeeds(),
             "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel(),
             "notion-youtube": YtCrawlerByfeeds(),
+            "notion-FB": fb_GoupCrawlerByRequests(),
         }
         return switcher.get(web_name, "")
 
@@ -489,13 +490,19 @@ class fb_GoupCrawlerByRequests():
                         post_group_name = post.find('h3').text
                         post_id = json.loads(post["data-ft"])["mf_story_key"]
                         post_link = "www.facebook.com/" + post_id
-                        publish_time = re.search(r'\"publish_time\":(.*?),', str(post)).group(1), # TIME
+                        publish_time = re.search(r'\"publish_time\":(.*?),', str(post)).group(1) # TIME
                         publish_time = int(list(publish_time)[0])
                         post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")
                         content = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
                         img_link = ""
+                        # try:
+                        #     photo_id = json.loads(post["data-ft"])["photo_id"]
+                        #     img_link = "www.facebook.com/" + photo_id
+                        # except Exception as error:
+                        #     print(repr(error))
                         try:
-                            photo_id = json.loads(post["data-ft"])["photo_id"]
+                            pattern = r'href="\/photo\.php\?fbid=(.*?)&'
+                            photo_id = re.search(pattern, str(post)).group(1)
                             img_link = "www.facebook.com/" + photo_id
                         except Exception as error:
                             print(repr(error))
@@ -506,7 +513,7 @@ class fb_GoupCrawlerByRequests():
                             "post_group_name": post_group_name,
                             "post_link": post_link,
                             "post_time": post_time,
-                            "title": "",
+                            "title": content[:50] + "...",
                             "sub_title": "",
                             "content": content,
                             "img_link": img_link,

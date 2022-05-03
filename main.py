@@ -2,6 +2,7 @@
 # coding: utf-8
 from util.gsheet_worker import GsheetWorker
 from util.notion_worker import NotionCrawlerHandler
+from util.notion_worker import NotionDataTransfer
 from util.crawler import CrawlerWorker
 from util.notification import LineWorker
 import json
@@ -57,17 +58,17 @@ def crawl_by_notion(web_name):
     # channel_url_list
     notion_crawler_handler = NotionCrawlerHandler()
     channel_list = notion_crawler_handler.get_channel_list()
-
-    if web_name == "notion-youtube":
-        to_crawl_url_list =  [channel["url"] for channel in channel_list if channel["kind"]=="youtube"]
-        to_crawl_url_list = list(set(to_crawl_url_list))
+    kind = web_name.replace("notion-","")
+    to_crawl_url_list =  [channel["url"] for channel in channel_list if channel["kind"]==kind]
+    to_crawl_url_list = list(set(to_crawl_url_list))
     # crawler
     cawler_worker = CrawlerWorker()
     crawler = cawler_worker.get_crawler(web_name)
     crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
+
     # send to notion
-    # Todo: cleaner should deal by web_name
-    content_data_list = notion_crawler_handler.youtube_data_cleaner(crawled_data_list)
+    notion_data_transfer = NotionDataTransfer()
+    content_data_list = notion_data_transfer.crawled_data_to_content_data_list(web_name, crawled_data_list)
     notion_crawler_handler.write_content_data_list_to_db(content_data_list)
 
 
@@ -82,7 +83,8 @@ def crawl_all(event,context):
     # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
-    crawl_by_notion("notion-youtube")
+    # crawl_by_notion("notion-youtube")
+    crawl_by_notion("notion-FB")
 
 
 if __name__ == "__main__":

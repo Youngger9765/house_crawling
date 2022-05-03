@@ -87,7 +87,13 @@ class NotionWorker:
                         }
                     }
                 }
-            ]
+            ],
+            "embed": {
+                "type": "embed",
+                "embed": {
+                    "url": content
+                }
+            }
         }
 
         return switcher.get(property_type)
@@ -125,23 +131,8 @@ class NotionCrawlerHandler(NotionWorker):
 
         return channel_list
 
-    def youtube_data_cleaner(self, data_list):
-        content_data_list = []
-        for data in data_list:
-            content_data = {}
-            content_data["title"] = data["title"]
-            content_data["channel_id"] = data["channel_id"]
-            content_data["channel_url"] = data["channel_url"]
-            content_data["content_id"] = data["video_id"]
-            content_data["content_url"] = data["video_url"]
-            content_data["upload_at"] = data["published"]
-            content_data["img_link"] = data["img_link"]
-            content_data["description"] = data["description"]
-            content_data["tag_list"] = data["tag_list"]
-            
-            content_data_list.append(content_data)
 
-        return content_data_list
+    
 
     def get_channel_db(self, channel_id):
         db_filter = {
@@ -174,10 +165,13 @@ class NotionCrawlerHandler(NotionWorker):
         upload_at = self.notion_property_value_maker("date", data["upload_at"])
         description = self.notion_property_value_maker("rich_text", data["description"])
         tag_list = self.notion_property_value_maker("multi_select", data["tag_list"])
-        channel_relation_id = self.get_channel_relation_id(data["channel_id"])
+        try:
+            channel_relation_id = self.get_channel_relation_id(data["channel_id"])
+        except Exception as error:
+            print(repr(error))
         channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
         cover = self.notion_property_value_maker("cover", data["img_link"])
-        children = self.notion_property_value_maker("embed_video_link", data["content_url"])
+        children = self.notion_property_value_maker("embed", data["content_url"])
         logo_link = self.get_channel_logo_link(data["channel_id"])
         icon = self.notion_property_value_maker("icon", logo_link)
 
@@ -199,8 +193,10 @@ class NotionCrawlerHandler(NotionWorker):
             },
             "cover": cover,
             "icon": icon,
-            "children": children
+            # "children": children
         }
+
+        print(payload)
         
         return payload
 
@@ -223,3 +219,53 @@ class NotionCrawlerHandler(NotionWorker):
 
                 response = requests.post(url, json=payload, headers=headers)
                 print(response.status_code)
+                print(response.text)
+
+
+
+class NotionDataTransfer():
+    def __init__(self):
+        pass
+
+    def crawled_data_to_content_data_list(self, web_name, data_list):
+        if web_name == "notion-youtube":
+            content_data_list = self.youtube_data_transfer(data_list)
+        elif web_name == "notion-FB":
+            content_data_list = self.fb_data_transfer(data_list)
+        
+        return content_data_list
+
+    def youtube_data_transfer(self, data_list):
+        content_data_list = []
+        for data in data_list:
+            content_data = {}
+            content_data["title"] = data["title"]
+            content_data["channel_id"] = data["channel_id"]
+            content_data["channel_url"] = data["channel_url"]
+            content_data["content_id"] = data["video_id"]
+            content_data["content_url"] = data["video_url"]
+            content_data["upload_at"] = data["published"]
+            content_data["img_link"] = data["img_link"]
+            content_data["description"] = data["description"]
+            content_data["tag_list"] = data["tag_list"]
+            content_data_list.append(content_data)
+
+        return content_data_list
+
+    def fb_data_transfer(self, data_list):
+        content_data_list = []
+        for data in data_list:
+            content_data = {}
+            content_data["title"] = data["title"]
+            content_data["channel_id"] = data["post_group_id"]
+            content_data["channel_url"] = data["post_group_url"]
+            content_data["content_id"] = data["post_link"].replace("www.facebook.com/","")
+            content_data["content_url"] = data["post_link"]
+            content_data["upload_at"] = data["post_time"]
+            fb_link = "https://i.pinimg.com/550x/f7/99/20/f79920f4cb34986684e29df42ec0cebe.jpg"
+            content_data["img_link"] = data["img_link"] or fb_link
+            content_data["description"] = data["content"]
+            content_data["tag_list"] = ""
+            content_data_list.append(content_data)
+
+        return content_data_list
