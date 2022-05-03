@@ -491,7 +491,7 @@ class fb_GoupCrawlerByRequests():
                         post_id = json.loads(post["data-ft"])["mf_story_key"]
                         post_link = "https://www.facebook.com/" + post_id
                         publish_time = re.search(r'\"publish_time\":(.*?),', str(post)).group(1) # TIME
-                        publish_time = int(list(publish_time)[0])
+                        publish_time = int(publish_time)
                         post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")
                         content = post.find('div',{'data-ft':'{"tn":"*s"}'}).text # CONTENT
                         img_link = ""

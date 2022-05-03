@@ -176,14 +176,17 @@ class NotionCrawlerHandler(NotionWorker):
         upload_at = self.notion_property_value_maker("date", data["upload_at"])
         description = self.notion_property_value_maker("rich_text", data["description"])
         tag_list = self.notion_property_value_maker("multi_select", data["tag_list"])
+        cover = self.notion_property_value_maker("cover", data["img_link"])
+        
+        channel_relation = ""
+        icon = ""
         try:
             channel_relation_id = self.get_channel_relation_id(data["channel_id"])
+            channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
+            logo_link = self.get_channel_logo_link(data["channel_id"])
+            icon = self.notion_property_value_maker("icon", logo_link)
         except Exception as error:
             print(repr(error))
-        channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
-        cover = self.notion_property_value_maker("cover", data["img_link"])
-        logo_link = self.get_channel_logo_link(data["channel_id"])
-        icon = self.notion_property_value_maker("icon", logo_link)
 
         children = ""
         if "facebook" in data["content_url"]:
@@ -284,5 +287,7 @@ class NotionDataTransfer():
             content_data["description"] = data["content"]
             content_data["tag_list"] = ""
             content_data_list.append(content_data)
+
+            print()
 
         return content_data_list
