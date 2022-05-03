@@ -83,8 +83,8 @@ def crawl_all(event,context):
     # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
-    # crawl_by_notion("notion-youtube")
-    crawl_by_notion("notion-FB")
+    crawl_by_notion("notion-youtube")
+    # crawl_by_notion("notion-FB")
 
 
 if __name__ == "__main__":

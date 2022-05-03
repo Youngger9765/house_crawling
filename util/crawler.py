@@ -486,10 +486,10 @@ class fb_GoupCrawlerByRequests():
                     try:
                         post_group_id = json.loads(post["data-ft"])["page_id"]
                         pattern = r'.*href=\"https:\/\/m.facebook.com\/groups\/(.*?)\/permalink\/.*'
-                        post_group_url = "www.facebook.com/groups/" + re.search(pattern, str(post)).group(1)
+                        post_group_url = "https://www.facebook.com/groups/" + re.search(pattern, str(post)).group(1)
                         post_group_name = post.find('h3').text
                         post_id = json.loads(post["data-ft"])["mf_story_key"]
-                        post_link = "www.facebook.com/" + post_id
+                        post_link = "https://www.facebook.com/" + post_id
                         publish_time = re.search(r'\"publish_time\":(.*?),', str(post)).group(1) # TIME
                         publish_time = int(list(publish_time)[0])
                         post_time = datetime.datetime.fromtimestamp(publish_time).strftime("%Y-%m-%d")

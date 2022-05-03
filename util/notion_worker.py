@@ -88,12 +88,23 @@ class NotionWorker:
                     }
                 }
             ],
-            "embed": {
-                "type": "embed",
-                "embed": {
-                    "url": content
+            "embed": [
+                {
+                    "type": "embed",
+                    "embed": {
+                        "url": content
+                    }
                 }
-            }
+            ],
+            "bookmark": [
+                {
+                    "type": "bookmark",
+                    "bookmark": {
+                        "caption":[],
+                        "url": content
+                    }
+                }
+            ]
         }
 
         return switcher.get(property_type)
@@ -171,9 +182,15 @@ class NotionCrawlerHandler(NotionWorker):
             print(repr(error))
         channel_relation = self.notion_property_value_maker("relation", channel_relation_id)
         cover = self.notion_property_value_maker("cover", data["img_link"])
-        children = self.notion_property_value_maker("embed", data["content_url"])
         logo_link = self.get_channel_logo_link(data["channel_id"])
         icon = self.notion_property_value_maker("icon", logo_link)
+
+        children = ""
+        if "facebook" in data["content_url"]:
+            children_block_tpye = "bookmark"
+        elif "youtube" in data["content_url"]:
+            children_block_tpye = "embed_video_link"
+        children = self.notion_property_value_maker(children_block_tpye, data["content_url"])
 
         payload = {
             "parent": {
@@ -193,7 +210,7 @@ class NotionCrawlerHandler(NotionWorker):
             },
             "cover": cover,
             "icon": icon,
-            # "children": children
+            "children": children
         }
 
         print(payload)
