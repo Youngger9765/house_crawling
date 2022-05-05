@@ -50,7 +50,8 @@ class CrawlerWorker():
         }
         return switcher.get(web_name, "")
 
-    def get_crawled_data_list(self, crawler, to_crawl_url_list):
+    def get_crawled_data_list(self, web_name, to_crawl_url_list):
+        crawler = self.get_crawler(web_name)
         crawled_data_list = []
         for url in to_crawl_url_list:
             try:
@@ -64,7 +65,6 @@ class CrawlerWorker():
                 print(repr(error))
 
         return crawled_data_list
-
 
 class selenium_engine:
     def __init__(self):
@@ -406,7 +406,12 @@ class fb_Crawler_by_facebook_scraper():
         for post in posts:
             title = post['text'][:50]
             content = post['text'][:200]
-            post_time = str(post['time']).split()[0]
+            
+            if post['time']:
+                post_time = str(post['time']).split()[0]
+            else:
+                post_time = date.today().strftime("%Y-%m-%d")
+
             post_link = "www.facebook.com/" + post['post_id']
             img_link = post['image']
             data = {

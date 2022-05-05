@@ -38,10 +38,9 @@ def crawl(web_name):
             message = f"{customer_name} 開始今日爬蟲"
             line_worker.send_notification(message)
             # crawler by config
-            cawler_worker = CrawlerWorker()
-            crawler = cawler_worker.get_crawler(web_name)
             to_crawl_url_list = sht_worker.get_to_crawl_url_list()
-            crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
+            cawler_worker = CrawlerWorker()            
+            crawled_data_list = cawler_worker.get_crawled_data_list(web_name, to_crawl_url_list)
             # sheet
             sht_worker.write_data_list_to_sheet(crawled_data_list)
             message_list = sht_worker.message_list
@@ -66,15 +65,12 @@ def crawl_by_notion(web_name):
     print("=========!!!!")
     # crawler
     cawler_worker = CrawlerWorker()
-    crawler = cawler_worker.get_crawler(web_name)
-    crawled_data_list = cawler_worker.get_crawled_data_list(crawler, to_crawl_url_list)
+    crawled_data_list = cawler_worker.get_crawled_data_list(web_name, to_crawl_url_list)
 
     # send to notion
     notion_data_transfer = NotionDataTransfer()
     content_data_list = notion_data_transfer.crawled_data_to_content_data_list(web_name, crawled_data_list)
     notion_crawler_handler.write_content_data_list_to_db(content_data_list)
-
-
 
 def crawl_all(event,context):
     # crawl("leju")

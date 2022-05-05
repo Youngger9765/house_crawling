@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from datetime import date
 
 class NotionWorker:
     def __init__(self):
@@ -227,8 +228,8 @@ class NotionCrawlerHandler(NotionWorker):
 
         for data in content_data_list:
             if data["content_url"] in exist_link_list:
-                # print("===exist!===")
-                # print(data["content_url"])
+                print("===exist!===")
+                print(data["content_url"])
                 pass
             else:
                 print("==update!===")
