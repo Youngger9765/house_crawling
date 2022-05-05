@@ -235,6 +235,9 @@ class NotionCrawlerHandler(NotionWorker):
             has_more = db_json["has_more"]
             start_cursor = db_json["next_cursor"]
 
+        print("====exist_link_list====")
+        print(len(exist_link_list))
+
         for data in content_data_list:
             if data["content_url"] in exist_link_list:
                 print("===exist!===")
@@ -242,7 +245,7 @@ class NotionCrawlerHandler(NotionWorker):
             else:
                 print("==update!===")
                 print(data["content_url"])
-                # payload = self.make_insert_db_data(self.content_database_id, data)
+                payload = self.make_insert_db_data(self.content_database_id, data)
                 url = "https://api.notion.com/v1/pages"
                 headers = self.headers
 
