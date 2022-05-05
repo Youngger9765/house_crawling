@@ -225,17 +225,15 @@ class NotionCrawlerHandler(NotionWorker):
         return payload
 
     def write_content_data_list_to_db(self, content_data_list):
-        db_json = self.query_db(self.content_database_id)
-        results = db_json["results"]
-        exist_link_list = [result["properties"]["content_url"]["url"] for result in results]
-
-        while db_json["has_more"]:
-            db_json = query_db(database_id, start_cursor=db_json["next_cursor"])
+        exist_link_list = []
+        has_more = True
+        start_cursor = None
+        while has_more:
+            db_json = self.query_db(self.content_database_id, start_cursor=start_cursor)
             results = db_json["results"]
             exist_link_list += [result["properties"]["content_url"]["url"] for result in results]
-
-        print("=====exist_link_list==")
-        print(exist_link_list)
+            has_more = db_json["has_more"]
+            start_cursor = db_json["next_cursor"]
 
         for data in content_data_list:
             if data["content_url"] in exist_link_list:
