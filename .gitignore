@@ -33,6 +33,9 @@ var/
 node_modules/
 cred.json
 notion_secret.json
+fb_cookies.json
+fb_secret.json
+
 .ipynb_checkpoints
 
 # Serverless directories

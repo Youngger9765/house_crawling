@@ -400,14 +400,19 @@ class fb_private_Crawler(fb_Crawler):
 class fb_Crawler_by_facebook_scraper():
     def __init__(self):
         print("===fb_Crawler_by_facebook_scraper init ===")
-        crawler_worker = crawler()
-        crawler_worker.get_browser()
-        email = "young.tsai.9765@gmail.com"
-        pwd = "babamama2022"
-        crawler_worker.login_to_FB(email,pwd)
+        current_path = current_path = os.getcwd()
+        fb_secret_name = "fb_secret.json"
+        data_path = current_path + "/" + fb_secret_name
+        file = open(data_path)
+        file_dict = json.load(file)
+        email = file_dict["email"]
+        pwd = file_dict["pwd"]
+        selenium_crawler = crawler()
+        selenium_crawler.get_browser()
+        selenium_crawler.login_to_FB(email,pwd)
         cookies_file_name = "fb_cookies.json"
-        crawler_worker.save_cookies_to_json(cookies_file_name)
-        crawler_worker.quit_browser()
+        selenium_crawler.save_cookies_to_json(cookies_file_name)
+        selenium_crawler.quit_browser()
 
     def fetch_data(self,url):
         if "groups" in url:
