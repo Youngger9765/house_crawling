@@ -37,18 +37,18 @@ class CrawlerWorker():
 
     def get_crawler(self, web_name):
         switcher = {
-            "leju": lejuCrawler(),
-            "591": _591_Crawler(),
-            "fb": fb_Crawler(),
-            "fb-private": fb_private_Crawler(),
-            "fb_Crawler_by_facebook_scraper": fb_Crawler_by_facebook_scraper(),
-            "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests(),
-            "YtCrawlerByfeeds": YtCrawlerByfeeds(),
-            "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel(),
-            "notion-youtube": YtCrawlerByfeeds(),
-            "notion-FB": fb_Crawler_by_facebook_scraper(),
+            "leju": lejuCrawler,
+            "591": _591_Crawler,
+            "fb": fb_Crawler,
+            "fb-private": fb_private_Crawler,
+            "fb_Crawler_by_facebook_scraper": fb_Crawler_by_facebook_scraper,
+            "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests,
+            "YtCrawlerByfeeds": YtCrawlerByfeeds,
+            "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel,
+            "notion-youtube": YtCrawlerByfeeds,
+            "notion-FB": fb_Crawler_by_facebook_scraper,
         }
-        return switcher.get(web_name, "")
+        return switcher.get(web_name, lambda: "")()
 
     def get_crawled_data_list(self, web_name, to_crawl_url_list):
         crawler = self.get_crawler(web_name)
@@ -75,9 +75,9 @@ class selenium_engine:
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--window-size=1420,1080')
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--remote-debugging-port=9222")
+        # chrome_options.add_argument("--remote-debugging-port=9222")
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--single-process')
+        # chrome_options.add_argument('--single-process')
         # chrome_options.add_argument(f'user-agent={user_agent}')
         # chrome_options.add_experimental_option("excludeSwitches", ['enable-automation'])
         # chrome_options.add_argument("--disable-blink-features");
@@ -114,6 +114,33 @@ class crawler:
         for i in range(count):
             self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             sleep(5)
+
+    def login_to_FB(self, email,pwd):
+        browser = self.browser
+        browser.get("http://www.facebook.com")
+        username = browser.find_element_by_id("email")
+        password = browser.find_element_by_id("pass")
+        submit = browser.find_element(by=By.CSS_SELECTOR, value='button[name="login"]')
+        sleep(1)
+        username.send_keys(email)
+        sleep(1)
+        password.send_keys(pwd)
+        sleep(1)
+        submit.click()
+        sleep(10)
+
+    def save_cookies_to_json(self, file_name):
+        browser = self.browser
+        cookies = browser.get_cookies()
+        json_object = json.dumps(cookies)
+        file = open(file_name, "w")
+        file.write(json_object)
+        file.close()
+
+    def quit_browser(self):
+        browser = self.browser
+        browser.quit()
+
 
 class lejuCrawler(crawler):
     def __init__(self):
@@ -373,6 +400,14 @@ class fb_private_Crawler(fb_Crawler):
 class fb_Crawler_by_facebook_scraper():
     def __init__(self):
         print("===fb_Crawler_by_facebook_scraper init ===")
+        crawler_worker = crawler()
+        crawler_worker.get_browser()
+        email = "young.tsai.9765@gmail.com"
+        pwd = "babamama2022"
+        crawler_worker.login_to_FB(email,pwd)
+        cookies_file_name = "fb_cookies.json"
+        crawler_worker.save_cookies_to_json(cookies_file_name)
+        crawler_worker.quit_browser()
 
     def fetch_data(self,url):
         if "groups" in url:
@@ -384,7 +419,7 @@ class fb_Crawler_by_facebook_scraper():
             post_group_name = group_info['name']
         else:
             current_path = os.getcwd()
-            cookie_path = current_path + "/fb_cookies.txt"
+            cookie_path = current_path + "/fb_cookies.json"
             group_id = url.split("/")[-1]
             posts = get_posts(group_id, pages=1, cookies=cookie_path)
             post_group_id = group_id
