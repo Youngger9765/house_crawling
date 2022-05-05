@@ -17,12 +17,15 @@ class NotionWorker:
         }
         self.headers = headers
 
-    def query_db(self, database_id, db_filter=None):
+    def query_db(self, database_id, db_filter=None, start_cursor=None):
         url = f"https://api.notion.com/v1/databases/{database_id}/query"
         payload = {"page_size": 100}
 
         if db_filter:
             payload["filter"] = db_filter
+
+        if start_cursor:
+            payload["start_cursor"] = start_cursor
 
         headers = self.headers
         response = requests.post(url, json=payload, headers=headers)
@@ -226,15 +229,22 @@ class NotionCrawlerHandler(NotionWorker):
         results = db_json["results"]
         exist_link_list = [result["properties"]["content_url"]["url"] for result in results]
 
+        while db_json["has_more"]:
+            db_json = query_db(database_id, start_cursor=db_json["next_cursor"])
+            results = db_json["results"]
+            exist_link_list += [result["properties"]["content_url"]["url"] for result in results]
+
+        print("=====exist_link_list==")
+        print(exist_link_list)
+
         for data in content_data_list:
             if data["content_url"] in exist_link_list:
                 print("===exist!===")
                 print(data["content_url"])
-                pass
             else:
                 print("==update!===")
                 print(data["content_url"])
-                payload = self.make_insert_db_data(self.content_database_id, data)
+                # payload = self.make_insert_db_data(self.content_database_id, data)
                 url = "https://api.notion.com/v1/pages"
                 headers = self.headers
 
