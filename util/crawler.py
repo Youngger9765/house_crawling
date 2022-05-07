@@ -445,12 +445,21 @@ class fb_Crawler_by_facebook_scraper():
         data_json = []
         for post in posts:
             title = post['text'][:50]
-            content = post['text'][:200]
+            content = post['text']
             
             if post['time']:
                 post_time = str(post['time']).split()[0]
             else:
                 post_time = date.today().strftime("%Y-%m-%d")
+
+            tag_pattern = r'\#(.*?)[ |\n]|【(.*?)】|《(.*?)》|「(.*?)」'
+            tag_tuple_list = re.findall(tag_pattern, post['text'] + " ")
+            tag_list = []
+            for tag_tuple in tag_tuple_list:
+                tag_list += list(tag_tuple)
+                tag_list = list(set(tag_list))
+            if '' in tag_list:
+                tag_list.remove('')
 
             post_link = "www.facebook.com/" + post['post_id']
             img_link = post['image']
@@ -463,7 +472,8 @@ class fb_Crawler_by_facebook_scraper():
                 "title": title,
                 "sub_title": "",
                 'content': content,
-                'img_link': img_link
+                'img_link': img_link,
+                'tag_list': tag_list
             }
             data_json.append(data)
             print(data)

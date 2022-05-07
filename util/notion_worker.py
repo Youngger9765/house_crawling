@@ -297,7 +297,7 @@ class NotionDataTransfer():
             fb_link = "https://i.pinimg.com/550x/f7/99/20/f79920f4cb34986684e29df42ec0cebe.jpg"
             content_data["img_link"] = data["img_link"] or fb_link
             content_data["description"] = data["content"]
-            content_data["tag_list"] = ""
+            content_data["tag_list"] = data["tag_list"]
             content_data_list.append(content_data)
 
         return content_data_list
