@@ -178,7 +178,7 @@ class NotionCrawlerHandler(NotionWorker):
         channel_id = self.notion_property_value_maker("rich_text", data["channel_id"])
         img_link = self.notion_property_value_maker("url", data["img_link"])
         upload_at = self.notion_property_value_maker("date", data["upload_at"])
-        description = self.notion_property_value_maker("rich_text", data["description"])
+        description = self.notion_property_value_maker("rich_text", data["description"][:2000])
         tag_list = self.notion_property_value_maker("multi_select", data["tag_list"])
         cover = self.notion_property_value_maker("cover", data["img_link"])
         
