@@ -39,7 +39,7 @@ jobs:
       id: create-fb-json
       uses: jsdaniell/create-json@1.1.2
       with:
-        name: "fb_cookies.json"
+        name: "fb_secret.json"
         json: ${{ secrets.FB_SECRET }}
     - name: run crawling
       run: |

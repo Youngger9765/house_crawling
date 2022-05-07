@@ -415,16 +415,16 @@ class fb_Crawler_by_facebook_scraper():
         selenium_crawler.quit_browser()
 
     def fetch_data(self,url):
+        current_path = os.getcwd()
+        cookie_path = current_path + "/fb_cookies.json"
         if "groups" in url:
             group_id = url.split("/")[-1]
-            posts = get_posts(group=group_id, pages=1)
+            posts = get_posts(group=group_id, pages=1,cookies=cookie_path)
             group_info = get_group_info(group_id)
             post_group_id = group_info['id']
             post_group_url = "www.facebook.com/groups/" + group_id
             post_group_name = group_info['name']
         else:
-            current_path = os.getcwd()
-            cookie_path = current_path + "/fb_cookies.json"
             group_id = url.split("/")[-1]
             posts = get_posts(group_id, pages=1, cookies=cookie_path)
             post_group_id = group_id
