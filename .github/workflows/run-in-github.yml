@@ -35,6 +35,12 @@ jobs:
       with:
         name: "notion_secret.json"
         json: ${{ secrets.Notion_Secret }}
+    - name: create fb_secret json
+      id: create-notion-json
+      uses: jsdaniell/create-json@1.1.2
+      with:
+        name: "fb_secret.json"
+        json: ${{ secrets.FB_SECRET }}
     - name: run crawling
       run: |
         python main.py 
