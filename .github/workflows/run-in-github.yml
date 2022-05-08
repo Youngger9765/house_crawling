@@ -1,7 +1,7 @@
 name: Crawl house
 on:
-  push:
-  pull_request:
+  # push:
+  # pull_request:
   schedule:
     - cron: '30 11 * * *'
 
