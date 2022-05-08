@@ -1,4 +1,4 @@
-name: Crawl house
+name: Crawling
 on:
   # push:
   # pull_request:
