@@ -3,6 +3,8 @@ import datetime
 from datetime import date
 from time import sleep
 from unittest import case
+from random import randrange
+
 
 from selenium import webdriver
 # import random_user_agent
@@ -60,6 +62,7 @@ class CrawlerWorker():
                 data_list_json_encode = json.dumps(data_list_json, ensure_ascii=False).encode('utf8')
                 data_list = json.loads(data_list_json_encode)
                 crawled_data_list += data_list
+                sleep(randrange(10))
             except Exception as error:
                 print(f"fetch fail:{url}")
                 print(repr(error))
