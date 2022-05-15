@@ -29,6 +29,8 @@ var/
 *.egg
 *.pyc
 *.ipynb_checkpoints
+*.xlsx
+*.log
 
 node_modules/
 cred.json

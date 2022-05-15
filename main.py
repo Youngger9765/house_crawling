@@ -72,6 +72,14 @@ def crawl_by_notion(web_name):
     content_data_list = notion_data_transfer.crawled_data_to_content_data_list(web_name, crawled_data_list)
     notion_crawler_handler.write_content_data_list_to_db(content_data_list)
 
+def crawl_LearnMode(url):
+    from util.crawler import LearnModeCrawler
+    _crawler = LearnModeCrawler()
+    url = "https://www.learnmode.net/course/472517/content"
+    data = _crawler.fetch_data(url)
+    data_json = _crawler.get_data_json(data)
+    print(data_json)
+
 def crawl_all(event,context):
     # crawl("leju")
     # crawl("591")
@@ -83,7 +91,9 @@ def crawl_all(event,context):
     # crawl("yt_CrawlerByScriptbarrel")
 
     crawl_by_notion("notion-youtube")
-    crawl_by_notion("notion-FB")
+    # crawl_by_notion("notion-FB")
+
+    # crawl_LearnMode("https://www.learnmode.net/course/472517/content")
 
 
 if __name__ == "__main__":
