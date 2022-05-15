@@ -132,6 +132,23 @@ class crawler:
         submit.click()
         sleep(10)
 
+    def login_to_LearnMode(self, email, pwd):
+        browser = self.browser
+        browser.get("https://www.learnmode.net/login")
+        user_selector = '.account-input-div input'
+        user_element = browser.find_element(by=By.CSS_SELECTOR, value=user_selector)
+        password_selector = '.password-input-div input'
+        password_element = browser.find_element(by=By.CSS_SELECTOR, value=password_selector)
+        submit_selector = '#loginModal .user-input-block .main-btn-div button'
+        submit_element = browser.find_element(by=By.CSS_SELECTOR, value=submit_selector)
+        sleep(1)
+        user_element.send_keys(email)
+        sleep(1)
+        password_element.send_keys(pwd)
+        sleep(1)
+        submit_element.click()
+        sleep(10)
+
     def save_cookies_to_json(self, file_name):
         browser = self.browser
         cookies = browser.get_cookies()
@@ -714,4 +731,168 @@ class yt_CrawlerByScriptbarrel():
             if i >= cnt_limit:
                 break
 
+        return data_json
+
+class LearnModeCrawler(crawler):    
+    def __init__(self):
+        print("===LearnModeCrawler init ===")
+
+    def fetch_data(self, url):
+        self.get_browser()
+        email = "purpleice9765@msn.com"
+        pw = "learnmode9765"
+        self.login_to_LearnMode(email, pw)
+        data_soup = self.fetch_url_data(url)  
+        
+        return data_soup
+
+    def fetch_url_data(self, url):
+        print(f"===fetch:{url}===")
+        browser = self.browser
+        browser.get(url)
+        sleep(5)
+
+        chapter_items = browser.find_elements(by=By.CSS_SELECTOR, value=".chapter-item")
+        del chapter_items[0]
+
+        for chap in chapter_items:
+            chap.click()
+            sleep(1)
+
+        chapter_name_list = []
+        names = browser.find_elements(by=By.CSS_SELECTOR, value=".chapter-name")
+        for n in names:
+            chapter_name_list.append(n.text)
+        del chapter_name_list[0]
+
+
+        resources = browser.find_elements(by=By.CSS_SELECTOR, value='.resource-list')
+        content_link_list = []
+        for resource in resources:
+            link_list = []
+            links = resource.find_elements(by=By.CSS_SELECTOR, value="a")
+            for link_ele in links:
+                link = link_ele.get_attribute("href")
+                link_list.append(link)
+            content_link_list.append(link_list)
+        content_link_list
+        del content_link_list[0]
+
+
+        num = len(chapter_name_list)
+
+        content_data_soup_list = []
+        for urls in content_link_list:
+            content_link_data_soup = []
+            for _url in urls:
+                print(_url)
+                browser.get(_url)
+                sleep(5)
+                data_soup = BeautifulSoup(browser.page_source, 'html.parser')
+                content_link_data_soup.append(data_soup)
+
+            content_data_soup_list.append(content_link_data_soup)
+        print(f"===fetch:{url} done===")
+        
+        return [chapter_name_list, content_data_soup_list]
+    
+    def get_attachment_data(self, url):
+        self.get_browser()
+        email = "purpleice9765@msn.com"
+        pw = "learnmode9765"
+        self.login_to_LearnMode(email, pw)
+        browser = self.browser
+        browser.get(url)
+        sleep(5)
+        file_items = browser.find_elements(by=By.CSS_SELECTOR, value=".file-item")
+        file_items_num = len(file_items)
+        attachment_list = []
+        for i in range(file_items_num):
+            file_items = browser.find_elements(by=By.CSS_SELECTOR, value=".file-item")
+            print(i)
+            file_name = file_items[i].text
+            print(file_name)
+            file_items[i].click()
+            sleep(1)
+            img_modal = browser.find_elements(by=By.CSS_SELECTOR, value=".modal.show")
+            is_img = len(img_modal) > 0 
+            if is_img:
+                link_selector = browser.find_elements(by=By.CSS_SELECTOR, value=".modal.show img")[0]
+                file_link = link_selector.get_attribute('src')
+                browser.refresh();
+                sleep(3)
+            else:
+                network = browser.execute_script("var performance = window.performance || window.mozPerformance || window.msPerformance || window.webkitPerformance || {}; var network = performance.getEntries() || {}; return network;")
+                file_link = network[-1]["name"]
+
+            attachment_data = {
+                "file_name": file_name,
+                "file_link": file_link
+            }
+            attachment_list.append(attachment_data)
+
+        self.quit_browser()
+        return attachment_list
+
+
+        
+    def get_data_json(self, data):
+        chapter_name_list = data[0]
+        content_data_soup_list = data[1]
+        data_json = []
+
+        for i, data_soups in enumerate(content_data_soup_list):
+            chapter_data = {}
+            chapter_data["chapter_name"] = chapter_name_list[i]
+            chapter_data["chapter_index"] = i
+            chapter_data["chapter_content"] = []
+            
+            for data_soup in data_soups:                
+                try:
+                    title_selector = ".title-wrapper .title-text"
+                    title = data_soup.select_one(title_selector).text
+                except:
+                    title_selector = ".title-lg"
+                    title = data_soup.select_one(title_selector).text
+
+                try:
+                    link_selector = ".resource-item.active"
+                    link = data_soup.select_one(link_selector)['href']
+                except:
+                    link_selector = ".nav-item-section.selected a"
+                    link = data_soup.select_one(link_selector)['href']
+
+                pattern = r'\/course\/.*?\/.*?\/(.*?)\/'
+                link_type = re.findall(pattern, link)[0]
+
+                content_link = ""
+                attachment = []
+                if link_type == "video":
+                    iframe_src = data_soup.select_one("iframe")['src']
+                    pattern = r"embed\/(.*?)\?"
+                    youtube_id = re.findall(pattern, iframe_src)[0]
+                    content_link = f"https://www.youtube.com/watch?v={youtube_id}"
+                elif link_type == "hyperlink":
+                    content_link_selector = ".hyperlink .content a"
+                    content_link = data_soup.select_one(content_link_selector)['href']
+                elif link_type == "book":
+                    content_link_selector = "iframe.pdf-reader"
+                    content_link = data_soup.select_one(content_link_selector)['src']
+                elif link_type == "homework":
+                    url = "https://www.learnmode.net" + link
+                    attachment = self.get_attachment_data(url)
+
+                content_data = {
+                    "title": title,
+                    "link": link,
+                    "link_type": link_type,
+                    "content_link": content_link,
+                    "attachment": attachment
+                }
+                
+                chapter_data["chapter_content"].append(content_data)
+
+            data_json.append(chapter_data)
+        print(data_json)
+                                
         return data_json
