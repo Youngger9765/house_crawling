@@ -21,6 +21,11 @@ def customer_list():
         # 	"sheet_key": "11O1ujc-in6iI9kwdQtFzjQ5OkQ5oP4aDZwhoH6p9tgY",
         # 	"line_notify_token": "TABjG5hi1xyxu6MH9OU5rZULxPgYFlw5fb5QBkptK4z"
         # }
+        {
+        	"name": "均一",
+        	"sheet_key": "1RhuwrKqzVKE-R9L4phWQrTo7WRUl0hrkksP6UOZ4SPI",
+        	"line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
+        }
     ]
 
     return c_list
@@ -87,7 +92,7 @@ def crawl_all(event,context):
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
-    # crawl("YtCrawlerByfeeds")
+    crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
 
     crawl_by_notion("notion-youtube")
