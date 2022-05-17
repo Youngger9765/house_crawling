@@ -92,10 +92,10 @@ def crawl_all(event,context):
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
-    crawl("YtCrawlerByfeeds")
-    # crawl("yt_CrawlerByScriptbarrel")
+    # crawl("YtCrawlerByfeeds")
+    crawl("yt_CrawlerByScriptbarrel")
 
-    crawl_by_notion("notion-youtube")
+    # crawl_by_notion("notion-youtube")
     # crawl_by_notion("notion-FB")
 
     # crawl_LearnMode("https://www.learnmode.net/course/472517/content")

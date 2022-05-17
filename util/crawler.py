@@ -69,7 +69,7 @@ class CrawlerWorker():
 
         return crawled_data_list
 
-class selenium_engine:
+class SeleniumEngine:
     def __init__(self):
         # user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.50 Safari/537.36'
         chrome_options = webdriver.ChromeOptions()
@@ -93,13 +93,13 @@ class selenium_engine:
         # self.browser = webdriver.Chrome('/opt/chromedriver',options=chrome_options)
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
 
-class crawler:
+class SeleniumCrawler:
     def __init__(self):
         print("===crawler init ===")
         self.browser = None
 
     def get_browser(self):
-        engine = selenium_engine()
+        engine = SeleniumEngine()
         self.browser = engine.browser
 
     def wait_by_class_name(self, class_name):
@@ -162,7 +162,7 @@ class crawler:
         browser.quit()
 
 
-class lejuCrawler(crawler):
+class lejuCrawler(SeleniumCrawler):
     def __init__(self):
         print("===lejuCrawler init ===")
 
@@ -226,7 +226,7 @@ class lejuCrawler(crawler):
  
         return sale_items
 
-class _591_Crawler(crawler):
+class _591_Crawler(SeleniumCrawler):
     def __init__(self):
         print("===_591_Crawler init ===")
 
@@ -294,7 +294,7 @@ class _591_Crawler(crawler):
         
         return data_json
 
-class fb_Crawler(crawler):
+class fb_Crawler(SeleniumCrawler):
     def __init__(self):
         print("===fb_Crawler init ===")
 
@@ -427,7 +427,7 @@ class fb_Crawler_by_facebook_scraper():
         file_dict = json.load(file)
         email = file_dict["email"]
         pwd = file_dict["pwd"]
-        selenium_crawler = crawler()
+        selenium_crawler = SeleniumCrawler()
         selenium_crawler.get_browser()
         selenium_crawler.login_to_FB(email,pwd)
         cookies_file_name = "fb_cookies.json"
@@ -732,6 +732,10 @@ class yt_CrawlerByScriptbarrel():
                 break
 
         return data_json
+
+class YtCrawlerInPlaylist(SeleniumCrawler):
+
+
 
 class LearnModeCrawler(crawler):    
     def __init__(self):
