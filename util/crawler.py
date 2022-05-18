@@ -94,58 +94,6 @@ class SeleniumEngine:
         # self.browser = webdriver.Chrome('/opt/chromedriver',options=chrome_options)
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
 
-class RequestsCrawler:
-    def __init__(self):
-        print("===crawler init ===")
-
-    def get_yt_playlist(self, url, channel_name):
-        resp = requests.get(url)
-        data_soup = BeautifulSoup(resp.text, 'html.parser')
-        video_title = data_soup.select_one('meta[name="title"]')["content"]
-        query_url = f"https://www.youtube.com/results?sp=mAEB&search_query={video_title}+{channel_name}"
-        resp = requests.get(query_url)
-        data_soup = BeautifulSoup(resp.text, 'html.parser')
-        data_soup_str = str(data_soup)
-        playlist_pattern = r'{"playlistRenderer":{"playlistId":"(.*?)"'
-        playlist_id = re.findall(playlist_pattern, data_soup_str)[0]
-
-        return playlist_id
-
-    def get_yt_channel_info(self, channel_id):
-        url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
-        resp = requests.get(url)
-        data_soup = BeautifulSoup(resp.content, 'xml')
-        channel_name = data_soup.select_one("feed > title").text
-        channel_url = data_soup.select_one('feed > link[rel="alternate"]')["href"]
-        channel_feeds_url = url
-        channel_author_name = data_soup.select_one('author > name').text
-        channel_published = data_soup.select_one('feed > published').text
-
-        channel_data = {
-            "channel_id": channel_id,
-            "channel_name": channel_name,
-            "channel_url": channel_url,
-            "channel_author_name": channel_author_name,
-            "channel_feeds_url": channel_feeds_url,
-            "channel_published": channel_published
-        }
-        
-        return channel_data
-
-    def get_yt_playlist_info(self, playlist_id):
-        url = f"https://www.youtube.com/watch?v=&list={playlist_id}"
-        resp = requests.get(url)
-        data_soup = BeautifulSoup(resp.text, 'html.parser')
-        data_soup_str = str(data_soup)
-        playlist_title_pattern = r'"titleText":{"runs":\[{"text":"(.*?)"'
-        playlist_title = re.findall(playlist_title_pattern, data_soup_str)[0]
-        
-        playlist_data = {
-            "playlist_id": playlist_id,
-            "playlist_title": playlist_title
-        }
-        
-        return playlist_data
 
 class SeleniumCrawler:
     def __init__(self):
@@ -672,6 +620,183 @@ class fb_GoupCrawlerByRequests():
 
         return data_json
 
+
+class YtApiUtil:
+    def __init__(self):
+        current_path = current_path = os.getcwd()
+        youtube_key_name = "youtube_key.json"
+        data_path = current_path + "/" + youtube_key_name
+        file = open(data_path)
+        file_dict = json.load(file)
+        self.API_key = file_dict["API_key"]
+        
+    def get_all_playlists(self, channel_id, page_token=""):
+        API_key = self.API_key
+        url = f"https://youtube.googleapis.com/youtube/v3/playlists?part=contentDetails&part=snippet&part=id&channelId={channel_id}&maxResults=50&key={API_key}&pageToken={page_token}"
+        resp = requests.get(url)
+        
+        return json.loads(resp.text)
+    
+    def get_all_playlist_items(self, playlist_id, page_token=""):
+        API_key = self.API_key
+        url = f"https://youtube.googleapis.com/youtube/v3/playlistItems?part=snippet&part=contentDetails&maxResults=50&playlistId={playlist_id}&key={API_key}&pageToken={page_token}"
+        resp = requests.get(url)
+        
+        return json.loads(resp.text)
+    
+    def get_video_info(self, video_id):
+        API_key = self.API_key
+        url = f"https://youtube.googleapis.com/youtube/v3/videos?part=contentDetails&part=snippet&id={video_id}&key={API_key}"
+        resp = requests.get(url)
+        
+        try:
+            video_info = json.loads(resp.text)["items"][0]
+        except:
+            video_info = None
+        
+        return video_info
+        
+class YtApiCrawler(YtApiUtil):
+    def __init__(self):
+        super().__init__()
+    
+    def fetch_data(self, url):
+        print("===YtCrawlerInPlaylist fetch_data ===")
+        channel_id = url.replace("https://www.youtube.com/channel/","")
+        playlist_items = []
+        page_token = ""
+        has_next_page = True
+        while has_next_page:
+            data = self.get_all_playlists(channel_id, page_token)
+            playlist_items += data["items"]
+            if "nextPageToken" in data:
+                page_token = data["nextPageToken"]
+            else:
+                has_next_page = False
+
+        playlist_list = []
+        for item in playlist_items:
+            channel_id = item["snippet"]["channelId"]
+            channel_title = item["snippet"]["channelTitle"]
+            channel_url = url
+            playlist_id = item["id"]
+            playlist_title = item["snippet"]["title"]
+
+            playlist_items = {
+                "channel_id": channel_id,
+                "channel_title": channel_title,
+                "channel_url": channel_url,
+                "playlist_id": playlist_id,
+                "playlist_title": playlist_title,        
+            }
+
+            playlist_list.append(playlist_items)
+
+        playlist_items_list = []
+        for playlist_dict in playlist_list:
+            playlist_id = playlist_dict["playlist_id"]
+
+            page_token = ""
+            has_next_page = True
+            items = []
+            while has_next_page:
+                data = self.get_all_playlist_items(playlist_id, page_token)
+                items += data["items"]
+                if "nextPageToken" in data:
+                    page_token = data["nextPageToken"]
+                else:
+                    has_next_page = False
+
+            for item in items:
+                video_id = item["snippet"]["resourceId"]["videoId"]
+                video_info = self.get_video_info(video_id)
+                if video_info:
+                    video_url = f"https://www.youtube.com/watch?v={video_id}"
+                    published = item["snippet"]["publishedAt"]
+                    title = item["snippet"]["title"]
+                    description = item["snippet"]["description"]
+                    playlist_position = item["snippet"]["position"]
+                    
+                    if "standard" in item["snippet"]["thumbnails"]:
+                        img_link = item["snippet"]["thumbnails"]["standard"]["url"] 
+                    else: 
+                        img_link = ""
+
+                    if "tags" in video_info["snippet"]:
+                        tags = video_info["snippet"]["tags"]
+                    else:
+                        tags = []
+
+                    playlist_dict["video_id"] = video_id
+                    playlist_dict["video_url"] = video_url
+                    playlist_dict["published"] = published
+                    playlist_dict["title"] = title
+                    playlist_dict["img_link"] = img_link
+                    playlist_dict["description"] = description
+                    playlist_dict["playlist_position"] = playlist_position
+                    playlist_dict["tags"] = tags
+                    
+                    playlist_items_list.append(playlist_dict)
+                    
+        return playlist_items_list
+        
+    def get_data_json(self, playlist_items_list):
+        
+        return playlist_items_list
+
+class YoutubeRequestsCrawler:
+    def __init__(self):
+        print("===crawler init ===")
+
+    def get_yt_playlist(self, url, channel_name):
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        video_title = data_soup.select_one('meta[name="title"]')["content"]
+        query_url = f"https://www.youtube.com/results?sp=mAEB&search_query={video_title}+{channel_name}"
+        resp = requests.get(query_url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        data_soup_str = str(data_soup)
+        playlist_pattern = r'{"playlistRenderer":{"playlistId":"(.*?)"'
+        playlist_id = re.findall(playlist_pattern, data_soup_str)[0]
+
+        return playlist_id
+
+    def get_yt_channel_info(self, channel_id):
+        url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.content, 'xml')
+        channel_name = data_soup.select_one("feed > title").text
+        channel_url = data_soup.select_one('feed > link[rel="alternate"]')["href"]
+        channel_feeds_url = url
+        channel_author_name = data_soup.select_one('author > name').text
+        channel_published = data_soup.select_one('feed > published').text
+
+        channel_data = {
+            "channel_id": channel_id,
+            "channel_name": channel_name,
+            "channel_url": channel_url,
+            "channel_author_name": channel_author_name,
+            "channel_feeds_url": channel_feeds_url,
+            "channel_published": channel_published
+        }
+        
+        return channel_data
+
+    def get_yt_playlist_info(self, playlist_id):
+        url = f"https://www.youtube.com/watch?v=&list={playlist_id}"
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        data_soup_str = str(data_soup)
+        playlist_title_pattern = r'"titleText":{"runs":\[{"text":"(.*?)"'
+        playlist_title = re.findall(playlist_title_pattern, data_soup_str)[0]
+        
+        playlist_data = {
+            "playlist_id": playlist_id,
+            "playlist_title": playlist_title
+        }
+        
+        return playlist_data
+
 class YtCrawlerByfeeds():
     def __init__(self):
         print("===YtCrawlerByfeeds init ===")
@@ -702,7 +827,7 @@ class YtCrawlerByfeeds():
             tag_list = re.findall(tag_pattern, title + " " + description)
 
             try:
-                req_crawler = RequestsCrawler()
+                req_crawler = YoutubeRequestsCrawler()
                 playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
                 playlist_title = req_crawler.get_yt_playlist_info(playlist_id)["playlist_title"]
             except:
@@ -781,7 +906,7 @@ class yt_CrawlerByScriptbarrel():
             tag_list = re.findall(tag_pattern,''.join(title) + " " + description)
 
             try:
-                req_crawler = RequestsCrawler()
+                req_crawler = YoutubeRequestsCrawler()
                 playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
                 playlist_title = req_crawler.get_yt_playlist_info(playlist_id)
             except:
