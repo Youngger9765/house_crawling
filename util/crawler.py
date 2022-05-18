@@ -47,6 +47,7 @@ class CrawlerWorker():
             "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests,
             "YtCrawlerByfeeds": YtCrawlerByfeeds,
             "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel,
+            "YtCrawlerInPlaylist": YtCrawlerInPlaylist,
             "notion-youtube": YtCrawlerByfeeds,
             "notion-FB": fb_Crawler_by_facebook_scraper,
         }
@@ -92,6 +93,59 @@ class SeleniumEngine:
         # chrome_options.binary_location = '/opt/headless-chromium'
         # self.browser = webdriver.Chrome('/opt/chromedriver',options=chrome_options)
         self.browser = webdriver.Chrome(ChromeDriverManager().install(),options=chrome_options)
+
+class RequestsCrawler:
+    def __init__(self):
+        print("===crawler init ===")
+
+    def get_yt_playlist(self, url, channel_name):
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        video_title = data_soup.select_one('meta[name="title"]')["content"]
+        query_url = f"https://www.youtube.com/results?sp=mAEB&search_query={video_title}+{channel_name}"
+        resp = requests.get(query_url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        data_soup_str = str(data_soup)
+        playlist_pattern = r'{"playlistRenderer":{"playlistId":"(.*?)"'
+        playlist_id = re.findall(playlist_pattern, data_soup_str)[0]
+
+        return playlist_id
+
+    def get_yt_channel_info(self, channel_id):
+        url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.content, 'xml')
+        channel_name = data_soup.select_one("feed > title").text
+        channel_url = data_soup.select_one('feed > link[rel="alternate"]')["href"]
+        channel_feeds_url = url
+        channel_author_name = data_soup.select_one('author > name').text
+        channel_published = data_soup.select_one('feed > published').text
+
+        channel_data = {
+            "channel_id": channel_id,
+            "channel_name": channel_name,
+            "channel_url": channel_url,
+            "channel_author_name": channel_author_name,
+            "channel_feeds_url": channel_feeds_url,
+            "channel_published": channel_published
+        }
+        
+        return channel_data
+
+    def get_yt_playlist_info(self, playlist_id):
+        url = f"https://www.youtube.com/watch?v=&list={playlist_id}"
+        resp = requests.get(url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        data_soup_str = str(data_soup)
+        playlist_title_pattern = r'"titleText":{"runs":\[{"text":"(.*?)"'
+        playlist_title = re.findall(playlist_title_pattern, data_soup_str)[0]
+        
+        playlist_data = {
+            "playlist_id": playlist_id,
+            "playlist_title": playlist_title
+        }
+        
+        return playlist_data
 
 class SeleniumCrawler:
     def __init__(self):
@@ -646,6 +700,15 @@ class YtCrawlerByfeeds():
             description = video.find("media:description").text
             tag_pattern = r'\#(.*?) '
             tag_list = re.findall(tag_pattern, title + " " + description)
+
+            try:
+                req_crawler = RequestsCrawler()
+                playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
+                playlist_title = req_crawler.get_yt_playlist_info(playlist_id)["playlist_title"]
+            except:
+                playlist_id = ""
+                playlist_title = ""
+            
             data = {
                 "channel_id": channel_id,
                 "channel_url": channel_url,
@@ -656,10 +719,12 @@ class YtCrawlerByfeeds():
                 "title": title,
                 "img_link": img_link,
                 "description": description,
-                "tag_list": tag_list
-
+                "tag_list": tag_list,
+                "playlist_id": playlist_id,
+                "playlist_title": playlist_title
             }
             data_json.append(data)
+            print(data)
 
         return data_json
 
@@ -714,6 +779,15 @@ class yt_CrawlerByScriptbarrel():
             description = ''.join(descriptions[i]).replace("<br/>","\n")
             tag_pattern = r'\#(.*?) '
             tag_list = re.findall(tag_pattern,''.join(title) + " " + description)
+
+            try:
+                req_crawler = RequestsCrawler()
+                playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
+                playlist_title = req_crawler.get_yt_playlist_info(playlist_id)
+            except:
+                playlist_id = ""
+                playlist_title = ""
+
             data = {
                 "channel_name":channel_name,
                 "channel_url": channel_url,
@@ -724,7 +798,9 @@ class yt_CrawlerByScriptbarrel():
                 "title": title,
                 "img_link": img_link,
                 "description": description,
-                "tag_list": tag_list
+                "tag_list": tag_list,
+                "playlist_id": playlist_id,
+                "playlist_title": playlist_title
             }
             data_json.append(data)
 
@@ -733,11 +809,98 @@ class yt_CrawlerByScriptbarrel():
 
         return data_json
 
-class YtCrawlerInPlaylist(SeleniumCrawler):
+class YtCrawlerInPlaylist():
+    def __init__(self):
+        print("===YtCrawlerInPlaylist init ===")
 
+    def fetch_data(self, url):
+        print("===YtCrawlerInPlaylist fetch_data ===")
 
+        playlists_url = f"{url}/playlists"
+        resp = requests.get(playlists_url)
+        data_soup = BeautifulSoup(resp.text, 'html.parser')
+        channel_url = url
+        channel_name = data_soup.select_one('link[itemprop="name"]')["content"]
+        channel_id = url.replace("https://www.youtube.com/channel/","")
+        playlistId_pattern = r'playlistId":"(.*?)",'
+        playlistId_list = re.findall(playlistId_pattern, resp.text)
+        playlistId_list = list(set(playlistId_list))
+        data_dict_list = []
 
-class LearnModeCrawler(crawler):    
+        for playlist_id in playlistId_list:
+            yt_list_url = f"https://www.youtube.com/playlist?list={playlist_id}"
+            resp = requests.get(yt_list_url)
+            data_soup = BeautifulSoup(resp.text, 'html.parser')
+            playlist_title = data_soup.select_one('meta[property="og:title"]')["content"]
+            videoId_pattern = r'"videoId":"(.*?)",'
+            videoId_list = re.findall(videoId_pattern, resp.text)
+            video_id_list = list(set(videoId_list))
+            print(video_id_list)
+
+            for video_id in video_id_list:
+                video_url = f"https://www.youtube.com/watch?v={video_id}"
+                print(video_url)
+                resp = requests.get(video_url)
+                data_soup = BeautifulSoup(resp.text, 'html.parser')
+                data_dict = {
+                    "channel_name": channel_name,
+                    "channel_url": channel_url,
+                    "channel_id": channel_id,
+                    "playlist_id": playlist_id,
+                    "playlist_title": playlist_title,
+                    "data_soup": data_soup
+                }
+                data_dict_list.append(data_dict)
+
+        return data_dict_list
+        
+    def get_data_json(self, data_dict_list):
+        data_json = []
+
+        for data_dict in data_dict_list:
+            channel_name = data_dict["channel_name"]
+            channel_url = data_dict["channel_url"]
+            channel_id = data_dict["channel_id"]
+            playlist_id = data_dict['playlist_id']
+            data_soup = data_dict["data_soup"]
+            video_id = data_soup.select_one('meta[itemprop="videoId"]')["content"]
+            video_url = data_soup.select_one('[name="twitter:url"]')["content"]
+            published = data_soup.select_one('meta[itemprop="uploadDate"]')["content"]
+            title = data_soup.select_one('meta[itemprop="name"]')["content"]
+            img_link = data_soup.select_one('link[itemprop="thumbnailUrl"]')["href"]
+            description = data_soup.select_one('meta[itemprop="description"]')["content"]
+            playlist_id = data_dict["playlist_id"]
+            playlist_title = data_dict["playlist_title"]
+            
+            try:
+                tag_pattern = r'"shortDescription":"(#.*?)\\n'
+                data_soup_str = str(data_soup)
+                tag_list = re.findall(tag_pattern, data_soup_str)[0]
+                tag_list = tag_list.split("#")
+                tag_list.remove("")
+            except:
+                tag_list = []
+
+            data = {
+                "channel_name":channel_name,
+                "channel_url": channel_url,
+                "channel_id": channel_id,
+                "video_id": video_id,
+                "video_url": video_url,
+                "published": published,
+                "title": title,
+                "img_link": img_link,
+                "description": description,
+                "tag_list": tag_list,
+                "playlist_id": playlist_id,
+                "playlist_title": playlist_title
+            }
+            data_json.append(data)
+            print(data)
+
+        return data_json
+
+class LearnModeCrawler(SeleniumCrawler):    
     def __init__(self):
         print("===LearnModeCrawler init ===")
 

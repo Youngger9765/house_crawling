@@ -11,11 +11,11 @@ import json
 # Params
 def customer_list():
     c_list = [
-        {
-            "name": "Young",
-            "sheet_key": "15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI",
-            "line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
-        },
+        # {
+        #     "name": "Young",
+        #     "sheet_key": "15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI",
+        #     "line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
+        # },
         # {
         # 	"name": "小黑",
         # 	"sheet_key": "11O1ujc-in6iI9kwdQtFzjQ5OkQ5oP4aDZwhoH6p9tgY",
@@ -44,7 +44,7 @@ def crawl(web_name):
             line_worker.send_notification(message)
             # crawler by config
             to_crawl_url_list = sht_worker.get_to_crawl_url_list()
-            cawler_worker = CrawlerWorker()            
+            cawler_worker = CrawlerWorker()       
             crawled_data_list = cawler_worker.get_crawled_data_list(web_name, to_crawl_url_list)
             # sheet
             sht_worker.write_data_list_to_sheet(crawled_data_list)
@@ -92,8 +92,9 @@ def crawl_all(event,context):
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
-    # crawl("YtCrawlerByfeeds")
-    crawl("yt_CrawlerByScriptbarrel")
+    # crawl("YtCrawlerInPlaylist")
+    crawl("YtCrawlerByfeeds")
+    # crawl("yt_CrawlerByScriptbarrel")
 
     # crawl_by_notion("notion-youtube")
     # crawl_by_notion("notion-FB")
