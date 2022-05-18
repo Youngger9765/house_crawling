@@ -45,6 +45,7 @@ class CrawlerWorker():
             "fb-private": fb_private_Crawler,
             "fb_Crawler_by_facebook_scraper": fb_Crawler_by_facebook_scraper,
             "fb_GoupCrawlerByRequests": fb_GoupCrawlerByRequests,
+            "YtApiCrawler": YtApiCrawler,
             "YtCrawlerByfeeds": YtCrawlerByfeeds,
             "yt_CrawlerByScriptbarrel": yt_CrawlerByScriptbarrel,
             "YtCrawlerInPlaylist": YtCrawlerInPlaylist,
@@ -658,61 +659,67 @@ class YtApiUtil:
         
 class YtApiCrawler(YtApiUtil):
     def __init__(self):
+        print("===YtApiCrawler init ===")
         super().__init__()
-    
+
     def fetch_data(self, url):
-        print("===YtCrawlerInPlaylist fetch_data ===")
+        print("===YtApiCrawler fetch_data ===")
         channel_id = url.replace("https://www.youtube.com/channel/","")
-        playlist_items = []
+        playlists = []
         page_token = ""
         has_next_page = True
         while has_next_page:
-            data = self.get_all_playlists(channel_id, page_token)
-            playlist_items += data["items"]
-            if "nextPageToken" in data:
-                page_token = data["nextPageToken"]
+            all_playlists = self.get_all_playlists(channel_id, page_token)
+            playlists += all_playlists["items"]
+            if "nextPageToken" in all_playlists:
+                page_token = all_playlists["nextPageToken"]
             else:
                 has_next_page = False
 
         playlist_list = []
-        for item in playlist_items:
+        for item in playlists:
             channel_id = item["snippet"]["channelId"]
-            channel_title = item["snippet"]["channelTitle"]
+            channel_name = item["snippet"]["channelTitle"]
             channel_url = url
             playlist_id = item["id"]
             playlist_title = item["snippet"]["title"]
 
-            playlist_items = {
+            data = {
                 "channel_id": channel_id,
-                "channel_title": channel_title,
+                "channel_name": channel_name,
                 "channel_url": channel_url,
                 "playlist_id": playlist_id,
-                "playlist_title": playlist_title,        
+                "playlist_title": playlist_title,
+                "video_items": []
             }
 
-            playlist_list.append(playlist_items)
+            playlist_list.append(data)
 
         playlist_items_list = []
         for playlist_dict in playlist_list:
             playlist_id = playlist_dict["playlist_id"]
-
             page_token = ""
             has_next_page = True
-            items = []
             while has_next_page:
-                data = self.get_all_playlist_items(playlist_id, page_token)
-                items += data["items"]
-                if "nextPageToken" in data:
-                    page_token = data["nextPageToken"]
+                playlist_items = self.get_all_playlist_items(playlist_id, page_token)
+                playlist_dict["video_items"] += playlist_items["items"]
+                if "nextPageToken" in playlist_items:
+                    page_token = playlist_items["nextPageToken"]
                 else:
                     has_next_page = False
+            playlist_items_list.append(playlist_dict)
 
-            for item in items:
+        return playlist_items_list
+
+    def get_data_json(self, playlist_items_list):
+        data_json = []
+        for playlist_dict in playlist_items_list:
+            for item in playlist_dict["video_items"]:
                 video_id = item["snippet"]["resourceId"]["videoId"]
                 video_info = self.get_video_info(video_id)
                 if video_info:
                     video_url = f"https://www.youtube.com/watch?v={video_id}"
-                    published = item["snippet"]["publishedAt"]
+                    published = item["snippet"]["publishedAt"].split("T")[0]
                     title = item["snippet"]["title"]
                     description = item["snippet"]["description"]
                     playlist_position = item["snippet"]["position"]
@@ -723,26 +730,35 @@ class YtApiCrawler(YtApiUtil):
                         img_link = ""
 
                     if "tags" in video_info["snippet"]:
-                        tags = video_info["snippet"]["tags"]
+                        tag_list = video_info["snippet"]["tags"]
                     else:
-                        tags = []
+                        tag_list = []
 
-                    playlist_dict["video_id"] = video_id
-                    playlist_dict["video_url"] = video_url
-                    playlist_dict["published"] = published
-                    playlist_dict["title"] = title
-                    playlist_dict["img_link"] = img_link
-                    playlist_dict["description"] = description
-                    playlist_dict["playlist_position"] = playlist_position
-                    playlist_dict["tags"] = tags
+                    channel_id = playlist_dict["channel_id"]
+                    channel_url = playlist_dict["channel_url"]
+                    channel_name = playlist_dict["channel_name"]
+                    playlist_id = playlist_dict["playlist_id"]
+                    playlist_title = playlist_dict["playlist_title"]
                     
-                    playlist_items_list.append(playlist_dict)
-                    
-        return playlist_items_list
+                    data = {
+                        "channel_id": channel_id,
+                        "channel_url": channel_url,
+                        "channel_name": channel_name,
+                        "video_id": video_id,
+                        "video_url": video_url,
+                        "published": published,
+                        "title": title,
+                        "img_link": img_link,
+                        "description": description,
+                        "tag_list": tag_list,
+                        "playlist_id": playlist_id,
+                        "playlist_title": playlist_title,
+                        "playlist_position": playlist_position
+                    }
+                    data_json.append(data)
+                    print(data)
         
-    def get_data_json(self, playlist_items_list):
-        
-        return playlist_items_list
+        return data_json
 
 class YoutubeRequestsCrawler:
     def __init__(self):
@@ -846,7 +862,8 @@ class YtCrawlerByfeeds():
                 "description": description,
                 "tag_list": tag_list,
                 "playlist_id": playlist_id,
-                "playlist_title": playlist_title
+                "playlist_title": playlist_title,
+                "playlist_position": ""
             }
             data_json.append(data)
             print(data)
@@ -925,7 +942,8 @@ class yt_CrawlerByScriptbarrel():
                 "description": description,
                 "tag_list": tag_list,
                 "playlist_id": playlist_id,
-                "playlist_title": playlist_title
+                "playlist_title": playlist_title,
+                "playlist_position": ""
             }
             data_json.append(data)
 
@@ -1018,7 +1036,8 @@ class YtCrawlerInPlaylist():
                 "description": description,
                 "tag_list": tag_list,
                 "playlist_id": playlist_id,
-                "playlist_title": playlist_title
+                "playlist_title": playlist_title,
+                "playlist_position": ""
             }
             data_json.append(data)
             print(data)

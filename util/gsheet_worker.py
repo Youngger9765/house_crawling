@@ -34,7 +34,7 @@ class GsheetWorker:
             worker = _591GsheetWorker(self.sheet_key)
         elif web_name in ["fb","fb-private","fb_Crawler_by_facebook_scraper", "fb_GoupCrawlerByRequests"]:
             worker = FbGsheetWorker(self.sheet_key)
-        elif web_name in ["YtCrawlerByfeeds","yt_CrawlerByScriptbarrel", "YtCrawlerInPlaylist"]:
+        elif web_name in ["YtApiCrawler","YtCrawlerByfeeds","yt_CrawlerByScriptbarrel", "YtCrawlerInPlaylist"]:
             worker = YtGsheetWorker(self.sheet_key)
 
         return worker
@@ -254,6 +254,7 @@ class YtGsheetWorker(GsheetWorker):
         message = f"【YT-{channel_name}】 有新影片: {title}，詳情請點擊:{video_url}"
         playlist_id = video["playlist_id"]
         playlist_title = video["playlist_title"]
+        playlist_position = video["playlist_position"]
 
         sheet_value = [
             str(channel_id),
@@ -270,6 +271,7 @@ class YtGsheetWorker(GsheetWorker):
             message,
             playlist_id,
             playlist_title,
+            playlist_position,
         ]
 
         return sheet_value
