@@ -37,6 +37,7 @@ cred.json
 notion_secret.json
 fb_cookies.json
 fb_secret.json
+youtube_key.json
 
 .ipynb_checkpoints
 
