@@ -93,9 +93,10 @@ def crawl_all(event,context):
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
     crawl("YtApiCrawler")
-    crawl("YtCrawlerByfeeds")
-    # crawl("yt_CrawlerByScriptbarrel")
     # crawl("YtCrawlerInPlaylist")
+    # crawl("YtCrawlerByfeeds")
+    # crawl("yt_CrawlerByScriptbarrel")
+    
 
     # crawl_by_notion("notion-youtube")
     # crawl_by_notion("notion-FB")

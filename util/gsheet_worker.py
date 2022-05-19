@@ -97,7 +97,7 @@ class GsheetWorker:
             print("============")
         else:
             try:
-                sleep(1)
+                sleep(1.5)
                 result_sheet_tab.insert_row(sheet_value, sheet_row_cnt)
                 result_host_name = sheet_value[self.result_host_name_col-1]
                 content = sheet_value[self.result_content_col-1]
