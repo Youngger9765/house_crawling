@@ -96,14 +96,14 @@ def crawl_all(event,context):
 
     # crawl("YtApiCrawler")
     # crawl("YtCrawlerInPlaylist")
-    # crawl("YtCrawlerByfeeds")
+    crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
     
 
     # crawl_by_notion("notion-youtube")
     # crawl_by_notion("notion-FB")
 
-    crawl_LearnMode("https://www.learnmode.net/course/444076/content")
+    # crawl_LearnMode("https://www.learnmode.net/course/444076/content")
 
 
 if __name__ == "__main__":
