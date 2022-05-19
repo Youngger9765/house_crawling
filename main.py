@@ -83,7 +83,8 @@ def crawl_LearnMode(url):
     url = "https://www.learnmode.net/course/472517/content"
     data = _crawler.fetch_data(url)
     data_json = _crawler.get_data_json(data)
-    print(data_json)
+    _crawler.save_file(data_json)
+    # print(data_json)
 
 def crawl_all(event,context):
     # crawl("leju")
@@ -92,17 +93,17 @@ def crawl_all(event,context):
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
     # crawl("fb_GoupCrawlerByRequests")
-    
+
     # crawl("YtApiCrawler")
     # crawl("YtCrawlerInPlaylist")
-    crawl("YtCrawlerByfeeds")
+    # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
     
 
     # crawl_by_notion("notion-youtube")
     # crawl_by_notion("notion-FB")
 
-    # crawl_LearnMode("https://www.learnmode.net/course/472517/content")
+    crawl_LearnMode("https://www.learnmode.net/course/444076/content")
 
 
 if __name__ == "__main__":

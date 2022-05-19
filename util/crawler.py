@@ -1078,7 +1078,7 @@ class LearnModeCrawler(SeleniumCrawler):
         pw = "learnmode9765"
         self.login_to_LearnMode(email, pw)
         data_soup = self.fetch_url_data(url)  
-        
+
         return data_soup
 
     def fetch_url_data(self, url):
@@ -1169,8 +1169,6 @@ class LearnModeCrawler(SeleniumCrawler):
         self.quit_browser()
         return attachment_list
 
-
-        
     def get_data_json(self, data):
         chapter_name_list = data[0]
         content_data_soup_list = data[1]
@@ -1231,3 +1229,15 @@ class LearnModeCrawler(SeleniumCrawler):
         print(data_json)
                                 
         return data_json
+
+    def save_file(self, data_json):
+        json_string =json.dumps(data_json)
+        current_path = current_path = os.getcwd()
+        data_path = current_path + "/learmode_data.json"
+        # Directly from dictionary
+        with open(data_path, 'w') as outfile:
+            json.dump(json_string, outfile)
+        
+        # Using a JSON string
+        with open(data_path, 'w') as outfile:
+            outfile.write(json_string)
