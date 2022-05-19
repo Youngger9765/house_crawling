@@ -722,7 +722,7 @@ class YtApiCrawler(YtApiUtil):
                     published = item["snippet"]["publishedAt"].split("T")[0]
                     title = item["snippet"]["title"]
                     description = item["snippet"]["description"]
-                    playlist_position = item["snippet"]["position"]
+                    playlist_position = int(item["snippet"]["position"]) +1
                     
                     if "standard" in item["snippet"]["thumbnails"]:
                         img_link = item["snippet"]["thumbnails"]["standard"]["url"] 
@@ -764,7 +764,7 @@ class YoutubeRequestsCrawler:
     def __init__(self):
         print("===crawler init ===")
 
-    def get_yt_playlist(self, url, channel_name):
+    def get_yt_playlist_with_video(self, url, channel_name):
         resp = requests.get(url)
         data_soup = BeautifulSoup(resp.text, 'html.parser')
         video_title = data_soup.select_one('meta[name="title"]')["content"]
@@ -772,11 +772,30 @@ class YoutubeRequestsCrawler:
         resp = requests.get(query_url)
         data_soup = BeautifulSoup(resp.text, 'html.parser')
         data_soup_str = str(data_soup)
-        playlist_pattern = r'{"playlistRenderer":{"playlistId":"(.*?)"'
-        playlist_id = re.findall(playlist_pattern, data_soup_str)[0]
+        
+        try:
+            playlist_pattern = r'{"playlistRenderer":{"playlistId":"(.*?)"'
+            playlist_id = re.findall(playlist_pattern, data_soup_str)[0]
+        except:
+            playlist_id = ""
+            
+        if playlist_id:
+            video_id = url.replace("https://www.youtube.com/watch?v=","")
+            query_url = f"https://www.youtube.com/watch?v={video_id}&list={playlist_id}"
+            resp = requests.get(query_url)
+            data_soup = BeautifulSoup(resp.text, 'html.parser')
+            data_soup_str = str(data_soup)
+            index_pattern = f'{video_id}.*index=(.*?)\"'
+            playlist_position = re.findall(index_pattern, data_soup_str)[0]
+        else:
+            playlist_position = ""
 
-        return playlist_id
-
+        data = {
+            "playlist_id": playlist_id,
+            "playlist_position": playlist_position
+        }
+        
+        return data
     def get_yt_channel_info(self, channel_id):
         url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
         resp = requests.get(url)
@@ -844,12 +863,14 @@ class YtCrawlerByfeeds():
 
             try:
                 req_crawler = YoutubeRequestsCrawler()
-                playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
+                data = req_crawler.get_yt_playlist_with_video(video_url,channel_name)
+                playlist_id = data["playlist_id"]
+                playlist_position = data["playlist_position"]
                 playlist_title = req_crawler.get_yt_playlist_info(playlist_id)["playlist_title"]
             except:
                 playlist_id = ""
                 playlist_title = ""
-            
+
             data = {
                 "channel_id": channel_id,
                 "channel_url": channel_url,
@@ -863,7 +884,7 @@ class YtCrawlerByfeeds():
                 "tag_list": tag_list,
                 "playlist_id": playlist_id,
                 "playlist_title": playlist_title,
-                "playlist_position": ""
+                "playlist_position": playlist_position
             }
             data_json.append(data)
             print(data)
@@ -924,7 +945,9 @@ class yt_CrawlerByScriptbarrel():
 
             try:
                 req_crawler = YoutubeRequestsCrawler()
-                playlist_id = req_crawler.get_yt_playlist(video_url,channel_name)
+                data = req_crawler.get_yt_playlist_with_video(video_url,channel_name)
+                playlist_id = data["playlist_id"]
+                playlist_position = data["playlist_position"]
                 playlist_title = req_crawler.get_yt_playlist_info(playlist_id)
             except:
                 playlist_id = ""
@@ -943,7 +966,7 @@ class yt_CrawlerByScriptbarrel():
                 "tag_list": tag_list,
                 "playlist_id": playlist_id,
                 "playlist_title": playlist_title,
-                "playlist_position": ""
+                "playlist_position": playlist_position
             }
             data_json.append(data)
 
@@ -953,6 +976,7 @@ class yt_CrawlerByScriptbarrel():
         return data_json
 
 class YtCrawlerInPlaylist():
+    # TODO: 善用 API
     def __init__(self):
         print("===YtCrawlerInPlaylist init ===")
 
