@@ -786,8 +786,9 @@ class YoutubeRequestsCrawler:
             resp = requests.get(query_url)
             data_soup = BeautifulSoup(resp.text, 'html.parser')
             data_soup_str = str(data_soup)
-            index_pattern = f'{video_id}.*index=(.*?)\"'
+            index_pattern = f'"videoId":"{video_id}","playlistId":"{playlist_id}","index":(.\d*).*'
             playlist_position = re.findall(index_pattern, data_soup_str)[0]
+            playlist_position = int(playlist_position) + 1
         else:
             playlist_position = ""
 
@@ -795,7 +796,7 @@ class YoutubeRequestsCrawler:
             "playlist_id": playlist_id,
             "playlist_position": playlist_position
         }
-        
+
         return data
     def get_yt_channel_info(self, channel_id):
         url = f"https://www.youtube.com/feeds/videos.xml?channel_id={channel_id}"
@@ -871,6 +872,7 @@ class YtCrawlerByfeeds():
             except:
                 playlist_id = ""
                 playlist_title = ""
+                playlist_position = ""
 
             data = {
                 "channel_id": channel_id,
@@ -953,6 +955,7 @@ class yt_CrawlerByScriptbarrel():
             except:
                 playlist_id = ""
                 playlist_title = ""
+                playlist_position = ""
 
             data = {
                 "channel_name":channel_name,
