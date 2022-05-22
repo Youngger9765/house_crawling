@@ -80,7 +80,6 @@ def crawl_by_notion(web_name):
 def crawl_LearnMode(url):
     from util.crawler import LearnModeCrawler
     _crawler = LearnModeCrawler()
-    url = "https://www.learnmode.net/course/472517/content"
     data = _crawler.fetch_data(url)
     data_json = _crawler.get_data_json(data)
     _crawler.save_file(data_json)
