@@ -138,6 +138,7 @@ class SeleniumCrawler:
     def login_to_LearnMode(self, email, pwd):
         browser = self.browser
         browser.get("https://www.learnmode.net/login")
+        sleep(3)
         user_selector = '.account-input-div input'
         user_element = browser.find_element(by=By.CSS_SELECTOR, value=user_selector)
         password_selector = '.password-input-div input'
@@ -1077,7 +1078,8 @@ class LearnModeCrawler(SeleniumCrawler):
         email = "purpleice9765@msn.com"
         pw = "learnmode9765"
         self.login_to_LearnMode(email, pw)
-        data_soup = self.fetch_url_data(url)  
+        data_soup = self.fetch_url_data(url)
+        self.quit_browser()
 
         return data_soup
 
@@ -1110,11 +1112,7 @@ class LearnModeCrawler(SeleniumCrawler):
                 link = link_ele.get_attribute("href")
                 link_list.append(link)
             content_link_list.append(link_list)
-        content_link_list
         del content_link_list[0]
-
-
-        num = len(chapter_name_list)
 
         content_data_soup_list = []
         for urls in content_link_list:
