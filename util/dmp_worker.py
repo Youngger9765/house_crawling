@@ -85,7 +85,8 @@ class DMP_schedule_worker:
         if dt_diff_hours == 24:
             for name in [customer_name, employee_name]:
                 try:
-                    msg = f"Hi {name}， \n"
+                    msg = " \n"
+                    msg += f"Hi {name}， \n"
                     msg += " \n"
                     msg += "提醒您明天要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！"
                     msg += " \n"
@@ -102,7 +103,8 @@ class DMP_schedule_worker:
         elif dt_diff_hours == 1:
             for name in [customer_name, employee_name]:
                 try:
-                    msg = f"Hi {name}， \n"
+                    msg = " \n"
+                    msg += f"Hi {name}， \n"
                     msg += " \n"
                     msg += "提醒您馬上要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！"
                     msg += " \n"
