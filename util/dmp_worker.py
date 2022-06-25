@@ -6,6 +6,7 @@ from util.notification import LineWorker
 
 class DMP_schedule_worker:
     def __init__(self):
+        self.tz = timezone(timedelta(hours=8))
         self.sheet_key = '1zmsEScm3fyDSPo0RgRsgsHsjIWAtmHgDp8nHJUP0ZNQ'
         self.appointments_tab_name = 'appointments'
         self.name_line_token_map = "name_line_token_map"
@@ -26,7 +27,7 @@ class DMP_schedule_worker:
         minute = int(datetime_tuple_list[5])
         d = date(year, month, day)
         t = time(hour, minute)
-        dt = datetime.combine(d, t)
+        dt = datetime.combine(d, t, tzinfo=self.tz)
         
         return dt
     
@@ -45,7 +46,7 @@ class DMP_schedule_worker:
         return dt_list
     
     def get_alive_row_index_list(self, schedule_datetime_list):
-        now = datetime.now()
+        now = datetime.now(tz=self.tz)
         available_row_index_list = []
         for i, v in enumerate(schedule_datetime_list):
             if v == '':
@@ -77,7 +78,7 @@ class DMP_schedule_worker:
         request_content = row_value[15]
 
         start_time_dt = self.get_dt(start_time)
-        now = datetime.now()
+        now = datetime.now(tz=self.tz)
         dt_diff_days = (start_time_dt - now).days
 
         # 一天前提醒
