@@ -79,27 +79,27 @@ class DMP_schedule_worker:
 
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
-        dt_diff_days = (start_time_dt - now).days
+        dt_diff_hours = int((start_time_dt - now).seconds/3600)
 
         # 一天前提醒
-        if dt_diff_days >= 1 and dt_diff_days < 2:
-            for name in [customer_name, employee_name]:
-                try:
-                    msg = f"Hi {name}， \n"
-                    msg += "這裡是 Dream More 小幫手 \n"
-                    msg += "預約上課提醒，建議設定鬧鈴及行事曆 \n"
-                    msg += "\n"
-                    msg += f"課堂： {service} \n"
-                    msg += f"時間： {start_time} \n"
-                    msg += f"需求： {request_content} \n"
-                    msg += f"Mentor: {employee_name} \n"
-                    msg += f"Mentee: {customer_name} \n"
-                    self.send_line_notification(name, msg) 
-                except:
-                    pass
+        # if dt_diff_days >= 1 and dt_diff_days < 2:
+        #     for name in [customer_name, employee_name]:
+        #         try:
+        #             msg = f"Hi {name}， \n"
+        #             msg += "這裡是 Dream More 小幫手 \n"
+        #             msg += "預約上課提醒，建議設定鬧鈴及行事曆 \n"
+        #             msg += "\n"
+        #             msg += f"課堂： {service} \n"
+        #             msg += f"時間： {start_time} \n"
+        #             msg += f"需求： {request_content} \n"
+        #             msg += f"Mentor: {employee_name} \n"
+        #             msg += f"Mentee: {customer_name} \n"
+        #             self.send_line_notification(name, msg) 
+        #         except:
+        #             pass
 
-        # 一天內提醒
-        elif dt_diff_days < 1:
+        # 六小時內提醒
+        if dt_diff_hours == 6:
             for name in [customer_name, employee_name]:
                 try:
                     msg = f"Hi {name}， \n"
