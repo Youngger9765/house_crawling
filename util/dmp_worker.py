@@ -86,7 +86,6 @@ class DMP_schedule_worker:
             for name in [customer_name, employee_name]:
                 try:
                     msg = f"Hi {name}， \n"
-                    msg += "【明日】預約上課提醒，建議設定鬧鈴及行事曆 \n"
                     msg += "提醒您明天要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！"
                     msg += "\n"
                     msg += f"課堂： {service} \n"
@@ -99,7 +98,7 @@ class DMP_schedule_worker:
                     pass
 
         # 1小時前提醒
-        if dt_diff_hours == 1:
+        elif dt_diff_hours == 1:
             for name in [customer_name, employee_name]:
                 try:
                     msg = f"Hi {name}， \n"
