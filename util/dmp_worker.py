@@ -86,8 +86,9 @@ class DMP_schedule_worker:
             for name in [customer_name, employee_name]:
                 try:
                     msg = f"Hi {name}， \n"
+                    msg += " \n"
                     msg += "提醒您明天要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！"
-                    msg += "\n"
+                    msg += " \n"
                     msg += f"課堂： {service} \n"
                     msg += f"時間： {start_time} \n"
                     msg += "上課連結： \n"
@@ -102,8 +103,9 @@ class DMP_schedule_worker:
             for name in [customer_name, employee_name]:
                 try:
                     msg = f"Hi {name}， \n"
+                    msg += " \n"
                     msg += "提醒您馬上要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！"
-                    msg += "\n"
+                    msg += " \n"
                     msg += f"課堂： {service} \n"
                     msg += f"時間： {start_time} \n"
                     msg += "上課連結： \n"
