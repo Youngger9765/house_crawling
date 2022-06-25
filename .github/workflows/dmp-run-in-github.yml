@@ -1,9 +1,9 @@
-name: Crawling
+name: dmp_scheduler_handler
 on:
   push:
   # pull_request:
   schedule:
-    - cron: '0 11 * * *'
+    - cron: '0 1 * * *'
 
 jobs:
   build:
@@ -29,18 +29,6 @@ jobs:
       with:
         name: "cred.json"
         json: ${{ secrets.SHEET_CRED }}
-    - name: create Notion_Secret json
-      id: create-notion-json
-      uses: jsdaniell/create-json@1.1.2
-      with:
-        name: "notion_secret.json"
-        json: ${{ secrets.Notion_Secret }}
-    - name: create fb_secret json
-      id: create-fb-json
-      uses: jsdaniell/create-json@1.1.2
-      with:
-        name: "fb_secret.json"
-        json: ${{ secrets.FB_SECRET }}
     - name: run crawling
       run: |
-        python main.py 
+        python dmp_scheduler_handler.py 
