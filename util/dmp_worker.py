@@ -79,7 +79,7 @@ class DMP_schedule_worker:
 
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
-        dt_diff_hours = math.ceil((start_time_dt - now).seconds/3600)
+        dt_diff_hours = math.ceil((start_time_dt - now).total_seconds()/3600)
 
         # 一天前提醒
         if dt_diff_hours == 24:
