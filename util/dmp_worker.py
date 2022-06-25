@@ -87,7 +87,10 @@ class DMP_schedule_worker:
                 try:
                     msg = f"""
                         Hi {name}，
-                        預約上課提醒
+
+                        這裡是 Dream More 小幫手
+                        預約上課提醒，建議設定鬧鈴及行事曆
+
                         課堂： {service}
                         時間： {start_time}
                         需求： {request_content}
@@ -104,7 +107,10 @@ class DMP_schedule_worker:
                 try:
                     msg = f"""
                         Hi {name}，
-                        今天上課提醒，請準時進入教室
+
+                        這裡是 Dream More 小幫手
+                        今天上課提醒，建議設定鬧鈴及行事曆，並準時進入教室，感謝你的配合
+
                         課堂： {service}
                         時間： {start_time}
                         需求： {request_content}
