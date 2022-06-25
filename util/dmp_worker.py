@@ -2,7 +2,7 @@ from util.gsheet_worker import GsheetWorker
 import re
 from datetime import datetime, date, time, timezone, timedelta
 from util.notification import LineWorker
-
+import math
 
 class DMP_schedule_worker:
     def __init__(self):
@@ -79,7 +79,7 @@ class DMP_schedule_worker:
 
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
-        dt_diff_hours = int((start_time_dt - now).seconds/3600)
+        dt_diff_hours = math.ceil((start_time_dt - now).seconds/3600)
 
         # 一天前提醒
         # if dt_diff_days >= 1 and dt_diff_days < 2:
