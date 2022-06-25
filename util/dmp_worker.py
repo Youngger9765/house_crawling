@@ -85,18 +85,15 @@ class DMP_schedule_worker:
         if dt_diff_days >= 1 and dt_diff_days < 2:
             for name in [customer_name, employee_name]:
                 try:
-                    msg = f"""
-                        Hi {name}，
-
-                        這裡是 Dream More 小幫手
-                        預約上課提醒，建議設定鬧鈴及行事曆
-
-                        課堂： {service}
-                        時間： {start_time}
-                        需求： {request_content}
-                        Mentor: {employee_name}
-                        Mentee: {customer_name}
-                    """
+                    msg = f"Hi {name}， \n"
+                    msg += "這裡是 Dream More 小幫手 \n"
+                    msg += "預約上課提醒，建議設定鬧鈴及行事曆 \n"
+                    msg += "\n"
+                    msg += f"課堂： {service} \n"
+                    msg += f"時間： {start_time} \n"
+                    msg += f"需求： {request_content} \n"
+                    msg += f"Mentor: {employee_name} \n"
+                    msg += f"Mentee: {customer_name} \n"
                     self.send_line_notification(name, msg) 
                 except:
                     pass
@@ -105,18 +102,15 @@ class DMP_schedule_worker:
         elif dt_diff_days < 1:
             for name in [customer_name, employee_name]:
                 try:
-                    msg = f"""
-                        Hi {name}，
-
-                        這裡是 Dream More 小幫手
-                        今天上課提醒，建議設定鬧鈴及行事曆，並準時進入教室，感謝你的配合
-
-                        課堂： {service}
-                        時間： {start_time}
-                        需求： {request_content}
-                        Mentor: {employee_name}
-                        Mentee: {customer_name}
-                    """
+                    msg = f"Hi {name}， \n"
+                    msg += "這裡是 Dream More 小幫手 \n"
+                    msg += "今天上課提醒，建議設定鬧鈴及行事曆，並準時進入教室，感謝你的配合 \n"
+                    msg += "\n"
+                    msg += f"課堂： {service} \n"
+                    msg += f"時間： {start_time} \n"
+                    msg += f"需求： {request_content} \n"
+                    msg += f"Mentor: {employee_name} \n"
+                    msg += f"Mentee: {customer_name} \n"
                     self.send_line_notification(name, msg)
                 except:
                     pass
