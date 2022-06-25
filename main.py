@@ -85,7 +85,7 @@ def crawl_LearnMode(url):
     _crawler.save_file(data_json)
     # print(data_json)
 
-def DMP_scheduler():
+def run_DMP_scheduler():
     worker = DMP_schedule_worker()
     schedule_datetime_list = worker.get_schedule_datetime_list()
     available_row_index_list = worker.get_alive_row_index_list(schedule_datetime_list)
@@ -108,7 +108,7 @@ def crawl_all(event,context):
 
     # crawl("YtApiCrawler")
     # crawl("YtCrawlerInPlaylist")
-    crawl("YtCrawlerByfeeds")
+    # crawl("YtCrawlerByfeeds")
     # crawl("yt_CrawlerByScriptbarrel")
     
 
@@ -117,7 +117,7 @@ def crawl_all(event,context):
 
     # crawl_LearnMode("https://www.learnmode.net/course/444076/content")
 
-    DMP_scheduler()
+    run_DMP_scheduler()
 
 
 if __name__ == "__main__":
