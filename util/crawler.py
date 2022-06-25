@@ -32,7 +32,6 @@ from facebook_scraper import get_group_info
 # https://github.com/ScriptSmith/socialreaper
 import socialreaper
 
-
 class CrawlerWorker():
     def __int__(self):
         pass
@@ -1072,7 +1071,7 @@ class YtCrawlerInPlaylist():
 
         return data_json
 
-class LearnModeCrawler(SeleniumCrawler):    
+class LearnModeCrawler(SeleniumCrawler):
     def __init__(self):
         print("===LearnModeCrawler init ===")
 

@@ -5,17 +5,18 @@ from util.notion_worker import NotionCrawlerHandler
 from util.notion_worker import NotionDataTransfer
 from util.crawler import CrawlerWorker
 from util.notification import LineWorker
+from util.dmp_worker import DMP_schedule_worker
 import json
 
 
 # Params
 def customer_list():
     c_list = [
-        # {
-        #     "name": "Young",
-        #     "sheet_key": "15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI",
-        #     "line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
-        # },
+        {
+            "name": "Young",
+            "sheet_key": "15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI",
+            "line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
+        },
         # {
         # 	"name": "小黑",
         # 	"sheet_key": "11O1ujc-in6iI9kwdQtFzjQ5OkQ5oP4aDZwhoH6p9tgY",
@@ -57,7 +58,6 @@ def crawl(web_name):
         except Exception as error:
             print(repr(error))
 
-
 def crawl_by_notion(web_name):
     # channel_url_list
     notion_crawler_handler = NotionCrawlerHandler()
@@ -85,6 +85,19 @@ def crawl_LearnMode(url):
     _crawler.save_file(data_json)
     # print(data_json)
 
+def DMP_scheduler():
+    worker = DMP_schedule_worker()
+    schedule_datetime_list = worker.get_schedule_datetime_list()
+    available_row_index_list = worker.get_alive_row_index_list(schedule_datetime_list)
+
+    for available_row_index in available_row_index_list:
+        row_value = worker.get_row_values(available_row_index)
+        status = row_value[13]
+        if '批准' in status:
+            worker.handle_scheduler_by_row_value(row_value)
+
+    
+
 def crawl_all(event,context):
     # crawl("leju")
     # crawl("591")
@@ -103,6 +116,8 @@ def crawl_all(event,context):
     # crawl_by_notion("notion-FB")
 
     # crawl_LearnMode("https://www.learnmode.net/course/444076/content")
+
+    DMP_scheduler()
 
 
 if __name__ == "__main__":
