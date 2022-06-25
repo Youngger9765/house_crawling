@@ -90,7 +90,7 @@ class DMP_schedule_worker:
                     msg += "\n"
                     msg += f"課堂： {service} \n"
                     msg += f"時間： {start_time} \n"
-                    msg += f"需求： {request_content} \n"
+                    msg += "上課連結： \n"
                     msg += f"Mentor: {employee_name} \n"
                     msg += f"Mentee: {customer_name} \n"
                     self.send_line_notification(name, msg) 
@@ -106,7 +106,7 @@ class DMP_schedule_worker:
                     msg += "\n"
                     msg += f"課堂： {service} \n"
                     msg += f"時間： {start_time} \n"
-                    msg += f"需求： {request_content} \n"
+                    msg += "上課連結： \n"
                     msg += f"Mentor: {employee_name} \n"
                     msg += f"Mentee: {customer_name} \n"
                     self.send_line_notification(name, msg)
