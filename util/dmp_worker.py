@@ -75,11 +75,9 @@ class DMP_schedule_worker:
         employee_name = row_value[4]
         service = row_value[5]
         start_time = row_value[6]
-        request_content = row_value[15]
-
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
-        dt_diff_hours = math.ceil((start_time_dt - now).total_seconds()/3600)
+        dt_diff_hours = int((start_time_dt - now).total_seconds()/3600)
 
         # 一天前提醒
         if dt_diff_hours == 24:
