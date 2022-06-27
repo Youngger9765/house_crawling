@@ -4,7 +4,7 @@ from util.dmp_worker import DMP_schedule_worker
 from util.notification import LineWorker
 
 def run_DMP_scheduler():
-    line_notify_token ＝"Fms2ZdnfAf2us7knLNEdfTpb0ABbLHhnDcRbmzz3DQC"
+    line_notify_token = "Fms2ZdnfAf2us7knLNEdfTpb0ABbLHhnDcRbmzz3DQC"
     line_worker = LineWorker(line_notify_token)
     # notify
     message = f"開始今日 DMP 預約爬蟲"
