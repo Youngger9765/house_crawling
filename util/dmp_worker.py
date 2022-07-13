@@ -124,7 +124,6 @@ class DMP_schedule_worker:
                         pass
 
     def send_line_notification(self, name, msg):
-        print(msg)
         line_notify_token = self.get_line_token_by_name(name)
         line_worker = LineWorker(line_notify_token)
-        # line_worker.send_notification(msg)
+        line_worker.send_notification(msg)
