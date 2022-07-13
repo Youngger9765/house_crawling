@@ -1,6 +1,6 @@
 name: dmp_scheduler_handler_tomorrow
 on:
-  push:
+  # push:
   # pull_request:
   schedule:
     - cron: '40 13 * * *'
