@@ -69,53 +69,62 @@ class DMP_schedule_worker:
                 line_token = name_line_token_map_sheet.row_values(i+1)[2]
         
         return line_token
-    
-    def handle_scheduler_by_row_value(self, row_value):
+
+    def get_data_by_sheet_row_value(self, row_value):
         customer_name = row_value[1]
         employee_name = row_value[4]
         service = row_value[5]
         start_time = row_value[6]
+
+        return customer_name, employee_name, service, start_time
+    
+    def handle_scheduler_by_row_value(self, row_value, scheduler_type):
+        customer_name, employee_name, service, start_time = self.get_data_by_sheet_row_value(row_value)
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
         dt_diff_hours = int((start_time_dt - now).total_seconds()/3600)
+        dt_diff_days = (start_time_dt - now).days
 
-        # 一天前提醒
-        if dt_diff_hours == 24:
-            for name in [customer_name, employee_name]:
-                try:
-                    msg = " \n"
-                    msg += f"Hi {name}， \n"
-                    msg += " \n"
-                    msg += "提醒您明天要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！ \n"
-                    msg += " \n"
-                    msg += f"課堂： {service} \n"
-                    msg += f"時間： {start_time} \n"
-                    # msg += "上課連結： \n"
-                    msg += f"Mentor: {employee_name} \n"
-                    msg += f"Mentee: {customer_name} \n"
-                    self.send_line_notification(name, msg) 
-                except:
-                    pass
-
-        # 1小時前提醒
-        elif dt_diff_hours == 1:
-            for name in [customer_name, employee_name]:
-                try:
-                    msg = " \n"
-                    msg += f"Hi {name}， \n"
-                    msg += " \n"
-                    msg += "提醒您馬上要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！ \n"
-                    msg += " \n"
-                    msg += f"課堂： {service} \n"
-                    msg += f"時間： {start_time} \n"
-                    # msg += "上課連結： \n"
-                    msg += f"Mentor: {employee_name} \n"
-                    msg += f"Mentee: {customer_name} \n"
-                    self.send_line_notification(name, msg)
-                except:
-                    pass
+        if scheduler_type == "daily":
+            # 1小時前提醒
+            if dt_diff_hours == 1:
+                for name in [customer_name, employee_name]:
+                    try:
+                        msg = " \n"
+                        msg += f"Hi {name}， \n"
+                        msg += " \n"
+                        msg += "提醒您馬上要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！ \n"
+                        msg += " \n"
+                        msg += f"課堂： {service} \n"
+                        msg += f"時間： {start_time} \n"
+                        # msg += "上課連結： \n"
+                        msg += f"Mentor: {employee_name} \n"
+                        msg += f"Mentee: {customer_name} \n"
+                        self.send_line_notification(name, msg)
+                    except:
+                        pass
         
+        elif scheduler_type == "tomorrow":
+            # 前一天提醒
+            if dt_diff_days == 1:
+                for name in [customer_name, employee_name]:
+                    try:
+                        msg = " \n"
+                        msg += f"Hi {name}， \n"
+                        msg += " \n"
+                        msg += "提醒您明天要上課了喔！建議設定鬧鈴及行事曆，並準時點擊連結進入教室，感謝您的配合！ \n"
+                        msg += " \n"
+                        msg += f"課堂： {service} \n"
+                        msg += f"時間： {start_time} \n"
+                        # msg += "上課連結： \n"
+                        msg += f"Mentor: {employee_name} \n"
+                        msg += f"Mentee: {customer_name} \n"
+                        self.send_line_notification(name, msg)
+                    except:
+                        pass
+
     def send_line_notification(self, name, msg):
+        print(msg)
         line_notify_token = self.get_line_token_by_name(name)
         line_worker = LineWorker(line_notify_token)
-        line_worker.send_notification(msg)
+        # line_worker.send_notification(msg)
