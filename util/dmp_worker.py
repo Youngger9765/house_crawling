@@ -83,12 +83,7 @@ class DMP_schedule_worker:
         start_time_dt = self.get_dt(start_time)
         now = datetime.now(tz=self.tz)
         dt_diff_hours = int((start_time_dt - now).total_seconds()/3600)
-        dt_diff_days = (start_time_dt - now).days
-
-        print(start_time_dt)
-        print(now)
-        print(dt_diff_days)
-        print("======")
+        dt_diff_days = (start_time_dt.date() - now.date()).days
 
         if scheduler_type == "daily":
             # 1小時前提醒
@@ -131,4 +126,4 @@ class DMP_schedule_worker:
     def send_line_notification(self, name, msg):
         line_notify_token = self.get_line_token_by_name(name)
         line_worker = LineWorker(line_notify_token)
-        # line_worker.send_notification(msg)
+        line_worker.send_notification(msg)
