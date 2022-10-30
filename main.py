@@ -14,11 +14,11 @@ def customer_list():
         #     "sheet_key": "15V1XD3p_mD8SSP_TQkY2PwYTM_FjOAXQXD1GuJcrpfI",
         #     "line_notify_token": "R7iIcVlcM4rBs0srfLtpea8bFrGhav3wBkX6V06of25"
         # },
-        {
-        	"name": "高晟",
-        	"sheet_key": "11O1ujc-in6iI9kwdQtFzjQ5OkQ5oP4aDZwhoH6p9tgY",
-        	"line_notify_token": "TABjG5hi1xyxu6MH9OU5rZULxPgYFlw5fb5QBkptK4z"
-        },
+        # {
+        # 	"name": "高晟",
+        # 	"sheet_key": "11O1ujc-in6iI9kwdQtFzjQ5OkQ5oP4aDZwhoH6p9tgY",
+        # 	"line_notify_token": "TABjG5hi1xyxu6MH9OU5rZULxPgYFlw5fb5QBkptK4z"
+        # },
         {
         	"name": "均一",
         	"sheet_key": "1RhuwrKqzVKE-R9L4phWQrTo7WRUl0hrkksP6UOZ4SPI",
@@ -84,7 +84,7 @@ def crawl_LearnMode(url):
 
 def crawl_all(event,context):
     # crawl("leju")
-    crawl("591")
+    # crawl("591")
     # crawl("fb")
     # crawl("fb-private")
     # crawl("fb_Crawler_by_facebook_scraper")
